@@ -68,7 +68,7 @@
           - Used C++,  CUDA, Pytorch, TensorRT.
 
     - title : Perception Researcher
-      institution : Artisense GmbH, Munich, Germany
+      institution: Artisense GmbH, Munich, Germany
       year : 2021 - 2022
       description : 
         - 3D recontruction on Monocular Images.
@@ -78,7 +78,7 @@
         - Used Pytorch.
         
     - title : Data Science Werkstudent
-      instituion : Dinext Pi-Sec GmbH, Saarbrucken, Germany
+      institution: Dinext Pi-Sec GmbH, Saarbrucken, Germany
       year : 2020-2021
       description : 
         - Worked with building PowerBI Dashboards for cybersecutiry.
@@ -86,14 +86,14 @@
         - Gave training on Machine Learning using KQL to several German clients.
 
     - title : Data Science Werkstudent
-      instituion : Sepago GmbH, Koln, Germany
+      institution: Sepago GmbH, Koln, Germany
       year : 2019-2020
       description : 
         - Machine Learning powered PowerBI dashboards for security analytics.
         - Helped in solving real-world on premise cyberattack through machine learning.
 
     - title : Data Scientist 
-      instituion : Netmonastery Pvt. Ltd., Mumbai, India
+      institution: Netmonastery Pvt. Ltd., Mumbai, India
       year : 2018-2019
       description : 
       - Developed Machine Learning Models for user behaviour analytics.
@@ -101,7 +101,7 @@
       - Used Python, Pytorch, RabbitMQ, Docker.
     
     - title : Data Science Intern 
-      instituion : Carnot Pvt Ltd.
+      institution: Carnot Pvt Ltd.
       year : 2017-2018
       description : 
       - Applying IoT powered Analytics on tractors to make farming efficient.
