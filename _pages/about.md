@@ -2,25 +2,31 @@
 layout: about
 title: about
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
+subtitle: Perception Engineer | Deep Learning | Robotics | Computer Vision
 
 profile:
   align: right
   image: prof_pic.jpg
-  image_circular: false # crops the image to make it circular
+  image_circular: true # crops the image to make it circular
   address: >
-    <p>555 your office number</p>
-    <p>123 your address street</p>
-    <p>Your City, State 12345</p>
+    <p>Schillerpromenade 1 D</p>
+    <p>Berlin, Germany 12459</p>
 
-news: true  # includes a list of news items
+news: false # includes a list of news items
 latest_posts: true  # includes a list of the newest posts
-selected_papers: true # includes a list of papers marked as "selected={true}"
+selected_papers: false # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+I am Sanket Shah, a passionate perception engineer based in Berlin, Germany. With a strong drive for innovation and a deep-rooted enthusiasm for GPU acceleration in AI, particularly in edge devices such as NVIDIA Orin, I am dedicated to pushing the boundaries of autonomous driving technology.
 
-Put your address / P.O. box / other info right below your picture. You can also disable any of these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
+Having completed my bachelor's degree in Computer Science from Mumbai University and a master's degree in Computer Science with a specialization in Computer Vision and Robotics from the University of Bonn, Germany, I have developed a solid foundation in cutting-edge technologies.
 
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](http://fortawesome.github.io/Font-Awesome/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+Currently, I contribute my expertise to MotorAI GmbH, an autonomous driving company at the forefront of the industry. In my role, I focus on the exciting realms of Monocular 3D Detection, Lidar-Camera-Radar Sensor Fusion-based 3D Detection, and Quantization. By harnessing the power of machine learning models and advanced techniques, I am actively involved in bridging the gap between research and production, ensuring that our autonomous vehicles operate seamlessly in real-world scenarios.
+
+Throughout my journey, I have cultivated proficiency in an array of programming languages and frameworks, including C++, Python, and CUDA. Leveraging my knowledge in NVIDIA's TensorRT, CUDA programming, and Driveworks (in Orin), I efficiently optimize machine learning models for deployment on edge devices, enabling robust and efficient AI-driven solutions.
+
+This platform serves as a curated collection of my work, where I showcase my contributions in deep learning, robotics, and computer vision. Join me as we delve into the exciting realm of GPU-accelerated AI, unraveling the potential of edge devices in revolutionizing autonomous driving technology.
+
+Feel free to explore my repositories, where you will find projects highlighting my expertise in GPU acceleration, monocular 3D detection, sensor fusion-based 3D detection, and more. I welcome inquiries and collaboration opportunities, so don't hesitate to reach out.
+
