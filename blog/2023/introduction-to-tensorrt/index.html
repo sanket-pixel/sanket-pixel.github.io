@@ -459,14 +459,16 @@ ONNX example visualization from netron
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_builder_config</span><span class="p">()</span>
 <span class="n">config</span><span class="p">.</span><span class="nf">set_memory_pool_limit</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">MemoryPoolType</span><span class="p">.</span><span class="n">WORKSPACE</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">22</span><span class="p">)</span> <span class="c1"># 1 MiB
-</span></code></pre></div></div>
-<p>We create a builder configuration object (<code class="language-plaintext highlighter-rouge">config</code>) that allows us to configure various settings. Here, we create a memory pool limit configuration, setting the workspace memory pool limit to 1 MiB (1 « 22).</p>
+</span><span class="n">config</span><span class="p">.</span><span class="nf">set_flag</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">BuilderFlag</span><span class="p">.</span><span class="n">FP16</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p>We create a builder configuration object (<code class="language-plaintext highlighter-rouge">config</code>) that allows us to configure various settings. Here, we create a memory pool limit configuration, setting the workspace memory pool limit to 1 MiB (1 « 22). The <code class="language-plaintext highlighter-rouge">config.set_flag(trt.BuilderFlag.FP16)</code> sets the quantization precision to <code class="language-plaintext highlighter-rouge">FP16</code>.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">build_serialized_network</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </code></pre></div></div>
 <p>Using the builder and configuration, we invoke <code class="language-plaintext highlighter-rouge">builder.build_serialized_network(network, config)</code> to build the TensorRT engine and obtain the serialized engine data.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">../deploy_tools/resnet50.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">wb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">../deploy_tools/resnet.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">wb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">f</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">serialized_engine</span><span class="p">)</span>
 </code></pre></div></div>
 <p>Finally, we open a file named “resnet50.engine” in binary write mode (<code class="language-plaintext highlighter-rouge">"wb"</code>) using a <code class="language-plaintext highlighter-rouge">with open</code> block. We write the serialized engine data to the file, saving the TensorRT engine for future inference.</p>
@@ -491,7 +493,8 @@ ONNX example visualization from netron
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_builder_config</span><span class="p">()</span>
 <span class="n">config</span><span class="p">.</span><span class="nf">set_memory_pool_limit</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">MemoryPoolType</span><span class="p">.</span><span class="n">WORKSPACE</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">22</span><span class="p">)</span> <span class="c1"># 1 MiB
-</span>
+</span><span class="n">config</span><span class="p">.</span><span class="nf">set_flag</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">BuilderFlag</span><span class="p">.</span><span class="n">FP16</span><span class="p">)</span>
+
 <span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">build_serialized_network</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
 <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">../deploy_tools/resnet50.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">wb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
