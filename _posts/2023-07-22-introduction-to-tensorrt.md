@@ -3,21 +3,67 @@ layout: post
 title: Have you met TensorRT?
 date: 2023-07-12 15:53:00-0400
 description: Introduction to TensorRT in python.
-thumbnail : /assets/img/blog/blog_1/post-1-1.jpg
-categories: sample-posts blockquotes
-tag : [nvidia, tensorrt]
+thumbnail : /assets/img/blog/blog_1/main_photo.jpg
+categories: edge-ai
+tag : [nvidia, tensorrt, deep-learning]
 giscus_comments: true
 related_posts: true
 ---
 <div class="row">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.html path="/assets/img/blog/blog_1/post-1-1.jpg" title="have you met" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_1/main_photo.jpg" title="have you met" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
     Have you met TensorRT?
 </div>
-**Welcome to our blog, where we explore the fascinating world of TensorRT—a powerful tool that unleashes unparalleled speed and efficiency in AI. In this first part, we'll take a glimpse into the extraordinary capabilities of TensorRT and its impact on deep learning. Imagine a magical optimization framework that enhances AI models, enabling them to process data at lightning speed without compromising accuracy. It's like giving AI a boost of superpowers, making it faster, smarter, and more efficient. Join us on this captivating journey as we uncover the wonders of TensorRT and its potential to revolutionize the field of artificial intelligence.**
+
+##### Welcome to our blog, where we explore the fascinating world of TensorRT—a powerful tool that unleashes unparalleled speed and efficiency in AI. In this first part, we'll take a glimpse into the extraordinary capabilities of TensorRT and its impact on deep learning. Imagine a magical optimization framework that enhances AI models, enabling them to process data at lightning speed without compromising accuracy. It's like giving AI a boost of superpowers, making it faster, smarter, and more efficient. Join us on this captivating journey as we uncover the wonders of TensorRT and its potential to revolutionize the field of artificial intelligence.
+
+<br> 
+
+### Source from Github
+For those interested in exploring the code and gaining a deeper understanding of the concepts discussed in this blog on TensorRT and image classification, you can find the complete source code in the corresponding GitHub repository. The repository link is [this](https://github.com/sanket-pixel/tensorrt_deeploy).
+, which houses an array of edge AI blogs and their source code for further exploration.
+
+In particular, the source code for this specific blog, covering the fundamentals of TensorRT, image classification with PyTorch, ONNX conversion, TensorRT engine generation, and inference speedup measurement, is available in the notebook found [here](https://github.com/sanket-pixel/tensorrt_deeploy/blob/main/1_fundamentals/python/1_fundamentals.ipynb). By delving into this notebook, you can follow along with the step-by-step implementations and gain hands-on experience in harnessing the power of TensorRT for edge AI applications. Happy coding and exploring the realms of accelerated AI with PyTorch and TensorRT!
+
+<br> 
+
+### Pre-requisites and Installation
+##### 1. Hardware requirements
+- NVIDIA GPU
+
+##### 2. Software requirements
+- Ubuntu >= 18.04
+- Python >= 3.8
+
+##### 3. Installation Guide 
+1. Create conda environment and install required python packages.
+```
+conda create -n trt python=3.8
+conda activate trt
+pip install -r requirements.txt
+```
+
+2. Install TensorRT 
+Install TensorRT:
+
+- Download and install NVIDIA CUDA 11.4 or later following the official instructions: [link](https://developer.nvidia.com/cuda-toolkit-archive)
+
+- Download and extract CuDNN library for your CUDA version (>8.9.0) from: [link](https://developer.nvidia.com/cudnn)
+
+- Download and extract NVIDIA TensorRT library for your CUDA version from: [link](https://developer.nvidia.com/nvidia-tensorrt-8x-download). Minimum required version is 8.5. Follow the Installation Guide for your system and ensure Python's part is installed.
+
+- Add the absolute path to CUDA, TensorRT, and CuDNN libs to the environment variable PATH or LD_LIBRARY_PATH.
+
+- Install PyCUDA:
+```
+pip install pycuda
+```
+<br> 
+
+### Introduction
 
 TensorRT is an optimization framework designed to accelerate AI inference, making it faster and more efficient. Think of it as a performance booster for AI models, enhancing their capabilities without compromising accuracy. Imagine you have a collection of handwritten letters, each representing a unique story. You wish to organize and analyze these letters, but they are scattered and unstructured. That's when you bring in a talented editor who transforms these letters into a beautifully composed novel, ready to be read and understood. 
 
@@ -27,7 +73,9 @@ In our upcoming blog posts, we will take you on a journey where we explore pract
 
 So, without further ado, let's dive into the realm of TensorRT and witness firsthand the transformative power it holds in the field of artificial intelligence.
 
-#### Step 1 :  Hotdog Classification Using Pure Pytorch
+<br> 
+
+### Step 1 :  Hotdog Classification Using Pure Pytorch
 
 Now that we have familiarized ourselves with the wonders of TensorRT, let's dive into a practical example to witness its impact firsthand. Imagine a scenario where we want to classify images of different objects, specifically determining whether an image contains a hotdog or not. To tackle this deliciously challenging task, we will leverage a pretrained PyTorch model based on ResNet architecture, which has been trained on the vast and diverse ImageNet dataset.
 
@@ -116,7 +164,9 @@ This output represents the classification result of the input image (in this cas
 
 In simpler terms, the model has successfully recognized the image as a hotdog with a relatively high level of confidence. This showcases the capability of the ResNet-50 model to accurately classify objects in images, making it a valuable tool for various computer vision tasks.
 
-#### Step 2: PyTorch to ONNX Conversion
+<br> 
+
+### Step 2: PyTorch to ONNX Conversion
 In the previous section, we successfully built and utilized a PyTorch model for hotdog classification. Now, let's take a step further and optimize the inference performance using TensorRT. In this section, we will explore the process of converting a PyTorch model to into a TensorRT engine.
 
 To convert our PyTorch model to a TensorRT engine, we'll follow a two-step process that involves the intermediate conversion to the ONNX format. This allows us to seamlessly integrate PyTorch and TensorRT, unlocking the benefits of accelerated inference.
@@ -164,14 +214,20 @@ Use Netron to gain insights into the architecture and operations of your ONNX mo
 
 Here is an example of how the onnx model visualization looks like in Netron :
 
-<div style="text-align: center;">
-<img src="{{site.baseurl}}/assets/images/blog/post-1-2.png" alt="ONNX Netron" > <br>
-Figure 1. ONNX example visualization from Netro
+
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_1/onnx.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+ONNX example visualization from netron
 </div>
 
+<br> 
 
 
-#### Step 3 : Building TensorRT Engine from ONNX
+### Step 3 : Building TensorRT Engine from ONNX
 
 Now that we have successfully converted our PyTorch model to the ONNX format, it's time to take the next step towards unleashing the power of TensorRT.
 
@@ -264,7 +320,10 @@ with open("../deploy_tools/resnet50.engine", "wb") as f:
     f.write(serialized_engine)
 ```
 
-#### Step 4 : Performing Inference on TensorRT Engine
+<br> 
+
+
+### Step 4 : Performing Inference on TensorRT Engine
 
 Performing inference using the TensorRT engine is a breeze! We start by loading the serialized engine, which contains all the optimizations applied by TensorRT to our deep learning model. With the engine and execution context set up, we prepare input and output buffers that will hold the data for classification and predictions. The magic lies in TensorRT's ability to work with GPU memory, tapping into the parallel processing power of the GPU for lightning-fast inference.
 
@@ -282,51 +341,51 @@ engine = runtime.deserialize_cuda_engine(serialized_engine)
 context = engine.create_execution_context()
 ```
 
-In this part of the code, we start by loading the pre-built TensorRT engine from the file "resnet.engine" using a file stream. The engine's serialized data is read as binary and stored in the variable serialized_engine. Next, we use the TensorRT runtime library to deserialize this binary data into a usable engine, which is then stored in the engine variable. The engine object represents our highly optimized deep learning model tailored for execution on NVIDIA GPUs. We create an execution context named context, which allows us to interact with the engine and perform inference.
+In this part of the code, we start by loading the pre-built TensorRT engine from the file `resnet.engine` using a file stream. The engine's serialized data is read as binary and stored in the variable `serialized_engine`. Next, we use the TensorRT runtime library to deserialize this binary data into a usable engine using `deserialize_cuda_engine()` function, which is then stored in the `engine` variable. The `Engine` object represents our highly optimized deep learning model tailored for execution on NVIDIA GPUs. We create an execution context named `context`, which allows us to interact with the engine and perform inference.
 
 ```python
 # Determine dimensions and create page-locked memory buffers for host inputs/outputs
 h_input = cuda.pagelocked_empty(trt.volume(engine.get_binding_shape(0)), dtype=np.float32)
 h_output = cuda.pagelocked_empty(trt.volume(engine.get_binding_shape(1)), dtype=np.float32)
 ```
-In this section, we determine the dimensions of the input and output bindings required by the TensorRT engine. The engine.get_binding_shape(0) returns the shape (dimensions) of the input binding, and engine.get_binding_shape(1) returns the shape of the output binding. We use cuda.pagelocked_empty to create page-locked (pinned) memory buffers on the host (CPU) to hold the input and output data. Page-locked memory ensures that data transfers between the host (CPU) and the device (GPU) are efficient and do not involve memory swapping.
+In this section, we determine the dimensions of the input and output bindings required by the TensorRT engine. The `engine.get_binding_shape(0)` returns the shape (dimensions) of the input binding, and `engine.get_binding_shape(1)` returns the shape of the output binding. In general, the input and output  bindings are stored serially. This implies that if there are multiple inputs are outputs, their shapes can be accessed using their resepctive indices in the bindings. For example, if we had 2 inputs and 1 output, the first two inputs will have indices `(0)` and `(1)`, while the output will have index `(2)`. We use `cuda.pagelocked_empty()` to create page-locked (pinned) memory buffers on the host (CPU) to hold the input and output data. Page-locked memory ensures that data transfers between the host (CPU) and the device (GPU) are efficient and do not involve memory swapping.
 
 ```python
 # Allocate device memory for inputs and outputs.
 d_input = cuda.mem_alloc(h_input.nbytes)
 d_output = cuda.mem_alloc(h_output.nbytes)
 ```
-In this part, we allocate device memory on the GPU for storing the input and output data during inference. The size of the memory buffers is determined by the size of the page-locked memory buffers h_input and h_output that we created earlier.
+In this part, we allocate device memory on the GPU for storing the input and output data during inference using `cuda.mem_alloc()` function. The size of the memory buffers is determined by the size of the page-locked memory buffers `h_input` and `h_output` that we created earlier.
 
 ```python
 # Create a CUDA stream to perform asynchronous memory transfers and execution
 stream = cuda.Stream()
 ```
-Here, we create a CUDA stream named stream, which allows us to perform asynchronous memory transfers and inference execution on the GPU. Asynchronous execution helps overlap data transfers and computations, improving overall performance.
+Here, we create a CUDA stream named `stream`, which allows us to perform asynchronous memory transfers and inference execution on the GPU. Asynchronous execution helps overlap data transfers and computations, improving overall performance.
 ```python
 # Preprocess the input image and transfer it to the GPU.
 host_input = np.array(preprocess_image("../data/hotdog.jpg").numpy(), dtype=np.float32, order='C')
 cuda.memcpy_htod_async(d_input, host_input, stream)
 ```
-In this part, we preprocess the input image, which in this case is "hotdog.jpg," to prepare it for inference. The image is converted to a NumPy array and set to dtype np.float32, which matches the data type expected by the TensorRT engine. The preprocess_image function is used to perform any necessary transformations or normalization specific to the model's input requirements. The preprocessed input image is then asynchronously transferred from the host (CPU) to the device (GPU) memory using cuda.memcpy_htod_async.
+In this part, we preprocess the input image, which in this case is `hotdog.jpg` to prepare it for inference. The image is converted to a NumPy array and set to dtype np.float32, which matches the data type expected by the TensorRT engine. The `preprocess_image` function is used to perform any necessary transformations or normalization specific to the model's input requirements. The preprocessed input image is then asynchronously transferred from the host (CPU) to the device (GPU) memory using `cuda.memcpy_htod_async()`.
 
 ```python
 # Run inference on the TensorRT engine.
 context.execute_async_v2(bindings=[int(d_input), int(d_output)], stream_handle=stream.handle)
 ```
-Here, we execute the inference on the TensorRT engine using the execution context context. We pass the input and output bindings to the engine using the bindings parameter, which is a list containing the device memory addresses of the input and output data. The stream_handle parameter ensures that the inference runs asynchronously on the GPU.
+Here, we execute the inference on the TensorRT engine using the execution context's `execute_async_v2()` function. We pass the input and output bindings to the engine using the bindings parameter, which is a list containing the device memory addresses of the input and output data. The stream_handle parameter ensures that the inference runs asynchronously on the GPU.
 
 ```python
 # Transfer predictions back from the GPU to the CPU.
 cuda.memcpy_dtoh_async(h_output, d_output, stream)
 ```
-After the inference is complete, the output predictions reside in the device (GPU) memory. We use cuda.memcpy_dtoh_async to transfer the predictions from the GPU to the host (CPU) memory in an asynchronous manner.
+After the inference is complete, the output predictions reside in the device (GPU) memory. We use `cuda.memcpy_dtoh_async()` to transfer the predictions from the GPU to the host (CPU) memory in an asynchronous manner.
 
 ```python
 # Synchronize the stream to wait for the inference to finish.
 stream.synchronize()
 ```
-Before accessing the output predictions on the CPU, we synchronize the CUDA stream using stream.synchronize(). This ensures that all GPU computations and data transfers are complete before we proceed to post-process the predictions.
+Before accessing the output predictions on the CPU, we synchronize the CUDA stream using `stream.synchronize()`. This ensures that all GPU computations and data transfers are complete before we proceed to post-process the predictions.
 
 ```python
 # Convert the output data to a Torch tensor and perform post-processing.
@@ -334,7 +393,7 @@ tensorrt_output = torch.Tensor(h_output).unsqueeze(0)
 postprocess(tensorrt_output)
 ```
 
-Finally, we convert the output predictions from the host (CPU) memory, which are stored in the h_output buffer, into a Torch tensor. The unsqueeze(0) operation is used to add a batch dimension to the tensor if required. The Torch tensor output_data now contains the final predictions obtained from the TensorRT engine. Depending on the specific task, we can perform further post-processing using the postprocess function to interpret the results and present them in a human-readable format.
+Finally, we convert the output predictions from the host (CPU) memory, which are stored in the h_output buffer, into a Torch tensor. The `unsqueeze(0)` operation is used to add a batch dimension to the tensor if required. The Torch tensor output_data now contains the final predictions obtained from the TensorRT engine. Depending on the specific task, we can perform further post-processing using the postprocess function to interpret the results and present them in a human-readable format.
 
 Putting it all together, the inference on TensorRT engine script looks like this 
 
@@ -374,9 +433,14 @@ postprocess(tensorrt_output)
 
 With this, the inference process using the TensorRT engine is complete. The optimized engine takes advantage of GPU acceleration and sophisticated optimizations to deliver rapid and efficient predictions for our image classification model.
 
-#### Time to Retrospect
+<br> 
 
-As we draw the curtains on our exploration of PyTorch and TensorRT in the world of image classification, it's time to reflect on the intriguing findings of our journey. One crucial aspect of this quest was comparing the output values obtained from both PyTorch and TensorRT after quantization. With a keen eye for accuracy, we meticulously scrutinized the outputs to measure any discrepancies introduced during the optimization process. Our quest for precision revealed that while quantization and optimization indeed caused minute deviations in the output values, these variations were negligible and well within acceptable limits. Thus, we could confidently establish the compatibility and reliability of TensorRT's quantization process in preserving the essence of our image classification task.
+### Time to Retrospect
+<br> 
+
+#### Consistency Validation
+
+As we draw the curtains on our exploration of PyTorch and TensorRT in the world of image classification, it's time to reflect on the intriguing findings of our journey. One crucial aspect of this quest was comparing the output values obtained from both PyTorch and TensorRT after quantization. With a keen eye for accuracy, we scrutinized the outputs to measure any discrepancies introduced during the optimization process. Our quest for precision revealed that while quantization and optimization indeed caused minute deviations in the output values, these variations were negligible and well within acceptable limits. Thus, we could confidently establish the compatibility and reliability of TensorRT's quantization process in preserving the essence of our image classification task.
 
 ```python
 # Calculate MAE between pure torch output and TensorRT inference output
@@ -384,3 +448,135 @@ mae = torch.mean(torch.abs(output.cpu() - tensorrt_output))
 print("MAE:", mae.item())
 ```
 
+The output of this block of code looks would look something like :
+
+`MAE: 0.00590712483972311`
+
+The Mean Absolute Error between torch `ouput` and `tensorrt_output` is tending towards zero which indicates that even the post quantization results are similar ( if not equal ) to the pure pytorch output. 
+
+<br> 
+
+#### Latency Measurement
+
+In this analysis, we are focused on comparing the inference speed between pure PyTorch and TensorRT. To achieve this, we run each inference method for multiple iterations and measure the time it takes to process a single input image. By doing so, we gain valuable insights into the real-world performance of both approaches.
+
+For the pure PyTorch inference, we employ a pre-trained ResNet model and run the image classification task multiple times, recording the time taken to process each image. The average latency is then calculated over the specified number of iterations. On the other hand, for the TensorRT inference, we have optimized the same ResNet model using TensorRT and leveraged GPU acceleration to further speed up the inference process. Once again, we run the image classification task multiple times and calculate the average latency.
+
+By comparing the average latencies of both methods, we can quantitatively gauge the speedup offered by TensorRT over pure PyTorch. This performance analysis provides a clear picture of the benefits that TensorRT's optimization and GPU acceleration bring to the table, paving the way for more efficient and rapid deployment of deep learning models in real-world applications. With these results in hand, we can confidently choose the best inference approach tailored to our specific needs, whether it's maximum accuracy with PyTorch or lightning-fast performance with TensorRT. 
+
+Here is the script to measure latency of pure torch inference. 
+
+```python
+# Pure torch latency measurement 
+import time
+
+# Pure PyTorch Inference
+def pytorch_inference(model, input):
+    start_time = time.time()
+    output = model(input)
+    end_time = time.time()
+    return output, (end_time - start_time)
+
+# Number of iterations
+num_iterations = 10
+
+# Run Pure PyTorch Inference for 1000 iterations
+total_pytorch_latency = 0
+for i in range(num_iterations):
+    with torch.no_grad():
+        output, latency = pytorch_inference(model, input)
+        total_pytorch_latency += latency
+average_pytorch_latency = (total_pytorch_latency / num_iterations) * 1000
+torch.cuda.empty_cache()
+```
+
+And, now let us look at how to measure inference speedup offered by TensorRT engine.
+
+```python
+# TensorRT latency measurement 
+import time
+import torch
+
+# TensorRT FP16 Inference
+def tensorrt_inference(context, d_input, d_output, host_input):
+    start_time = time.time()
+    cuda.memcpy_htod_async(d_input, host_input, stream)
+    context.execute_async_v2(bindings=[int(d_input), int(d_output)], stream_handle=stream.handle)
+    cuda.memcpy_dtoh_async(h_output, d_output, stream)
+    stream.synchronize()
+    tensorrt_output = torch.Tensor(h_output).unsqueeze(0)
+    end_time = time.time()
+    return tensorrt_output, (end_time - start_time)
+
+# Number of iterations
+num_iterations = 10
+
+# Run TensorRT FP16 Inference for 1000 iterations
+total_tensorrt_latency = 0
+for _ in range(num_iterations):
+    with torch.no_grad():
+        tensorrt_output, latency = tensorrt_inference(context, d_input, d_output, host_input)
+        total_tensorrt_latency += latency
+average_tensorrt_latency = (total_tensorrt_latency / num_iterations) * 1000
+
+```
+
+Now, let's visualize the comparison of inference latencies between pure PyTorch and TensorRT using a bar chart.
+```python
+from matplotlib import pyplot as plt
+
+latencies = [average_pytorch_latency, average_tensorrt_latency]
+labels = ['Pure PyTorch', 'TensorRT']
+
+# Create a bar chart
+plt.bar(labels, latencies, color=['blue', 'green'])
+
+# Add labels and title
+plt.xlabel('Inference Method')
+plt.ylabel('Average Latency (ms)')
+plt.title('Comparison of Latency: Pure PyTorch vs. TensorRT')
+
+# Show the plot
+plt.show()
+```
+
+We have collected the average latencies for both methods and stored them in the latencies list, while the corresponding method names, `Pure PyTorch` and `TensorRT`, are in the labels list.
+
+Using the `matplotlib.pyplot.bar()` function, we create a bar chart where each bar represents one of the inference methods. The height of each bar corresponds to the average latency of that method, measured in milliseconds. We have assigned distinct colors, 'blue' for pure PyTorch and 'green' for TensorRT, making it easy to visually differentiate between the two.
+
+The output plot would look as follows :
+
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_1/latency_compare.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+    Latency comparison between Pure Torch and TensorRT inference.
+</div>
+
+
+In the bar chart, we have two bars representing the inference methods: 'Pure PyTorch' and 'TensorRT.' The height of each bar represents the average latency measured in milliseconds for each method. The average torch latency is approximately `5.50 ms`, while the average tensorrt latency is approximately `1.48 ms`.
+
+The significant disparity between the two bars immediately catches our attention. The 'TensorRT' bar is remarkably shorter than the 'Pure PyTorch' bar, indicating that TensorRT outperforms PyTorch in terms of inference speed. The speedup offered by TensorRT can be calculated as the ratio of the average torch latency to the average tensorrt latency:
+
+```
+Speedup = Average Torch Latency / Average TensorRT Latency
+Speedup = 5.50 ms / 1.48 ms ≈ 3.71
+```
+
+This means that TensorRT achieves an impressive speedup of approximately **`3.71 times`** faster than pure PyTorch. Such a significant improvement in inference speed can have a profound impact on real-world applications, enabling faster response times and enhancing overall system efficiency.
+
+<br> 
+
+
+### Conclusion
+In conclusion, our journey through image classification using PyTorch and TensorRT has been an enlightening experience. We witnessed the power of PyTorch in providing accurate and reliable classification results. However, the real revelation came when we optimized the model using TensorRT.
+
+TensorRT's quantization and GPU acceleration brought remarkable benefits to the table. We observed a negligible error in the output values after quantization, ensuring the preservation of accuracy. The speedup comparison was awe-inspiring, with TensorRT demonstrating its prowess by achieving a speedup of approximately 3.71 times faster than pure PyTorch.
+
+This performance boost provided by TensorRT opens up new avenues for deploying deep learning models in real-time applications where speed and efficiency are crucial. With PyTorch for precision and TensorRT for optimization, we are equipped to tackle diverse AI challenges with unmatched accuracy and exceptional speed.
+
+As we conclude this journey, we stand confident in embracing the synergistic power of PyTorch and TensorRT, paving the way for transformative advancements in the world of AI and deep learning. The road ahead beckons, and we look forward to applying these invaluable insights to usher in a new era of intelligent applications and cutting-edge innovations.
+
+In the upcoming part of the blog, we will delve into the world of C++ and explore how to build the TensorRT engine and perform inference for the same image classification model. Transitioning from Python to C++ empowers us with the potential to deploy our optimized models in production environments with even greater efficiency. We will witness firsthand the seamless integration of TensorRT's powerful optimizations and GPU acceleration with C++ code, unlocking the full potential of our deep learning model in high-performance applications. Get ready to embark on the next phase of our exciting journey into the realm of C++ and TensorRT!
