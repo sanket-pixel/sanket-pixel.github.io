@@ -6,7 +6,7 @@ description: Introduction to TensorRT in python.
 thumbnail : /assets/img/blog/blog_1/main_photo.jpg
 categories: edge-ai
 tag : [nvidia, tensorrt, deep-learning]
-giscus_comments: true
+giscus_comments: false
 related_posts: true
 ---
 <div class="row">
