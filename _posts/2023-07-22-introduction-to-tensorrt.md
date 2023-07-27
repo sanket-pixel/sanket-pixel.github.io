@@ -275,8 +275,10 @@ We create an ONNX parser object (`parser`) associated with the network and logge
 ```python
 config = builder.create_builder_config()
 config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 22) # 1 MiB
+config.set_flag(trt.BuilderFlag.FP16)
+
 ```
-We create a builder configuration object (`config`) that allows us to configure various settings. Here, we create a memory pool limit configuration, setting the workspace memory pool limit to 1 MiB (1 << 22).
+We create a builder configuration object (`config`) that allows us to configure various settings. Here, we create a memory pool limit configuration, setting the workspace memory pool limit to 1 MiB (1 << 22). The `config.set_flag(trt.BuilderFlag.FP16)` sets the quantization precision to `FP16`.
 
 ```python
 serialized_engine = builder.build_serialized_network(network, config)
@@ -284,7 +286,7 @@ serialized_engine = builder.build_serialized_network(network, config)
 Using the builder and configuration, we invoke `builder.build_serialized_network(network, config)` to build the TensorRT engine and obtain the serialized engine data.
 
 ```python
-with open("../deploy_tools/resnet50.engine", "wb") as f:
+with open("../deploy_tools/resnet.engine", "wb") as f:
     f.write(serialized_engine)
 ```
 Finally, we open a file named "resnet50.engine" in binary write mode (`"wb"`) using a `with open` block. We write the serialized engine data to the file, saving the TensorRT engine for future inference.
@@ -310,6 +312,7 @@ for idx in range(parser.num_errors):
 
 config = builder.create_builder_config()
 config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 22) # 1 MiB
+config.set_flag(trt.BuilderFlag.FP16)
 
 serialized_engine = builder.build_serialized_network(network, config)
 
