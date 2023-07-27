@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2023-07-26T17:20:05+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Have you met TensorRT?</title><link href="https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt/" rel="alternate" type="text/html" title="Have you met TensorRT?" /><published>2023-07-12T19:53:00+00:00</published><updated>2023-07-12T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt/"><![CDATA[<div class="row">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2023-07-27T15:07:21+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Have you met TensorRT?</title><link href="https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt/" rel="alternate" type="text/html" title="Have you met TensorRT?" /><published>2023-07-12T19:53:00+00:00</published><updated>2023-07-12T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/introduction-to-tensorrt/"><![CDATA[<div class="row">
     <div class="col-sm mt-3 mt-md-0">
         <figure>
 
@@ -603,4 +603,56 @@ Speedup = 5.50 ms / 1.48 ms ≈ 3.71
 
 <p>As we conclude this journey, we stand confident in embracing the synergistic power of PyTorch and TensorRT, paving the way for transformative advancements in the world of AI and deep learning. The road ahead beckons, and we look forward to applying these invaluable insights to usher in a new era of intelligent applications and cutting-edge innovations.</p>
 
-<p>In the upcoming part of the blog, we will delve into the world of C++ and explore how to build the TensorRT engine and perform inference for the same image classification model. Transitioning from Python to C++ empowers us with the potential to deploy our optimized models in production environments with even greater efficiency. We will witness firsthand the seamless integration of TensorRT’s powerful optimizations and GPU acceleration with C++ code, unlocking the full potential of our deep learning model in high-performance applications. Get ready to embark on the next phase of our exciting journey into the realm of C++ and TensorRT!</p>]]></content><author><name></name></author><category term="edge-ai" /><category term="nvidia" /><category term="tensorrt" /><category term="deep-learning" /><summary type="html"><![CDATA[Introduction to TensorRT in python.]]></summary></entry></feed>
+<p>In the upcoming part of the blog, we will delve into the world of C++ and explore how to build the TensorRT engine and perform inference for the same image classification model. Transitioning from Python to C++ empowers us with the potential to deploy our optimized models in production environments with even greater efficiency. We will witness firsthand the seamless integration of TensorRT’s powerful optimizations and GPU acceleration with C++ code, unlocking the full potential of our deep learning model in high-performance applications. Get ready to embark on the next phase of our exciting journey into the realm of C++ and TensorRT!</p>]]></content><author><name></name></author><category term="edge-ai" /><category term="nvidia" /><category term="tensorrt" /><category term="deep-learning" /><summary type="html"><![CDATA[Introduction to TensorRT in python.]]></summary></entry><entry><title type="html">CUDA-ify Your Point Clouds</title><link href="https://sanket-pixel.github.io//blog/2023/cudaify-your-point-clouds/" rel="alternate" type="text/html" title="CUDA-ify Your Point Clouds" /><published>2023-07-12T19:53:00+00:00</published><updated>2023-07-12T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/cudaify-your-point-clouds</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/cudaify-your-point-clouds/"><![CDATA[<!-- <div class="row">
+    <div class="col-sm mt-3 mt-md-0">
+        <figure>
+
+  <picture>
+    
+    <source 
+        class="responsive-img-srcset"
+        media="(max-width: 480px)" 
+        srcset="/assets/img/blog/blog_2/voxelize-480.webp"
+      />
+    <source 
+        class="responsive-img-srcset"
+        media="(max-width: 800px)" 
+        srcset="/assets/img/blog/blog_2/voxelize-800.webp"
+      />
+    <source 
+        class="responsive-img-srcset"
+        media="(max-width: 1400px)" 
+        srcset="/assets/img/blog/blog_2/voxelize-1400.webp"
+      />
+    
+
+    <!-- Fallback to the original file -->
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;img 
+  src="/assets/img/blog/blog_2/voxelize.png"
+  class="img-fluid rounded z-depth-1"  
+  width="auto" 
+  height="auto" 
+   
+   
+   
+   
+   
+  title="have you met" 
+  
+  onerror="this.onerror=null; $('.responsive-img-srcset').remove();"
+/&gt;
+</code></pre></div></div>
+
+<p>&lt;/picture&gt;</p>
+
+<p>&lt;/figure&gt;</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;/div&gt;
+</code></pre></div></div>
+<p>&lt;/div&gt;</p>
+<div class="caption">
+  CUDA-ify Your Point Clouds: Lightning-fast Voxelization!
+</div>
+<p>–&gt;</p>
+
+<h4 id="experience-the-exhilarating-world-of-cuda-programming-as-we-revolutionize-point-cloud-processing-in-computer-vision-and-robotics-voxelization-the-process-of-converting-3d-points-into-discrete-voxels-has-faced-challenges-with-traditional-cpu-based-methods-limiting-groundbreaking-innovations-but-fear-not-as-we-harness-the-immense-power-of-parallelization-for-a-monumental-leap-in-processing-speed-dive-into-cudas-awe-inspiring-realm-where-each-point-gets-its-own-thread-enabling-lightning-fast-voxelization-and-opening-the-doors-to-real-time-applications-join-us-on-this-thrilling-ride-and-witness-the-magic-of-cuda-as-we-rewrite-the-future-of-point-cloud-processing-lets-embrace-the-sheer-power-of-cuda-together-and-change-the-game">Experience the exhilarating world of CUDA programming as we revolutionize point cloud processing in computer vision and robotics. Voxelization, the process of converting 3D points into discrete voxels, has faced challenges with traditional CPU-based methods, limiting groundbreaking innovations. But fear not, as we harness the immense power of parallelization for a monumental leap in processing speed! Dive into CUDA’s awe-inspiring realm, where each point gets its own thread, enabling lightning-fast voxelization and opening the doors to real-time applications. Join us on this thrilling ride and witness the magic of CUDA as we rewrite the future of point cloud processing. Let’s embrace the sheer power of CUDA together and change the game!</h4>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="cuda" /><summary type="html"><![CDATA[Voxelization using CUDA programming]]></summary></entry></feed>
