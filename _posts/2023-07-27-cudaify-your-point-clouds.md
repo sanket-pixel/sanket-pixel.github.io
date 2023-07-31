@@ -65,27 +65,32 @@ related_posts: true
 ## 1. Intuition 
 In this section, we will embark on an intuitive exploration of the point cloud voxelization process using CUDA. To that end, let's first set the stage by taking a look at a simple 2D grid. We'll create a 3x3 grid and randomly select 15 points within its boundaries. Some points will also lie slightly outside the grid to make the example more interesting. Visualizing this grid and its sample points, we get the following plot:
 
+<div style="width: 60%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
-        {% include figure.html path="/assets/img/blog/blog_2/sample_grid.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_2/points.jpeg" title="latency compare" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
     The key steps involved in CUDA based Voxelization
 </div>
+</div>
 
 Now, let us understand one last detail before we begin the actual processing. In the figure shown below, on the left, we have a 2D grid representing the cells with their corresponding indices ranging from (0, 0) to (2, 2). Each cell in the grid is identified by its x and y coordinates, starting from the bottom-left corner and progressing towards the top-right corner. However, from now on, we will refer to this serialized integer index as `voxel_offset`,  which uniquely represents each cell in a sequential order from 0 to 8, as shown on the right side of the figure.
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
-        {% include figure.html path="/assets/img/blog/blog_2/serialize.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_2/serialize.jpeg" title="latency compare" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
     The key steps involved in CUDA based Voxelization
 </div> 
+</div>
 This `voxel_offset`` plays a crucial role in the upcoming CUDA-based voxelization process, allowing us to efficiently access and process voxel data in a linear manner. By representing the grid in this serialized format, we can easily map each voxel's position to its corresponding voxel ID, making the hash map implementation more streamlined and intuitive.
 
 The process of converting a point cloud to voxels using CUDA involves three main steps: hash map building, voxelization, and feature extraction as shown in the Figure below. Hash map building efficiently stores information about unique voxels that contain points, eliminating the need to process all grid cells. Voxelization assigns each point to its corresponding voxel, creating a serialized array that stores point features for all voxels. Finally, feature extraction calculates the average features for each voxel, resulting in an efficient representation of point cloud features. In the following section we will understand each of these steps intuitively using our toy example before we delve into the real deal.
+
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
         {% include figure.html path="/assets/img/blog/blog_2/steps.jpg" title="latency compare" class="img-fluid rounded z-depth-1" %}
@@ -98,14 +103,16 @@ The process of converting a point cloud to voxels using CUDA involves three main
 #### A. Build Hashmaps
 Now, let's explore the crucial role of hash maps in the voxelization process. Before diving into the intricacies of building hash maps, it's essential to understand why they are necessary. In our 3x3 grid example, we observed that out of the 9 cells, only 6 cells contain points, while the remaining 3 cells are entirely empty (as marked in red in the figure below). This situation presents a compelling opportunity for optimization, as processing all 9x9 cells would be highly inefficient and computationally wasteful. That's where hash maps comes into play.
 
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
-        {% include figure.html path="/assets/img/blog/blog_2/empty-cells.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_2/empty_voxels.jpeg" title="latency compare" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
     The key steps involved in CUDA based Voxelization
 </div> 
+</div>
 
 Hash maps offer an efficient way to store and access data by associating each voxel's position with its corresponding information. By directly mapping the unique voxel positions as keys( `voxel_offset` as described earlier ) to their respective `voxel_id`s ( will be explained soon) as values, we can efficiently eliminate the need to process all the empty cells. This approach drastically reduces memory consumption and processing time, making voxelization of point clouds significantly faster and more resource-efficient. So, let's now understand how we go from our scattered 2D points, with certain empty cells, to an efficient and compact hashmap : 
 1. **Filtering Points**: We begin by filtering out all the points that lie outside the defined boundary. These points are not relevant for our voxelization and can be safely excluded from further processing. 
@@ -175,15 +182,16 @@ total_voxel++
 As seen in the figure below, we simply insert the given key 8, at the computed slot 4, because it was empty. Then we insert the corresponding value at slot 10, (4+6).
 The value is zero because this is the first unique voxel being inserted in the hash table.
 
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
 <div class="col-sm mt-3 mt-md-0 text-center">
-    {% include figure.html path="/assets/img/blog/blog_2/insert1.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+    {% include figure.html path="/assets/img/blog/blog_2/insert1.jpeg" title="hash table" class="img-fluid rounded z-depth-1" %}
 </div>
 </div>
 <div class="caption">
     Example 1 : Hash insert operation for point Pt(2.3,2.8) in red. Inserting key 8 at slot (4) and value 0, at slot (4+6=10). 
 </div> 
-
+</div>
 
 #### Example 2
 
@@ -219,15 +227,16 @@ total_voxel++
 As seen in the figure below, we simply insert the given key 1, at the computed slot 2, because it was empty. Then we insert the corresponding value at slot 8, (2+6).
 The value is the count of the current voxels, which is 1.
 
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
 <div class="col-sm mt-3 mt-md-0 text-center">
-    {% include figure.html path="/assets/img/blog/blog_2/insert2.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+    {% include figure.html path="/assets/img/blog/blog_2/insert2.jpeg" title="hash table" class="img-fluid rounded z-depth-1" %}
 </div>
 </div>
 <div class="caption">
      Example 2 : Hash insert operation for point Pt(1.8,0.5) shown in red. Inserting key 1 at slot (2) and value 0, at slot (2+6=8). 
 </div> 
-
+</div>
 
 #### Example 3
 
@@ -264,16 +273,17 @@ total_voxel++
 Now we look at a more interesting example where the slot computed using the modulus of the hashed key is already present in the hash table. So a collision occurs, because the slot is 
 already filled up by a different key. We look at this case while trying to insert a Point (1.7,2.8). In such a case of collision, we simply insert the key in the next free slot, which in this case is slot (3), as shown below.
 
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
 <div class="col-sm mt-3 mt-md-0 text-center">
-    {% include figure.html path="/assets/img/blog/blog_2/collision.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+    {% include figure.html path="/assets/img/blog/blog_2/collision.jpeg" title="hash table" class="img-fluid rounded z-depth-1" %}
 </div>
 </div>
 <div class="caption">
      Example 3 : Hash insert operation for point Pt(1.7,2.8) shown in red. The slot (2) already has key 1 present, which is different from key 7. This indicates a collision, we insert in 
      in the next empty slot which is slot 3. This is called linear probing.
 </div> 
-
+</div>
 
 #### Example 4
 
@@ -308,16 +318,17 @@ hash_table[slot] != Empty && hash_table[slot] == key
 As seen in the figure below, we skip insertion, at the computed slot 2, because it already had the current points key 1. The goal is to only store unique `voxel_offset` as key
 and the number of such unique voxels as values. Since this `voxel_offset` has already been inserted in the hash table and is not unique, we simply skip insertion.
 
+<div style="width: 70%;margin: 0 auto;">
 <div class="row">
 <div class="col-sm mt-3 mt-md-0 text-center">
-    {% include figure.html path="/assets/img/blog/blog_2/already_inserted.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+    {% include figure.html path="/assets/img/blog/blog_2/already-inserted.jpeg" title="hash table" class="img-fluid rounded z-depth-1" %}
 </div>
 </div>
 <div class="caption">
-     Example 2 : Hash insert operation for point Pt(1.3,0.3) shown in red.
+     Example 4 : Hash insert operation for point Pt(1.3,0.3) shown in red.
      No insertion happens, since slot already has same key.  
 </div> 
-
+</div>
 And with that we cover all possible cases of hash insertion, and complete the major challenge of creation of the hash table for the given input points.
 
 
