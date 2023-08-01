@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "CUDA-ify Your Point Clouds"
+title: "CUDA it Be Any Faster?"
 date: 2023-07-12 15:53:00-0400
 description: Voxelization using CUDA programming
 categories: cuda
@@ -99,8 +99,9 @@ The process of converting a point cloud to voxels using CUDA involves three main
 <div class="caption">
     The key steps involved in CUDA based Voxelization
 </div>
+<br>
 
-#### A. Build Hashmaps
+### A. Build Hashmaps
 Now, let's explore the crucial role of hash maps in the voxelization process. Before diving into the intricacies of building hash maps, it's essential to understand why they are necessary. In our 3x3 grid example, we observed that out of the 9 cells, only 6 cells contain points, while the remaining 3 cells are entirely empty (as marked in red in the figure below). This situation presents a compelling opportunity for optimization, as processing all 9x9 cells would be highly inefficient and computationally wasteful. That's where hash maps comes into play.
 
 <div style="width: 70%;margin: 0 auto;">
@@ -329,24 +330,136 @@ and the number of such unique voxels as values. Since this `voxel_offset` has al
      No insertion happens, since slot already has same key.  
 </div> 
 </div>
-And with that we cover all possible cases of hash insertion, and complete the major challenge of creation of the hash table for the given input points.
+After successfully completing the hash insertion step, we have effectively built a hash table that stores the `voxel_offset` (representing the flattened voxel position) as keys and the corresponding `voxel_ID` as values. The `voxel_ID` is an indicator of the total number of unique voxels, which is updated as we encounter new unique voxels during the hash table construction process. This data structure offers two significant advantages. Firstly, it allows us to process only those voxels that contain points, thereby optimizing our further steps. Additionally, the process of mapping a point to its respective voxel becomes a constant-time operation `O(1)` due to the efficient key searching capability of the hash table. This constant-time retrieval is significantly faster compared to traditional "dictionary(map)" structures, which involve `O(log(n))` time complexity for key searches.
+<br>
+<br>
+
+### B. Voxelization
+<br>
+
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_2/steps.jpg" title="latency compare" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+    The key steps involved in CUDA based Voxelization
+</div>
+
+Having accomplished the challenging task of creating the hash table, we now move on to the second step: "Voxelization." In this step, we utilize the hash table to efficiently process every point in a separate thread. The objective is to construct a 3D array called `voxel_temp` with a size of (`max_voxels` * `max_points_per_voxel` * `num_features`), where all point features for each voxel are stored serially. Points belonging to the same voxel are grouped together in memory, thereby optimizing data access and manipulation.We simplify the process by breaking it down into three logical steps.
+    
+1. **Compute Voxel Offset from Point**
+For each point, we determine the corresponding voxel offset. The voxel offset represents a unique identifier for a specific voxel in our 3D grid. Imagine each voxel as a small box in our 3x3 grid, and the voxel offset as a label that tells us which box this point belongs to.
+
+2. **Efficiently Find Voxel ID from the Hash Table**
+To quickly locate the voxel's position in the array, we leverage the previously constructed hash table. Using the voxel offset as the key, we perform a constant-time search in the hash table to find the corresponding value, which represents the unique voxel ID. Think of this process as instantly finding the box's label (voxel ID) when given the box's unique identifier (voxel offset).
+
+3. **Store Point Features in the Voxel Array**
+With the voxel ID in hand, we efficiently store the point's features in the voxel_temp array. This array is designed to hold all the point features for every voxel in a serialized manner, ensuring that points from the same voxel are stored together. We use the voxel ID to determine the correct position in the array to store this point's features, allowing us to efficiently group all points for each voxel.
 
 
 
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+<div class="col-sm mt-3 mt-md-0 text-center">
+    {% include figure.html path="/assets/img/blog/blog_2/voxel.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+</div>
+</div>
+<div class="caption">
+     Voxelization :  Points A and B in voxel with voxel_offset=5 are stored in position 4 in voxel_temp array. This position 4 is derived from the hash table by looking up value corresponding to the key 5.
+</div> 
+</div>
+
+Let's dive into an example to better understand the Voxelization process. Consider our 3x3 grid, and we have two points: `Point A(2.9, 1.7)` and `Point B(2.2, 1.3)`.
+
+```
+Step 1: Compute Voxel Offset from Points
+- For Point A, we calculate the voxel offset by considering its position in the grid.
+- As Point A falls within the voxel at (2, 1), the voxel offset for Point A becomes 5. 
+- Similarly, for Point B, the voxel offset is also 5 as it belongs to the same voxel.
+
+Step 2: Find Voxel ID from the Hash Table
+- We refer to our previously constructed hash table to quickly determine the voxel_ID 
+  associated with voxel_offset 5.
+- Upon checking the hash table, we find that the value corresponding to the key 5 is 4
+- This indicates that this voxel has been assigned voxel ID 4.
+
+Step 3: Store Point Features in the Voxel Temp Array
+- Now that we have the voxel ID (4), we store the point features of Point A and Point B 
+  in the voxel_temp array at the 4th position. 
+- The voxel_temp array contains information about all points for each voxel, 
+  ensuring that points within the same voxel are grouped together.
+
+``` 
+
+In the accompanying Figure above, we visually depict this process. We show the 3x3 grid, with `Point A` and` Point B` marked inside the voxel they belong to. Next, we present the hash map, where we highlight` voxel_offset (5)` and` voxel_id (4)` to showcase how they are linked. Subsequently, we display the `voxel_temp` array, with 6 voxels filled up since only 6 of the 9 voxels in our 3x3 grid have points. Finally, we zoom into the voxel with `voxel_id` 4 to witness the two points, A and B, stored serially in this array with their respective `(x,y)` values.
+
+This example helps illustrate how the Voxelization process organizes point data efficiently, grouping all points belonging to each voxel together, thanks to the hash map's guidance. This method significantly speeds up access and processing of point cloud data, making voxel-based approaches highly effective for a wide range of applications.
+
+In summary, after completing the Voxelization step, we achieve an organized arrangement where all points belonging to each voxel are conveniently stored together. The hash table plays a key role, acting as a guide that allows us to locate each voxel's position in the array with ease. 
+
+<br>
+
+### C. Feature extraction
+In the final step of our voxelization process, known as Feature Extraction, we aim to extract meaningful information from the `voxel_temp` array, which contains all point features grouped by their respective voxel IDs. The goal is to compute average feature values for each voxel and store them in a `voxel_features` array.
 
 
+1. **Prepare for Feature Extraction**
+The feature extraction process operates on a per-voxel basis, where each voxel's features are processed independently. To begin, we initialize the num_points_per_voxel array to keep track of the number of points in each voxel. Then, for each voxel, we iterate over its points to calculate the total number of points and update the corresponding entry in the `num_points_per_voxel` array.
+
+2. **Calculate Average Feature Values**
+Next, we calculate the average feature values for each voxel. Starting with the first point in the `voxel_temp` array for a given voxel, we compute the offset to access this voxel's data in the array. For subsequent points within the same voxel, we iterate over all features (e.g., x, y, z, intensity, time) and sum up their values.
+
+3. **Update Voxel Features**
+After summing up the features for all points within the voxel, we calculate the average by dividing the sum by the total number of points in that voxel. These averaged feature values are then updated in the `voxel_features` array at the position corresponding to the voxel's ID.
+
+In summary, the Feature Extraction step processes `voxel_temp` data to calculate the average feature values for each voxel. This process is performed in parallel for all voxels, utilizing one thread per voxel. By the end of this step, the `voxel_features` array holds crucial information about each voxel's characteristics in continuous memory, ready for further analysis and applications in point cloud processing. For example we see feature extraction for the voxel at position 4 as shown in the Figure below.
 
 
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+<div class="col-sm mt-3 mt-md-0 text-center">
+    {% include figure.html path="/assets/img/blog/blog_2/feature_extract.jpg" title="hash table" class="img-fluid rounded z-depth-1" %}
+</div>
+</div>
+<div class="caption">
+     Voxelization :  Points A and B in voxel with voxel_offset=5 are stored in position 4 in voxel_temp array. This position 4 is derived from the hash table by looking up value corresponding to the key 5.
+</div> 
+</div>
 
+```
+Voxel Feature Extraction for Voxel at Position 4
 
+1. Prepare for Feature Extraction:
+   We first initialize the num_points_per_voxel array to keep 
+   track of the number of points in each voxel.
+   For the voxel at position 4, num_points_per_voxel[4] = 2, as it contains two points.
 
+2. Calculate Average Feature Values:
+   We now iterate over the points in the voxel_temp array 
+   for the voxel at position 4.Let's consider the features x and y 
+   for this example.
 
+   Iteration 1:
+   - Point A: x = 2.9, y = 1.7
+   - Sum of x = 2.9, Sum of y = 1.7
 
+   Iteration 2:
+   - Point B: x = 2.2, y = 1.3
+   - Sum of x = 2.9 + 2.2 = 5.1, Sum of y = 1.7 + 1.3 = 3.0
 
+3. Update Voxel Features:
+   After iterating through all points in the voxel, we have the 
+   sums of x and y for each feature.Now, we calculate the average by dividing
+   the sum by the total number of points in the voxel (num_points_per_voxel[4] = 2).
 
+   - Average x = 5.1 / 2 = 2.55
+   - Average y = 3.0 / 2 = 1.5
 
+   Finally, we update the voxel_features array for the voxel at position 4 with 
+   the calculated average feature values: voxel_features[4] = (2.55, 1.5)
 
-
+```
 
 
 
