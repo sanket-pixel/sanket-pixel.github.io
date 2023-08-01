@@ -465,10 +465,63 @@ Voxel Feature Extraction for Voxel at Position 4
 
 
 
-<!-- ## 2. Inside the Code
+## 2. Inside the Code
 In this section, we will take a comprehensive look at the CUDA-powered voxelization implementation. We'll dissect the code, step by step, to understand the magic behind its blazing-fast performance. To begin our exploration, let's first examine the folder structure that forms the foundation of this efficient voxelization engine. Understanding the organization of the code will serve as a solid starting point to grasp the inner workings of CUDA and its pivotal role in accelerating the voxelization process. So, let's embark on this informative journey and unravel the secrets behind this powerful technique.
 
-### 2.1. Folder structure
+#### 2.1 Setting up Locally
+Before diving into the code, let's set up the project locally by following these steps:
+Setup Project Locally:
+
+1. Install CUDA > 11.4.
+2. Ensure you are using Ubuntu > 18.04.
+3. Add CUDA path to `PATH` and `LD_LIBRARY_PATH`.
+
+
+Now, let's build and run the project with the provided commands:
+<br>
+
+
+```bash
+git clone https://github.com/sanket-pixel/voxelize-cuda
+cd voxelize-cuda
+mkdir build && cd build
+cmake ..
+make
+./voxelize_cuda ../data/test/
+```
+You can expect an output similar to this:
+
+```
+GPU has cuda devices: 1
+----device id: 0 info----
+  GPU : GeForce RTX 2060 
+  Capability: 7.5
+  Global memory: 5912MB
+  Const memory: 64KB
+  SM in a block: 48KB
+  Warp size: 32
+  Threads in a block: 1024
+  Block dimension: (1024,1024,64)
+  Grid dimension: (2147483647,65535,65535)
+
+Total 2
+
+<<<<<<<<<<<
+Load file: ../data/test/291e7331922541cea98122b607d24831.bin
+Find points num: 239911
+[TIME] Voxelization: 4.66307 ms
+>>>>>>>>>>>
+
+<<<<<<<<<<<
+Load file: ../data/test/3615d82e7e8546fea5f181157f42e30b.bin
+Find points num: 267057
+[TIME] Voxelization: 2.34752 ms
+>>>>>>>>>>>
+
+```
+Once you have obtained this output, you can take a cup of coffee, as we are now ready to deep dive into the code. Let's explore the implementation in detail.
+
+#### 2.2. Folder structure
 
 The project directory contains the following files and folders:
 
@@ -500,4 +553,148 @@ The project directory contains the following files and folders:
 - [README.md](#) - Markdown file containing project documentation and information.
 - **src** - Directory containing source files.
   - [preprocess.cpp](#) - Source file with the implementation of preprocessing functions.
-  - [preprocess_kernel.cu](#) - CUDA source file with kernel implementations. -->
+  - [preprocess_kernel.cu](#) - CUDA source file with kernel implementations.
+
+
+#### 2.3 Code Walkthrough
+
+The main entry point of the program is the main function in the `main.cpp` file. It starts by checking the command-line arguments and loading the point cloud data from the specified folder.
+
+##### Step 1: Setup and Initialization
+
+- The `GetDeviceInfo` function is used to print information about the CUDA devices available on the system.
+
+- The `getFolderFile` function is used to get a list of files in the specified data folder with a ".bin" extension.
+
+- The `loadData` function is used to load the binary data file into memory.
+
+##### Step 2: Preprocessing
+
+The preprocessing is handled by the `PreProcessCuda` class, defined in the `preprocess.h` and `preprocess.cpp` files.
+It performs three main operations: hash map building, voxelization, and feature extraction.
+
+**A. Hash Map Building**:
+
+The hash map building is performed in the `buildHashKernel` CUDA kernel defined in the `preprocess_kernel.cu` file. This kernel takes the input point cloud data and converts it into voxel coordinates using the specified voxel size and range. It then builds a hash table that maps each voxel offset to its corresponding voxel ID.
+
+**B. Voxelization**:
+
+The voxelization is performed in the `voxelizationKernel` CUDA kernel, also defined in the `preprocess_kernel.cu` file. This kernel uses the hash table built in the previous step to assign each point to its corresponding voxel. It counts the number of points in each voxel and stores them in the `num_points_per_voxel` array. It also serializes the point features for each voxel in the `voxels_temp` array.
+
+**C. Feature Extraction**:
+
+The feature extraction is handled by the `featureExtractionKernel` CUDA kernel, also defined in the `preprocess_kernel.cu` file. This kernel takes the serialized point features in the `voxels_temp` array and computes the average feature values for each voxel. It stores the averaged features in the `voxel_features` array.
+
+##### Step 3: Output and Cleanup
+
+After the preprocessing is complete for all the input files, the program outputs the results and frees the allocated memory.
+
+#### 2.4 Deep Dive
+Now that we have taken a closer look at the basic walkthrough of the code, let's embark on a more comprehensive deep dive, exploring the intricacies of the CUDA kernels and delving into the inner workings of the preprocessor class. We will gradually progress from the core CUDA kernel, which handles the voxelization process efficiently through parallelism, to the preprocessor class, where these kernels are utilized. Finally, we will uncover how the main cpp file leverages the functionalities of the preprocessor class to apply voxelization on the input point cloud data, culminating in the generation of 3D voxels. This step-by-step approach will allow us to understand how each component contributes to the overall process and how they interact harmoniously to produce the desired output. So, let's begin our journey from inside to out, unraveling the complexities of the code and gaining a deeper understanding of its functioning.
+
+**1. CUDA Kernel for Building HashTables**
+
+The `buildHashKernel` is a CUDA kernel that performs the hash table building process. It takes the input point cloud data (`points`) and converts each point into voxel coordinates based on the specified voxel size and range. Then, it calls the `insertHashTable` function to insert each voxel offset as a key into the hash table, and the `real_voxel_num` variable is updated to keep track of the number of unique voxels in the hash table. The `buildHashKernel` function is executed by multiple CUDA threads in parallel, each processing a different point from the input point cloud. As a result, the hash table is efficiently built using GPU parallelism, and each voxel offset is uniquely assigned to an entry in the hash table.
+
+```cpp
+
+__global__ void buildHashKernel(const float *points, size_t points_size,
+        float min_x_range, float max_x_range,
+        float min_y_range, float max_y_range,
+        float min_z_range, float max_z_range,
+        float voxel_x_size, float voxel_y_size, float voxel_z_size,
+        int grid_y_size, int grid_x_size, int feature_num,
+	unsigned int *hash_table, unsigned int *real_voxel_num) {
+  int point_idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (point_idx >= points_size) {
+    return;
+  }
+  
+  float px = points[feature_num * point_idx];
+  float py = points[feature_num * point_idx + 1];
+  float pz = points[feature_num * point_idx + 2];
+
+  if( px < min_x_range || px >= max_x_range || py < min_y_range || py >= max_y_range
+    || pz < min_z_range || pz >= max_z_range) {
+    return;
+  }
+
+  unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size);
+  unsigned int voxel_idy = floorf((py - min_y_range) / voxel_y_size);
+  unsigned int voxel_idz = floorf((pz - min_z_range) / voxel_z_size);
+  unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size
+	                    + voxel_idy * grid_x_size
+                            + voxel_idx;
+  insertHashTable(voxel_offset, real_voxel_num, points_size * 2 * 2, hash_table);
+}
+
+```
+
+Here's how the buildHashKernel works:
+0. `__global__ void buildHashKernel(...)`: This line defines the `buildHashKernel` function as a CUDA kernel using the `__global__` function modifier. As a kernel, this function will be executed in parallel by multiple threads on the GPU.
+
+1. `int point_idx = blockIdx.x * blockDim.x + threadIdx.x`: This line calculates the index of the current point to be processed by the CUDA thread.
+
+2. `if (point_idx >= points_size) { return; }`: This condition checks if the thread index is out of bounds (i.e., beyond the number of points in the input points array). If so, the thread returns early to avoid processing invalid data.
+
+3. `float px = points[feature_num * point_idx]; ...`: These lines extract the X, Y, and Z coordinates of the current point from the input points array based on the `feature_num` (the number of features per point).
+
+4. `if (px < min_x_range \|\| px >= max_x_range \|\| ...`: This condition checks if the current point lies within the specified 3D range (min/max X, Y, Z). If the point is outside this range, it is not considered for voxelization, and the thread returns early.
+
+5. `unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size); ...`: These lines calculate the voxel coordinates (`voxel_idx`, `voxel_idy`, `voxel_idz`) corresponding to the current point's X, Y, and Z coordinates based on the specified voxel sizes and ranges.
+
+6. `unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size ...`: This line calculates the `voxel_offset` based on the voxel coordinates. The `voxel_offset` is a flattened  index for each voxel within the 3D grid.
+
+7. `insertHashTable(voxel_offset, real_voxel_num, points_size * 2 * 2, hash_table);`:  This line calls the `insertHashTable` function to insert the current `voxel_offset` into the hash table. It also updates the `real_voxel_num` variable using the `atomicAdd` function to keep track of the number of unique voxels added to the hash table.
+
+
+**2. Inserting into HashTable**
+
+Next, let's move on to the `insertHashTable` function:
+
+```cpp
+// Function to insert a key-value pair into the hash table
+__device__ inline void insertHashTable(const uint32_t key, uint32_t *value,
+		const uint32_t hash_size, uint32_t *hash_table) {
+  uint64_t hash_value = hash(key);
+  uint32_t slot = hash_value % (hash_size / 2)/*key, value*/;
+  uint32_t empty_key = UINT32_MAX;
+  while (true) {
+    uint32_t pre_key = atomicCAS(hash_table + slot, empty_key, key);
+    if (pre_key == empty_key) {
+      hash_table[slot + hash_size / 2 /*offset*/] = atomicAdd(value, 1);
+      break;
+    } else if (pre_key == key) {
+      break;
+    }
+    slot = (slot + 1) % (hash_size / 2);
+  }
+}
+```
+
+Explanation:
+
+The `insertHashTable` function is responsible for inserting a key-value pair into the hash table. It uses the previously explained `hash` function to compute the hash value of the key, and then it resolves hash collisions using a technique called linear probing.
+
+Here's how the `insertHashTable` function works:
+
+1. `uint64_t hash_value = hash(key)`: This line computes the hash value of the input `key` using the `hash` function.
+
+2. `uint32_t slot = hash_value % (hash_size / 2)`: This line calculates the initial slot index in the hash table by taking the modulo of the hash value with half of the hash table size. This ensures that the slot index is within the valid range of the hash table.
+
+3. `uint32_t empty_key = UINT32_MAX`: This line sets the `empty_key` variable to the maximum value of a 32-bit unsigned integer. This value is used to indicate an empty slot in the hash table.
+
+4. `while (true) { ... }`: This is a loop that continues until the key is successfully inserted into the hash table. It handles hash collisions using linear probing.
+
+5. `uint32_t pre_key = atomicCAS(hash_table + slot, empty_key, key)`: This line performs an atomic compare-and-swap operation (CAS) on the hash table. It checks if the slot at the current index (`slot`) is empty (i.e., contains `empty_key`). If it is empty, it atomically swaps the value with the input `key`, effectively inserting the key into the hash table.
+
+6. `if (pre_key == empty_key) { ... }`: This condition checks if the CAS operation was successful, indicating that the key was inserted into the hash table. If successful, the function proceeds to update the offset in the hash table for the corresponding value (used in feature extraction).
+
+7. `hash_table[slot + hash_size / 2 /*offset*/] = atomicAdd(value, 1)`: This line atomically increments the value in the hash table at the offset `slot + hash_size / 2`, effectively storing the value for the given key. The `atomicAdd` function ensures that multiple threads trying to insert the same key concurrently will get unique values.
+
+8. `else if (pre_key == key) { ... }`: This condition handles the case when the slot already contains the same key (a duplicate). In this case, the function breaks out of the loop, as there's no need to insert the key again.
+
+9. `slot = (slot + 1) % (hash_size / 2)`: This line updates the slot index using linear probing by incrementing it by 1 and wrapping around to the beginning if it exceeds half of the hash table size.
+
+The `insertHashTable` function plays a crucial role in building the hash table, which is later used in voxelization and feature extraction.
+
