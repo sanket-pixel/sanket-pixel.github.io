@@ -782,15 +782,65 @@ After summing up the features for all points within the voxel, we calculate the 
 
 </code></pre></div></div>
 
-<!-- ## 2. Inside the Code
-In this section, we will take a comprehensive look at the CUDA-powered voxelization implementation. We'll dissect the code, step by step, to understand the magic behind its blazing-fast performance. To begin our exploration, let's first examine the folder structure that forms the foundation of this efficient voxelization engine. Understanding the organization of the code will serve as a solid starting point to grasp the inner workings of CUDA and its pivotal role in accelerating the voxelization process. So, let's embark on this informative journey and unravel the secrets behind this powerful technique.
+<h2 id="2-inside-the-code">2. Inside the Code</h2>
+<p>In this section, we will take a comprehensive look at the CUDA-powered voxelization implementation. We’ll dissect the code, step by step, to understand the magic behind its blazing-fast performance. To begin our exploration, let’s first examine the folder structure that forms the foundation of this efficient voxelization engine. Understanding the organization of the code will serve as a solid starting point to grasp the inner workings of CUDA and its pivotal role in accelerating the voxelization process. So, let’s embark on this informative journey and unravel the secrets behind this powerful technique.</p>
 
-### 2.1. Folder structure
+<h4 id="21-setting-up-locally">2.1 Setting up Locally</h4>
+<p>Before diving into the code, let’s set up the project locally by following these steps:
+Setup Project Locally:</p>
 
-The project directory contains the following files and folders:
+<ol>
+  <li>Install CUDA &gt; 11.4.</li>
+  <li>Ensure you are using Ubuntu &gt; 18.04.</li>
+  <li>Add CUDA path to <code class="language-plaintext highlighter-rouge">PATH</code> and <code class="language-plaintext highlighter-rouge">LD_LIBRARY_PATH</code>.</li>
+</ol>
 
-```
-    ├── CMakeLists.txt
+<p>Now, let’s build and run the project with the provided commands:
+<br></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/sanket-pixel/voxelize-cuda
+<span class="nb">cd </span>voxelize-cuda
+<span class="nb">mkdir </span>build <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build
+cmake ..
+make
+./voxelize_cuda ../data/test/
+</code></pre></div></div>
+<p>You can expect an output similar to this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GPU has cuda devices: 1
+----device id: 0 info----
+  GPU : GeForce RTX 2060 
+  Capability: 7.5
+  Global memory: 5912MB
+  Const memory: 64KB
+  SM in a block: 48KB
+  Warp size: 32
+  Threads in a block: 1024
+  Block dimension: (1024,1024,64)
+  Grid dimension: (2147483647,65535,65535)
+
+Total 2
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+Load file: ../data/test/291e7331922541cea98122b607d24831.bin
+Find points num: 239911
+[TIME] Voxelization: 4.66307 ms
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+Load file: ../data/test/3615d82e7e8546fea5f181157f42e30b.bin
+Find points num: 267057
+[TIME] Voxelization: 2.34752 ms
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+
+</code></pre></div></div>
+<p>Once you have obtained this output, you can take a cup of coffee, as we are now ready to deep dive into the code. Let’s explore the implementation in detail.</p>
+
+<h4 id="22-folder-structure">2.2. Folder structure</h4>
+
+<p>The project directory contains the following files and folders:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    ├── CMakeLists.txt
     ├── data
     │   └── test
     │       ├── pc1.bin
@@ -804,20 +854,212 @@ The project directory contains the following files and folders:
     └── src
         ├── preprocess.cpp
         └── preprocess_kernel.cu
-```
+</code></pre></div></div>
 
-- [CMakeLists.txt](#) - CMake configuration file for building the project
-- **data** - Directory containing test data used in the project.
-  - **test** - Subdirectory containing binary data files.
-- **include** - Directory containing header files.
-  - [common.h](#) - Header file with common definitions and macros.
-  - [kernel.h](#) - Header file with CUDA kernel function declarations.
-  - [preprocess.h](#) - Header file for the preprocessing functions.
-- [main.cpp](#) - Main C++ source file that orchestrates the voxelization process.
-- [README.md](#) - Markdown file containing project documentation and information.
-- **src** - Directory containing source files.
-  - [preprocess.cpp](#) - Source file with the implementation of preprocessing functions.
-  - [preprocess_kernel.cu](#) - CUDA source file with kernel implementations. -->
+<ul>
+  <li>
+<a href="#">CMakeLists.txt</a> - CMake configuration file for building the project</li>
+  <li>
+<strong>data</strong> - Directory containing test data used in the project.
+    <ul>
+      <li>
+<strong>test</strong> - Subdirectory containing binary data files.</li>
+    </ul>
+  </li>
+  <li>
+<strong>include</strong> - Directory containing header files.
+    <ul>
+      <li>
+<a href="#">common.h</a> - Header file with common definitions and macros.</li>
+      <li>
+<a href="#">kernel.h</a> - Header file with CUDA kernel function declarations.</li>
+      <li>
+<a href="#">preprocess.h</a> - Header file for the preprocessing functions.</li>
+    </ul>
+  </li>
+  <li>
+<a href="#">main.cpp</a> - Main C++ source file that orchestrates the voxelization process.</li>
+  <li>
+<a href="#">README.md</a> - Markdown file containing project documentation and information.</li>
+  <li>
+<strong>src</strong> - Directory containing source files.
+    <ul>
+      <li>
+<a href="#">preprocess.cpp</a> - Source file with the implementation of preprocessing functions.</li>
+      <li>
+<a href="#">preprocess_kernel.cu</a> - CUDA source file with kernel implementations.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="23-code-walkthrough">2.3 Code Walkthrough</h4>
+
+<p>The main entry point of the program is the main function in the <code class="language-plaintext highlighter-rouge">main.cpp</code> file. It starts by checking the command-line arguments and loading the point cloud data from the specified folder.</p>
+
+<h5 id="step-1-setup-and-initialization">Step 1: Setup and Initialization</h5>
+
+<ul>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">GetDeviceInfo</code> function is used to print information about the CUDA devices available on the system.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">getFolderFile</code> function is used to get a list of files in the specified data folder with a “.bin” extension.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">loadData</code> function is used to load the binary data file into memory.</p>
+  </li>
+</ul>
+
+<h5 id="step-2-preprocessing">Step 2: Preprocessing</h5>
+
+<p>The preprocessing is handled by the <code class="language-plaintext highlighter-rouge">PreProcessCuda</code> class, defined in the <code class="language-plaintext highlighter-rouge">preprocess.h</code> and <code class="language-plaintext highlighter-rouge">preprocess.cpp</code> files.
+It performs three main operations: hash map building, voxelization, and feature extraction.</p>
+
+<p><strong>A. Hash Map Building</strong>:</p>
+
+<p>The hash map building is performed in the <code class="language-plaintext highlighter-rouge">buildHashKernel</code> CUDA kernel defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel takes the input point cloud data and converts it into voxel coordinates using the specified voxel size and range. It then builds a hash table that maps each voxel offset to its corresponding voxel ID.</p>
+
+<p><strong>B. Voxelization</strong>:</p>
+
+<p>The voxelization is performed in the <code class="language-plaintext highlighter-rouge">voxelizationKernel</code> CUDA kernel, also defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel uses the hash table built in the previous step to assign each point to its corresponding voxel. It counts the number of points in each voxel and stores them in the <code class="language-plaintext highlighter-rouge">num_points_per_voxel</code> array. It also serializes the point features for each voxel in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array.</p>
+
+<p><strong>C. Feature Extraction</strong>:</p>
+
+<p>The feature extraction is handled by the <code class="language-plaintext highlighter-rouge">featureExtractionKernel</code> CUDA kernel, also defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel takes the serialized point features in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array and computes the average feature values for each voxel. It stores the averaged features in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array.</p>
+
+<h5 id="step-3-output-and-cleanup">Step 3: Output and Cleanup</h5>
+
+<p>After the preprocessing is complete for all the input files, the program outputs the results and frees the allocated memory.</p>
+
+<h4 id="24-deep-dive">2.4 Deep Dive</h4>
+<p>Now that we have taken a closer look at the basic walkthrough of the code, let’s embark on a more comprehensive deep dive, exploring the intricacies of the CUDA kernels and delving into the inner workings of the preprocessor class. We will gradually progress from the core CUDA kernel, which handles the voxelization process efficiently through parallelism, to the preprocessor class, where these kernels are utilized. Finally, we will uncover how the main cpp file leverages the functionalities of the preprocessor class to apply voxelization on the input point cloud data, culminating in the generation of 3D voxels. This step-by-step approach will allow us to understand how each component contributes to the overall process and how they interact harmoniously to produce the desired output. So, let’s begin our journey from inside to out, unraveling the complexities of the code and gaining a deeper understanding of its functioning.</p>
+
+<p><strong>1. CUDA Kernel for Building HashTables</strong></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">buildHashKernel</code> is a CUDA kernel that performs the hash table building process. It takes the input point cloud data (<code class="language-plaintext highlighter-rouge">points</code>) and converts each point into voxel coordinates based on the specified voxel size and range. Then, it calls the <code class="language-plaintext highlighter-rouge">insertHashTable</code> function to insert each voxel offset as a key into the hash table, and the <code class="language-plaintext highlighter-rouge">real_voxel_num</code> variable is updated to keep track of the number of unique voxels in the hash table. The <code class="language-plaintext highlighter-rouge">buildHashKernel</code> function is executed by multiple CUDA threads in parallel, each processing a different point from the input point cloud. As a result, the hash table is efficiently built using GPU parallelism, and each voxel offset is uniquely assigned to an entry in the hash table.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">buildHashKernel</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span>
+        <span class="kt">float</span> <span class="n">min_x_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_x_range</span><span class="p">,</span>
+        <span class="kt">float</span> <span class="n">min_y_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_y_range</span><span class="p">,</span>
+        <span class="kt">float</span> <span class="n">min_z_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_z_range</span><span class="p">,</span>
+        <span class="kt">float</span> <span class="n">voxel_x_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_y_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_z_size</span><span class="p">,</span>
+        <span class="kt">int</span> <span class="n">grid_y_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">grid_x_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">feature_num</span><span class="p">,</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">hash_table</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">real_voxel_num</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">point_idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">point_idx</span> <span class="o">&gt;=</span> <span class="n">points_size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  
+  <span class="kt">float</span> <span class="n">px</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span><span class="p">];</span>
+  <span class="kt">float</span> <span class="n">py</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+  <span class="kt">float</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">];</span>
+
+  <span class="k">if</span><span class="p">(</span> <span class="n">px</span> <span class="o">&lt;</span> <span class="n">min_x_range</span> <span class="o">||</span> <span class="n">px</span> <span class="o">&gt;=</span> <span class="n">max_x_range</span> <span class="o">||</span> <span class="n">py</span> <span class="o">&lt;</span> <span class="n">min_y_range</span> <span class="o">||</span> <span class="n">py</span> <span class="o">&gt;=</span> <span class="n">max_y_range</span>
+    <span class="o">||</span> <span class="n">pz</span> <span class="o">&lt;</span> <span class="n">min_z_range</span> <span class="o">||</span> <span class="n">pz</span> <span class="o">&gt;=</span> <span class="n">max_z_range</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idx</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">px</span> <span class="o">-</span> <span class="n">min_x_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_x_size</span><span class="p">);</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idy</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">py</span> <span class="o">-</span> <span class="n">min_y_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_y_size</span><span class="p">);</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idz</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">pz</span> <span class="o">-</span> <span class="n">min_z_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_z_size</span><span class="p">);</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_offset</span> <span class="o">=</span> <span class="n">voxel_idz</span> <span class="o">*</span> <span class="n">grid_y_size</span> <span class="o">*</span> <span class="n">grid_x_size</span>
+	                    <span class="o">+</span> <span class="n">voxel_idy</span> <span class="o">*</span> <span class="n">grid_x_size</span>
+                            <span class="o">+</span> <span class="n">voxel_idx</span><span class="p">;</span>
+  <span class="n">insertHashTable</span><span class="p">(</span><span class="n">voxel_offset</span><span class="p">,</span> <span class="n">real_voxel_num</span><span class="p">,</span> <span class="n">points_size</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hash_table</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Here’s how the buildHashKernel works:</p>
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">__global__ void buildHashKernel(...)</code>: This line defines the <code class="language-plaintext highlighter-rouge">buildHashKernel</code> function as a CUDA kernel using the <code class="language-plaintext highlighter-rouge">__global__</code> function modifier. As a kernel, this function will be executed in parallel by multiple threads on the GPU.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int point_idx = blockIdx.x * blockDim.x + threadIdx.x</code>: This line calculates the index of the current point to be processed by the CUDA thread.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (point_idx &gt;= points_size) { return; }</code>: This condition checks if the thread index is out of bounds (i.e., beyond the number of points in the input points array). If so, the thread returns early to avoid processing invalid data.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">float px = points[feature_num * point_idx]; ...</code>: These lines extract the X, Y, and Z coordinates of the current point from the input points array based on the <code class="language-plaintext highlighter-rouge">feature_num</code> (the number of features per point).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (px &lt; min_x_range \|\| px &gt;= max_x_range \|\| ...</code>: This condition checks if the current point lies within the specified 3D range (min/max X, Y, Z). If the point is outside this range, it is not considered for voxelization, and the thread returns early.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size); ...</code>: These lines calculate the voxel coordinates (<code class="language-plaintext highlighter-rouge">voxel_idx</code>, <code class="language-plaintext highlighter-rouge">voxel_idy</code>, <code class="language-plaintext highlighter-rouge">voxel_idz</code>) corresponding to the current point’s X, Y, and Z coordinates based on the specified voxel sizes and ranges.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size ...</code>: This line calculates the <code class="language-plaintext highlighter-rouge">voxel_offset</code> based on the voxel coordinates. The <code class="language-plaintext highlighter-rouge">voxel_offset</code> is a flattened  index for each voxel within the 3D grid.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">insertHashTable(voxel_offset, real_voxel_num, points_size * 2 * 2, hash_table);</code>:  This line calls the <code class="language-plaintext highlighter-rouge">insertHashTable</code> function to insert the current <code class="language-plaintext highlighter-rouge">voxel_offset</code> into the hash table. It also updates the <code class="language-plaintext highlighter-rouge">real_voxel_num</code> variable using the <code class="language-plaintext highlighter-rouge">atomicAdd</code> function to keep track of the number of unique voxels added to the hash table.</p>
+  </li>
+</ol>
+
+<p><strong>2. Inserting into HashTable</strong></p>
+
+<p>Next, let’s move on to the <code class="language-plaintext highlighter-rouge">insertHashTable</code> function:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Function to insert a key-value pair into the hash table</span>
+<span class="n">__device__</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">insertHashTable</span><span class="p">(</span><span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">key</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span>
+		<span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">hash_size</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">hash_table</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">uint64_t</span> <span class="n">hash_value</span> <span class="o">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+  <span class="kt">uint32_t</span> <span class="n">slot</span> <span class="o">=</span> <span class="n">hash_value</span> <span class="o">%</span> <span class="p">(</span><span class="n">hash_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="cm">/*key, value*/</span><span class="p">;</span>
+  <span class="kt">uint32_t</span> <span class="n">empty_key</span> <span class="o">=</span> <span class="n">UINT32_MAX</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">pre_key</span> <span class="o">=</span> <span class="n">atomicCAS</span><span class="p">(</span><span class="n">hash_table</span> <span class="o">+</span> <span class="n">slot</span><span class="p">,</span> <span class="n">empty_key</span><span class="p">,</span> <span class="n">key</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pre_key</span> <span class="o">==</span> <span class="n">empty_key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">hash_table</span><span class="p">[</span><span class="n">slot</span> <span class="o">+</span> <span class="n">hash_size</span> <span class="o">/</span> <span class="mi">2</span> <span class="cm">/*offset*/</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomicAdd</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">pre_key</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">slot</span> <span class="o">=</span> <span class="p">(</span><span class="n">slot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">hash_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Explanation:</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">insertHashTable</code> function is responsible for inserting a key-value pair into the hash table. It uses the previously explained <code class="language-plaintext highlighter-rouge">hash</code> function to compute the hash value of the key, and then it resolves hash collisions using a technique called linear probing.</p>
+
+<p>Here’s how the <code class="language-plaintext highlighter-rouge">insertHashTable</code> function works:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">uint64_t hash_value = hash(key)</code>: This line computes the hash value of the input <code class="language-plaintext highlighter-rouge">key</code> using the <code class="language-plaintext highlighter-rouge">hash</code> function.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">uint32_t slot = hash_value % (hash_size / 2)</code>: This line calculates the initial slot index in the hash table by taking the modulo of the hash value with half of the hash table size. This ensures that the slot index is within the valid range of the hash table.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">uint32_t empty_key = UINT32_MAX</code>: This line sets the <code class="language-plaintext highlighter-rouge">empty_key</code> variable to the maximum value of a 32-bit unsigned integer. This value is used to indicate an empty slot in the hash table.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">while (true) { ... }</code>: This is a loop that continues until the key is successfully inserted into the hash table. It handles hash collisions using linear probing.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">uint32_t pre_key = atomicCAS(hash_table + slot, empty_key, key)</code>: This line performs an atomic compare-and-swap operation (CAS) on the hash table. It checks if the slot at the current index (<code class="language-plaintext highlighter-rouge">slot</code>) is empty (i.e., contains <code class="language-plaintext highlighter-rouge">empty_key</code>). If it is empty, it atomically swaps the value with the input <code class="language-plaintext highlighter-rouge">key</code>, effectively inserting the key into the hash table.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (pre_key == empty_key) { ... }</code>: This condition checks if the CAS operation was successful, indicating that the key was inserted into the hash table. If successful, the function proceeds to update the offset in the hash table for the corresponding value (used in feature extraction).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">hash_table[slot + hash_size / 2 /*offset*/] = atomicAdd(value, 1)</code>: This line atomically increments the value in the hash table at the offset <code class="language-plaintext highlighter-rouge">slot + hash_size / 2</code>, effectively storing the value for the given key. The <code class="language-plaintext highlighter-rouge">atomicAdd</code> function ensures that multiple threads trying to insert the same key concurrently will get unique values.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">else if (pre_key == key) { ... }</code>: This condition handles the case when the slot already contains the same key (a duplicate). In this case, the function breaks out of the loop, as there’s no need to insert the key again.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">slot = (slot + 1) % (hash_size / 2)</code>: This line updates the slot index using linear probing by incrementing it by 1 and wrapping around to the beginning if it exceeds half of the hash table size.</p>
+  </li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">insertHashTable</code> function plays a crucial role in building the hash table, which is later used in voxelization and feature extraction.</p>
+
 
     </div>
   </article>
