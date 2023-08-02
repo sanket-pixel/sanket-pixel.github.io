@@ -1060,6 +1060,378 @@ It performs three main operations: hash map building, voxelization, and feature 
 
 <p>The <code class="language-plaintext highlighter-rouge">insertHashTable</code> function plays a crucial role in building the hash table, which is later used in voxelization and feature extraction.</p>
 
+<p><strong>3. Hash Function</strong></p>
+
+<p>Sure, let’s start by explaining the base function, which is the <code class="language-plaintext highlighter-rouge">hash</code> function:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Hash function for generating a 64-bit hash value</span>
+<span class="n">__device__</span> <span class="kr">inline</span> <span class="kt">uint64_t</span> <span class="nf">hash</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">k</span> <span class="o">^=</span> <span class="n">k</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">;</span>
+  <span class="n">k</span> <span class="o">*=</span> <span class="mh">0x85ebca6b</span><span class="p">;</span>
+  <span class="n">k</span> <span class="o">^=</span> <span class="n">k</span> <span class="o">&gt;&gt;</span> <span class="mi">13</span><span class="p">;</span>
+  <span class="n">k</span> <span class="o">*=</span> <span class="mh">0xc2b2ae35</span><span class="p">;</span>
+  <span class="n">k</span> <span class="o">^=</span> <span class="n">k</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Explanation:</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">hash</code> function is a simple hash function that takes a 64-bit integer <code class="language-plaintext highlighter-rouge">k</code> as input and generates a 64-bit hash value using bitwise operations and multiplication with constants.</p>
+
+<p>Here’s how the hash function works:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k ^= k &gt;&gt; 16</code>: This line performs a bitwise XOR operation between <code class="language-plaintext highlighter-rouge">k</code> and <code class="language-plaintext highlighter-rouge">k</code> right-shifted by 16 bits. This step introduces a level of randomness to the bits.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k *= 0x85ebca6b</code>: This line multiplies <code class="language-plaintext highlighter-rouge">k</code> by a constant value (<code class="language-plaintext highlighter-rouge">0x85ebca6b</code>). Multiplication helps in spreading out the bits and reducing collisions.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k ^= k &gt;&gt; 13</code>: This line again performs a bitwise XOR operation between <code class="language-plaintext highlighter-rouge">k</code> and <code class="language-plaintext highlighter-rouge">k</code> right-shifted by 13 bits. This step further increases the randomness of the bits.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k *= 0xc2b2ae35</code>: This line multiplies <code class="language-plaintext highlighter-rouge">k</code> by another constant value (<code class="language-plaintext highlighter-rouge">0xc2b2ae35</code>) to spread out the bits even more.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k ^= k &gt;&gt; 16</code>: Finally, this line performs a bitwise XOR operation between <code class="language-plaintext highlighter-rouge">k</code> and <code class="language-plaintext highlighter-rouge">k</code> right-shifted by 16 bits. This step is the last step of mixing the bits to produce the final hash value.</p>
+  </li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">hash</code> function is used in the hash table building process to generate unique hash values for the voxel offsets in the point cloud data.</p>
+
+<p><strong>4. Voxelization Kernel</strong></p>
+
+<p>In the voxelizationKernel CUDA kernel, each thread processes an individual point from the input point cloud. The goal of this function is to efficiently convert the points into their corresponding 3D voxel representations. It first calculates the voxel coordinates for each point based on the specified voxel sizes and ranges. Then, it uses a hash table lookup to find the corresponding voxel ID for each voxel offset. If the voxel ID is within the specified maximum number of voxels, the function atomically adds the point to the voxel and updates the voxel indices accordingly. This ensures a fast and optimized voxelization process for large and sparse point clouds.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">voxelizationKernel</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span>
+                                   <span class="kt">float</span> <span class="n">min_x_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_x_range</span><span class="p">,</span>
+                                   <span class="kt">float</span> <span class="n">min_y_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_y_range</span><span class="p">,</span>
+                                   <span class="kt">float</span> <span class="n">min_z_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_z_range</span><span class="p">,</span>
+                                   <span class="kt">float</span> <span class="n">voxel_x_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_y_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_z_size</span><span class="p">,</span>
+                                   <span class="kt">int</span> <span class="n">grid_y_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">grid_x_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">feature_num</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max_voxels</span><span class="p">,</span>
+                                   <span class="kt">int</span> <span class="n">max_points_per_voxel</span><span class="p">,</span>
+                                   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">hash_table</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">num_points_per_voxel</span><span class="p">,</span>
+                                   <span class="kt">float</span> <span class="o">*</span><span class="n">voxels_temp</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">voxel_indices</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">real_voxel_num</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="c1">// give every point to a thread. Find the index of the current point within this kernel.</span>
+  <span class="kt">int</span> <span class="n">point_idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">point_idx</span> <span class="o">&gt;=</span> <span class="n">points_size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// points is the array of points in the point cloud storing point features (x, y, z, intensity, t)</span>
+  <span class="c1">// in a serialized format. We access px, py, pz of this point now.</span>
+  <span class="c1">// feature_num is 5, representing the number of features per point.</span>
+  <span class="kt">float</span> <span class="n">px</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span><span class="p">];</span>
+  <span class="kt">float</span> <span class="n">py</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+  <span class="kt">float</span> <span class="n">pz</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">point_idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">];</span>
+
+  <span class="c1">// If the point is outside the range along the (x, y, z) dimensions, stop further </span>
+  <span class="c1">// processing and return.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">px</span> <span class="o">&lt;</span> <span class="n">min_x_range</span> <span class="o">||</span> <span class="n">px</span> <span class="o">&gt;=</span> <span class="n">max_x_range</span> <span class="o">||</span> <span class="n">py</span> <span class="o">&lt;</span> <span class="n">min_y_range</span> <span class="o">||</span> <span class="n">py</span> <span class="o">&gt;=</span> <span class="n">max_y_range</span>
+    <span class="o">||</span> <span class="n">pz</span> <span class="o">&lt;</span> <span class="n">min_z_range</span> <span class="o">||</span> <span class="n">pz</span> <span class="o">&gt;=</span> <span class="n">max_z_range</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Now find the voxel id for this point using the usual voxel conversion logic.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idx</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">px</span> <span class="o">-</span> <span class="n">min_x_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_x_size</span><span class="p">);</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idy</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">py</span> <span class="o">-</span> <span class="n">min_y_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_y_size</span><span class="p">);</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_idz</span> <span class="o">=</span> <span class="n">floorf</span><span class="p">((</span><span class="n">pz</span> <span class="o">-</span> <span class="n">min_z_range</span><span class="p">)</span> <span class="o">/</span> <span class="n">voxel_z_size</span><span class="p">);</span>
+  <span class="c1">// Now find the voxel offset, which is the index of the voxel if all voxels are flattened.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_offset</span> <span class="o">=</span> <span class="n">voxel_idz</span> <span class="o">*</span> <span class="n">grid_y_size</span> <span class="o">*</span> <span class="n">grid_x_size</span>
+                            <span class="o">+</span> <span class="n">voxel_idy</span> <span class="o">*</span> <span class="n">grid_x_size</span>
+                            <span class="o">+</span> <span class="n">voxel_idx</span><span class="p">;</span>
+  <span class="c1">// We perform a scatter operation to voxels, and the result is stored in 'voxel_id'.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">voxel_id</span> <span class="o">=</span> <span class="n">lookupHashTable</span><span class="p">(</span><span class="n">voxel_offset</span><span class="p">,</span> <span class="n">points_size</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hash_table</span><span class="p">);</span>
+  <span class="c1">// If the current voxel id is greater than max_voxels, simply return.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">voxel_id</span> <span class="o">&gt;=</span> <span class="n">max_voxels</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  
+  <span class="c1">// With the voxel id, we can now atomically increment the counter for the number of points in the voxel.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">current_num</span> <span class="o">=</span> <span class="n">atomicAdd</span><span class="p">(</span><span class="n">num_points_per_voxel</span> <span class="o">+</span> <span class="n">voxel_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+  <span class="c1">// If the current number of points in the voxel exceeds the maximum allowed points per voxel, we return.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">current_num</span> <span class="o">&gt;=</span> <span class="n">max_points_per_voxel</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Now we can proceed to add the current point to the voxel's feature list.</span>
+  <span class="c1">// Calculate the destination offset where the point's features will be stored in the voxels_temp array.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">dst_offset</span> <span class="o">=</span> <span class="n">voxel_id</span> <span class="o">*</span> <span class="p">(</span><span class="n">feature_num</span> <span class="o">*</span> <span class="n">max_points_per_voxel</span><span class="p">)</span> <span class="o">+</span> <span class="n">current_num</span> <span class="o">*</span> <span class="n">feature_num</span><span class="p">;</span>
+  <span class="c1">// Calculate the source offset of the current point's features in the points array.</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">src_offset</span> <span class="o">=</span> <span class="n">point_idx</span> <span class="o">*</span> <span class="n">feature_num</span><span class="p">;</span>
+  
+  <span class="c1">// Copy the point's features from the points array to the corresponding location in the voxels_temp array.</span>
+  <span class="c1">// This effectively adds the point's features to the voxel's feature list.</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">feature_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">feature_idx</span> <span class="o">&lt;</span> <span class="n">feature_num</span><span class="p">;</span> <span class="o">++</span><span class="n">feature_idx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">voxels_temp</span><span class="p">[</span><span class="n">dst_offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">src_offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">];</span>
+  <span class="p">}</span>
+  
+  <span class="c1">// Store additional information about the voxel (its indices along X, Y, Z axes) for later processing.</span>
+  <span class="n">uint4</span> <span class="n">idx</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="n">voxel_idz</span><span class="p">,</span> <span class="n">voxel_idy</span><span class="p">,</span> <span class="n">voxel_idx</span><span class="p">};</span>
+  <span class="p">((</span><span class="n">uint4</span> <span class="o">*</span><span class="p">)</span><span class="n">voxel_indices</span><span class="p">)[</span><span class="n">voxel_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Explanation:</p>
+
+<p>Here’s how the <code class="language-plaintext highlighter-rouge">voxelizationKernel</code> works:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int point_idx = blockIdx.x * blockDim.x + threadIdx.x;</code>: This line calculates the index of the current point to be processed by the CUDA thread.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (point_idx &gt;= points_size) { return; }</code>: This condition checks if the thread index is out of bounds, i.e., beyond the number of points in the input points array. If so, the thread returns early to avoid processing invalid data.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">float px = points[feature_num * point_idx]; float py = points[feature_num * point_idx + 1]; float pz = points[feature_num * point_idx + 2];</code>: These lines extract the X, Y, and Z coordinates of the current point from the input points array based on the <code class="language-plaintext highlighter-rouge">feature_num</code> (the number of features per point).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (px &lt; min_x_range || px &gt;= max_x_range || py &lt; min_y_range || py &gt;= max_y_range || pz &lt; min_z_range || pz &gt;= max_z_range) { return; }</code>: This condition checks if the current point lies within the specified 3D range (min/max X, Y, Z). If the point is outside this range, it is not considered for voxelization, and the thread returns early.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size); unsigned int voxel_idy = floorf((py - min_y_range) / voxel_y_size); unsigned int voxel_idz = floorf((pz - min_z_range) / voxel_z_size);</code>: These lines calculate the voxel coordinates (<code class="language-plaintext highlighter-rouge">voxel_idx</code>, <code class="language-plaintext highlighter-rouge">voxel_idy</code>, <code class="language-plaintext highlighter-rouge">voxel_idz</code>) corresponding to the current point’s X, Y, and Z coordinates based on the specified voxel sizes and ranges.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size + voxel_idy * grid_x_size + voxel_idx;</code>: This line calculates the voxel offset based on the voxel coordinates. The voxel offset is a unique identifier for each voxel within the 3D grid.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int voxel_id = lookupHashTable(voxel_offset, points_size * 2 * 2, hash_table);</code>: This line calls the <code class="language-plaintext highlighter-rouge">lookupHashTable</code> function to find the corresponding voxel ID for the current voxel offset using the hash table.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (voxel_id &gt;= max_voxels) { return; }</code>: This condition checks if the current voxel ID is greater than or equal to <code class="language-plaintext highlighter-rouge">max_voxels</code>, indicating that the maximum number of allowed voxels has been reached. If so, the thread returns early.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int current_num = atomicAdd(num_points_per_voxel + voxel_id, 1);</code>: This line uses the <code class="language-plaintext highlighter-rouge">atomicAdd</code> function to atomically increment the number of points in the voxel represented by <code class="language-plaintext highlighter-rouge">voxel_id</code> in the <code class="language-plaintext highlighter-rouge">num_points_per_voxel</code> array.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if (current_num &lt; max_points_per_voxel) { ... }</code>: This condition checks if the current number of points in the voxel is less than the maximum allowed per voxel. If so, the thread proceeds to add the current point’s features to the voxel.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">unsigned int dst_offset = voxel_id * (feature_num * max_points_per_voxel) + current_num * feature_num; unsigned int src_offset = point_idx * feature_num;</code>: These lines calculate the offsets for copying the current point’s features to the voxel in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">for (int feature_idx = 0; feature_idx &lt; feature_num; ++feature_idx) { voxels_temp[dst_offset + feature_idx] = points[src_offset + feature_idx]; }</code>: This loop copies the features of the current point to the appropriate location in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array, effectively adding the point to the voxel.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">uint4 idx = {0, voxel_idz, voxel_idy, voxel_idx}; ((uint4 *)voxel_indices)[voxel_id] = idx;</code>: These lines create an index vector (<code class="language-plaintext highlighter-rouge">idx</code>) containing information about the voxel’s position in the grid and store it in the <code class="language-plaintext highlighter-rouge">voxel_indices</code> array at the location corresponding to <code class="language-plaintext highlighter-rouge">voxel_id</code>. This allows quick lookup of voxel information during subsequent processing.</p>
+  </li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">voxelizationKernel</code> efficiently assigns each point to its corresponding voxel, ensuring that points are appropriately added to the voxel’s feature list without exceeding the maximum allowed points per voxel.</p>
+
+<p><strong>5. Voxelization Launch</strong></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">voxelizationLaunch</code> function is a key step in the voxelization process. It is responsible for launching two CUDA kernels: <code class="language-plaintext highlighter-rouge">buildHashKernel</code> and <code class="language-plaintext highlighter-rouge">voxelizationKernel</code>. Let’s break down the function and its components:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaError_t</span> <span class="nf">voxelizationLaunch</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">min_x_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_x_range</span><span class="p">,</span>
+                          <span class="kt">float</span> <span class="n">min_y_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_y_range</span><span class="p">,</span><span class="kt">float</span> <span class="n">min_z_range</span><span class="p">,</span> <span class="kt">float</span> <span class="n">max_z_range</span><span class="p">,</span>
+                          <span class="kt">float</span> <span class="n">voxel_x_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_y_size</span><span class="p">,</span> <span class="kt">float</span> <span class="n">voxel_z_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">grid_y_size</span><span class="p">,</span>
+                          <span class="kt">int</span> <span class="n">grid_x_size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">feature_num</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max_voxels</span><span class="p">,</span><span class="kt">int</span> <span class="n">max_points_per_voxel</span><span class="p">,</span>
+                          <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">hash_table</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">num_points_per_voxel</span><span class="p">,</span><span class="kt">float</span> <span class="o">*</span><span class="n">voxel_features</span><span class="p">,</span> 
+                          <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">voxel_indices</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">real_voxel_num</span><span class="p">,</span> <span class="n">cudaStream_t</span> <span class="n">stream</span><span class="p">)</span> 
+      <span class="p">{</span>
+    <span class="c1">// how many threads in each block</span>
+    <span class="kt">int</span> <span class="n">threadNum</span> <span class="o">=</span> <span class="n">THREADS_FOR_VOXEL</span><span class="p">;</span>
+    <span class="c1">// how many blocks needed if each point gets on thread.</span>
+    <span class="n">dim3</span> <span class="n">blocks</span><span class="p">((</span><span class="n">points_size</span><span class="o">+</span><span class="n">threadNum</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">threadNum</span><span class="p">);</span>
+    <span class="c1">// how many threads in each block</span>
+    <span class="n">dim3</span> <span class="n">threads</span><span class="p">(</span><span class="n">threadNum</span><span class="p">);</span>
+    <span class="c1">// how many blocks needed to launch the kernel, how many threads in each block,</span>
+    <span class="c1">// how many bytes for dynamic shared memory  ( zero here), cuda stream</span>
+    <span class="n">buildHashKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">&gt;&gt;&gt;</span>
+      <span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">points_size</span><span class="p">,</span>
+          <span class="n">min_x_range</span><span class="p">,</span> <span class="n">max_x_range</span><span class="p">,</span>
+          <span class="n">min_y_range</span><span class="p">,</span> <span class="n">max_y_range</span><span class="p">,</span>
+          <span class="n">min_z_range</span><span class="p">,</span> <span class="n">max_z_range</span><span class="p">,</span>
+          <span class="n">voxel_x_size</span><span class="p">,</span> <span class="n">voxel_y_size</span><span class="p">,</span> <span class="n">voxel_z_size</span><span class="p">,</span>
+          <span class="n">grid_y_size</span><span class="p">,</span> <span class="n">grid_x_size</span><span class="p">,</span> <span class="n">feature_num</span><span class="p">,</span> <span class="n">hash_table</span><span class="p">,</span>
+    <span class="n">real_voxel_num</span><span class="p">);</span>
+    <span class="n">voxelizationKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">&gt;&gt;&gt;</span>
+      <span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">points_size</span><span class="p">,</span>
+          <span class="n">min_x_range</span><span class="p">,</span> <span class="n">max_x_range</span><span class="p">,</span>
+          <span class="n">min_y_range</span><span class="p">,</span> <span class="n">max_y_range</span><span class="p">,</span>
+          <span class="n">min_z_range</span><span class="p">,</span> <span class="n">max_z_range</span><span class="p">,</span>
+          <span class="n">voxel_x_size</span><span class="p">,</span> <span class="n">voxel_y_size</span><span class="p">,</span> <span class="n">voxel_z_size</span><span class="p">,</span>
+          <span class="n">grid_y_size</span><span class="p">,</span> <span class="n">grid_x_size</span><span class="p">,</span> <span class="n">feature_num</span><span class="p">,</span> <span class="n">max_voxels</span><span class="p">,</span>
+          <span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">hash_table</span><span class="p">,</span>
+    <span class="n">num_points_per_voxel</span><span class="p">,</span> <span class="n">voxel_features</span><span class="p">,</span> <span class="n">voxel_indices</span><span class="p">,</span> <span class="n">real_voxel_num</span><span class="p">);</span>
+    <span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaGetLastError</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Explanation:
+Here’s how the <code class="language-plaintext highlighter-rouge">voxelizationLaunch</code> function works:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int threadNum = THREADS_FOR_VOXEL;</code>: This line sets the number of threads per block for the CUDA kernel. The value is obtained from the constant <code class="language-plaintext highlighter-rouge">THREADS_FOR_VOXEL</code>, which likely represents an optimal number of threads for efficient computation.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">dim3 blocks((points_size+threadNum-1)/threadNum);</code>: This line calculates the number of blocks needed to launch the kernel based on the total number of points (<code class="language-plaintext highlighter-rouge">points_size</code>) and the <code class="language-plaintext highlighter-rouge">threadNum</code>. It ensures that all points are processed by the threads efficiently.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">dim3 threads(threadNum);</code>: This line sets the number of threads in each block based on the previously calculated <code class="language-plaintext highlighter-rouge">threadNum</code>.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">buildHashKernel&lt;&lt;&lt;blocks, threads, 0, stream&gt;&gt;&gt;(...)</code>: This line launches the <code class="language-plaintext highlighter-rouge">buildHashKernel</code> CUDA kernel. It processes the input points to build the hash table, which maps voxel offsets to voxel IDs.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">voxelizationKernel&lt;&lt;&lt;blocks, threads, 0, stream&gt;&gt;&gt;(...)</code>: This line launches the <code class="language-plaintext highlighter-rouge">voxelizationKernel</code> CUDA kernel. It voxelizes the input points based on the computed hash table, assigning points to corresponding voxels and storing the voxel features.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">cudaError_t err = cudaGetLastError(); return err;</code>: These lines check for any errors that occurred during kernel launches. If there are any errors, they will be returned by the function, indicating a problem in the GPU computation.</p>
+  </li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">voxelizationLaunch</code> function serves as the entry point to initiate the voxelization process on the GPU. It efficiently divides the data into blocks and threads, launches the necessary CUDA kernels (<code class="language-plaintext highlighter-rouge">buildHashKernel</code> and <code class="language-plaintext highlighter-rouge">voxelizationKernel</code>), and checks for any errors in the GPU computation. By effectively utilizing the GPU’s parallel processing capabilities, voxelization of large point clouds can be done efficiently and quickly.</p>
+
+<p>Overall, the <code class="language-plaintext highlighter-rouge">voxelizationLaunch</code> function is a crucial step in the voxelization process, coordinating the parallel execution of the CUDA kernels to efficiently process and voxelate the input point cloud data.</p>
+
+<p><strong>6. Feature Extraction Kernel</strong></p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">featureExtractionKernel</span><span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="n">voxels_temp</span><span class="p">,</span>
+                                        <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">num_points_per_voxel</span><span class="p">,</span>
+                                        <span class="kt">int</span> <span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="kt">int</span> <span class="n">feature_num</span><span class="p">,</span> <span class="n">half</span> <span class="o">*</span><span class="n">voxel_features</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">voxel_idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+
+    <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_points_per_voxel</span> <span class="o">?</span>
+                                      <span class="n">max_points_per_voxel</span> <span class="o">:</span> <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_idx</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">valid_points_num</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_idx</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">voxel_idx</span> <span class="o">*</span> <span class="n">max_points_per_voxel</span> <span class="o">*</span> <span class="n">feature_num</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">feature_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">feature_idx</span> <span class="o">&lt;</span> <span class="n">feature_num</span><span class="p">;</span> <span class="o">++</span><span class="n">feature_idx</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">point_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">point_idx</span> <span class="o">&lt;</span> <span class="n">valid_points_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">point_idx</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">voxels_temp</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">voxels_temp</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="p">(</span><span class="n">point_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">feature_num</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="n">voxels_temp</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">]</span> <span class="o">/=</span> <span class="n">valid_points_num</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">feature_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">feature_idx</span> <span class="o">&lt;</span> <span class="n">feature_num</span><span class="p">;</span> <span class="o">++</span><span class="n">feature_idx</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">dst_offset</span> <span class="o">=</span> <span class="n">voxel_idx</span> <span class="o">*</span> <span class="n">feature_num</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">src_offset</span> <span class="o">=</span> <span class="n">voxel_idx</span> <span class="o">*</span> <span class="n">feature_num</span> <span class="o">*</span> <span class="n">max_points_per_voxel</span><span class="p">;</span>
+        <span class="n">voxel_features</span><span class="p">[</span><span class="n">dst_offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">__float2half</span><span class="p">(</span><span class="n">voxels_temp</span><span class="p">[</span><span class="n">src_offset</span> <span class="o">+</span> <span class="n">feature_idx</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Here’s how the <code class="language-plaintext highlighter-rouge">featureExtractionKernel</code> works:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int voxel_idx = blockIdx.x * blockDim.x + threadIdx.x;</code>: This line calculates the index of the current voxel to be processed by the CUDA thread. Each CUDA thread corresponds to one voxel, and the <code class="language-plaintext highlighter-rouge">voxel_idx</code> uniquely identifies the voxel.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">num_points_per_voxel[voxel_idx] = num_points_per_voxel[voxel_idx] &gt; max_points_per_voxel ? max_points_per_voxel : num_points_per_voxel[voxel_idx];</code>: This line checks if the number of points in the current voxel exceeds the <code class="language-plaintext highlighter-rouge">max_points_per_voxel</code>. If it does, it clips the value to ensure that the feature extraction is performed on a maximum of <code class="language-plaintext highlighter-rouge">max_points_per_voxel</code> points for each voxel.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int valid_points_num = num_points_per_voxel[voxel_idx];</code>: This line retrieves the actual number of valid points in the current voxel, which may have been clipped in the previous step.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">int offset = voxel_idx * max_points_per_voxel * feature_num;</code>: This line calculates the offset for accessing the voxel’s features in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array. It represents the index from which the current voxel’s features start in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array.</p>
+  </li>
+  <li>
+    <p>The goal of feature extraction is to take the average for each feature (x, y, z, intensity, time) of every point in the voxel. The next few lines of code achieve this by iterating over each feature and each point in the voxel, summing up the feature values, and then dividing the sum by the number of valid points to obtain the average value.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">for (int feature_idx = 0; feature_idx &lt; feature_num; ++feature_idx) { ... }</code>: This loop iterates over each feature (x, y, z, intensity, time) and calculates the average value for that feature in the current voxel.</p>
+  </li>
+  <li>
+    <p>The next loop within the feature extraction loop iterates over each point in the voxel (<code class="language-plaintext highlighter-rouge">point_idx</code>), starting from the second point (index 1) since the first point’s feature values were already added to <code class="language-plaintext highlighter-rouge">voxels_temp</code>.</p>
+  </li>
+  <li>
+    <p>The feature values of each point are added to the corresponding feature in <code class="language-plaintext highlighter-rouge">voxels_temp</code>. After the loop, <code class="language-plaintext highlighter-rouge">voxels_temp[offset + feature_idx]</code> contains the sum of feature values for all points in the current voxel for the given feature.</p>
+  </li>
+  <li>
+    <p>Finally, the sum for each feature is divided by the <code class="language-plaintext highlighter-rouge">valid_points_num</code> to calculate the average feature value for the current voxel. This average feature value is then stored in <code class="language-plaintext highlighter-rouge">voxels_temp</code> in the same location where the sum was stored earlier.</p>
+  </li>
+  <li>
+    <p>The next loop moves the averaged voxel features from <code class="language-plaintext highlighter-rouge">voxels_temp</code> to the <code class="language-plaintext highlighter-rouge">voxel_features</code> array, ensuring that the features for each voxel are stored contiguously in <code class="language-plaintext highlighter-rouge">voxel_features</code>. The features are converted to the “half” data type (<code class="language-plaintext highlighter-rouge">__float2half</code>) for memory efficiency.</p>
+  </li>
+</ol>
+
+<p>In summary, the <code class="language-plaintext highlighter-rouge">featureExtractionKernel</code> takes each voxel represented by a CUDA thread and calculates the average feature values (x, y, z, intensity, time) for all valid points in that voxel. The averaged voxel features are then stored in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array, which represents the final output of the feature extraction process. The GPU’s parallel processing capabilities are utilized to efficiently perform this feature extraction on multiple voxels simultaneously, speeding up the overall computation for large point clouds.</p>
+
+<p><strong>7. Feature Extraction Launch</strong></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">cudaError_t</span> <span class="nf">featureExtractionLaunch</span><span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="n">voxels_temp</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">num_points_per_voxel</span><span class="p">,</span>
+        <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">real_voxel_num</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="kt">int</span> <span class="n">feature_num</span><span class="p">,</span>
+	<span class="n">half</span> <span class="o">*</span><span class="n">voxel_features</span><span class="p">,</span> <span class="n">cudaStream_t</span> <span class="n">stream</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">threadNum</span> <span class="o">=</span> <span class="n">THREADS_FOR_VOXEL</span><span class="p">;</span>
+  <span class="n">dim3</span> <span class="n">blocks</span><span class="p">((</span><span class="n">real_voxel_num</span> <span class="o">+</span> <span class="n">threadNum</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">threadNum</span><span class="p">);</span>
+  <span class="n">dim3</span> <span class="n">threads</span><span class="p">(</span><span class="n">threadNum</span><span class="p">);</span>
+  <span class="n">featureExtractionKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">threads</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="p">(</span><span class="n">voxels_temp</span><span class="p">,</span> <span class="n">num_points_per_voxel</span><span class="p">,</span>
+        <span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">feature_num</span><span class="p">,</span> <span class="n">voxel_features</span><span class="p">);</span>
+  <span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaGetLastError</span><span class="p">();</span>
+  <span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>The featureExtractionLaunch function is the launch function for the featureExtractionKernel, responsible for processing voxel data and extracting features. It takes the necessary input arrays, determines the block and thread configuration based on the number of voxels, launches the kernel, and captures any CUDA errors that might occur during execution.</p>
+
+<p><strong>8.Generate Voxels</strong>
+This function in the <code class="language-plaintext highlighter-rouge">preprocess.cpp</code> file is responsible for performing voxelization and feature extraction on a set of input points using CUDA on the GPU. Here’s how it works:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">PreProcessCuda</span><span class="o">::</span><span class="n">generateVoxels</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span> <span class="n">cudaStream_t</span> <span class="n">stream</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// flash memory for every run </span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">hash_table_</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="n">hash_table_size_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">voxels_temp_</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="n">voxels_temp_size_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">d_voxel_num_</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">voxel_num_size_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">d_real_num_voxels_</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">),</span> <span class="n">stream</span><span class="p">));</span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">));</span>
+
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">voxelizationLaunch</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">points_size</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">min_x_range</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">max_x_range</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">min_y_range</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">max_y_range</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">min_z_range</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">max_z_range</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">pillar_x_size</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">pillar_y_size</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">pillar_z_size</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">getGridYSize</span><span class="p">(),</span> <span class="n">params_</span><span class="p">.</span><span class="n">getGridXSize</span><span class="p">(),</span> <span class="n">params_</span><span class="p">.</span><span class="n">feature_num</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">max_voxels</span><span class="p">,</span>
+          <span class="n">params_</span><span class="p">.</span><span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">hash_table_</span><span class="p">,</span>
+    <span class="n">d_voxel_num_</span><span class="p">,</span> <span class="cm">/*d_voxel_features_*/</span><span class="n">voxels_temp_</span><span class="p">,</span> <span class="n">d_voxel_indices_</span><span class="p">,</span>
+    <span class="n">d_real_num_voxels_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">h_real_num_voxels_</span><span class="p">,</span> <span class="n">d_real_num_voxels_</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">));</span>
+
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">featureExtractionLaunch</span><span class="p">(</span><span class="n">voxels_temp_</span><span class="p">,</span> <span class="n">d_voxel_num_</span><span class="p">,</span>
+          <span class="o">*</span><span class="n">h_real_num_voxels_</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">params_</span><span class="p">.</span><span class="n">feature_num</span><span class="p">,</span>
+    <span class="n">d_voxel_features_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
+
+    <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">));</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>Memory Initialization: The function starts by clearing the flash memory for each run. It uses <code class="language-plaintext highlighter-rouge">cudaMemsetAsync</code> to set the <code class="language-plaintext highlighter-rouge">hash_table_</code> and <code class="language-plaintext highlighter-rouge">voxels_temp_</code> memory regions to 0xFF asynchronously. It also sets the <code class="language-plaintext highlighter-rouge">d_voxel_num_</code> and <code class="language-plaintext highlighter-rouge">d_real_num_voxels_</code> memory regions to 0 asynchronously.</p>
+  </li>
+  <li>
+    <p>Voxelization: Next, the function calls <code class="language-plaintext highlighter-rouge">voxelizationLaunch</code> with the input <code class="language-plaintext highlighter-rouge">points</code> array and various parameters such as <code class="language-plaintext highlighter-rouge">min_x_range</code>, <code class="language-plaintext highlighter-rouge">max_x_range</code>, <code class="language-plaintext highlighter-rouge">pillar_x_size</code>, <code class="language-plaintext highlighter-rouge">max_voxels</code>, etc. This function performs voxelization on the input points, generates a hash table to map voxel offsets to voxel IDs, and records the number of points per voxel in <code class="language-plaintext highlighter-rouge">d_voxel_num_</code>. The result is stored in <code class="language-plaintext highlighter-rouge">voxels_temp_</code>.</p>
+  </li>
+  <li>
+    <p>Synchronization: After voxelization, the function synchronizes the CUDA stream to ensure that the previous kernel launch and memory operations are completed before proceeding.</p>
+  </li>
+  <li>
+    <p>Feature Extraction: The function then calls <code class="language-plaintext highlighter-rouge">featureExtractionLaunch</code> with <code class="language-plaintext highlighter-rouge">voxels_temp_</code> and other related parameters. This function calculates the average of each feature (x, y, z, intensity, t) for each voxel and stores the results in the <code class="language-plaintext highlighter-rouge">d_voxel_features_</code> memory region using the <code class="language-plaintext highlighter-rouge">d_voxel_num_</code> information.</p>
+  </li>
+  <li>
+    <p>Final Synchronization: Lastly, the function synchronizes the CUDA stream again to ensure all computations are completed, and then it returns 0 to indicate successful execution.</p>
+  </li>
+</ol>
+
+<p>Overall, this function efficiently processes a large number of points by leveraging the parallel processing power of the GPU, leading to faster voxelization and feature extraction, crucial steps in point cloud processing and 3D data analysis.</p>
 
     </div>
   </article>
