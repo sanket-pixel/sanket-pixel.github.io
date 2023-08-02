@@ -698,3 +698,335 @@ Here's how the `insertHashTable` function works:
 
 The `insertHashTable` function plays a crucial role in building the hash table, which is later used in voxelization and feature extraction.
 
+
+**3. Hash Function**
+
+Sure, let's start by explaining the base function, which is the `hash` function:
+
+```cpp
+// Hash function for generating a 64-bit hash value
+__device__ inline uint64_t hash(uint64_t k) {
+  k ^= k >> 16;
+  k *= 0x85ebca6b;
+  k ^= k >> 13;
+  k *= 0xc2b2ae35;
+  k ^= k >> 16;
+  return k;
+}
+```
+
+Explanation:
+
+The `hash` function is a simple hash function that takes a 64-bit integer `k` as input and generates a 64-bit hash value using bitwise operations and multiplication with constants.
+
+Here's how the hash function works:
+
+1. `k ^= k >> 16`: This line performs a bitwise XOR operation between `k` and `k` right-shifted by 16 bits. This step introduces a level of randomness to the bits.
+
+2. `k *= 0x85ebca6b`: This line multiplies `k` by a constant value (`0x85ebca6b`). Multiplication helps in spreading out the bits and reducing collisions.
+
+3. `k ^= k >> 13`: This line again performs a bitwise XOR operation between `k` and `k` right-shifted by 13 bits. This step further increases the randomness of the bits.
+
+4. `k *= 0xc2b2ae35`: This line multiplies `k` by another constant value (`0xc2b2ae35`) to spread out the bits even more.
+
+5. `k ^= k >> 16`: Finally, this line performs a bitwise XOR operation between `k` and `k` right-shifted by 16 bits. This step is the last step of mixing the bits to produce the final hash value.
+
+The `hash` function is used in the hash table building process to generate unique hash values for the voxel offsets in the point cloud data.
+
+
+**4. Voxelization Kernel**
+
+In the voxelizationKernel CUDA kernel, each thread processes an individual point from the input point cloud. The goal of this function is to efficiently convert the points into their corresponding 3D voxel representations. It first calculates the voxel coordinates for each point based on the specified voxel sizes and ranges. Then, it uses a hash table lookup to find the corresponding voxel ID for each voxel offset. If the voxel ID is within the specified maximum number of voxels, the function atomically adds the point to the voxel and updates the voxel indices accordingly. This ensures a fast and optimized voxelization process for large and sparse point clouds.
+
+```cpp
+__global__ void voxelizationKernel(const float *points, size_t points_size,
+                                   float min_x_range, float max_x_range,
+                                   float min_y_range, float max_y_range,
+                                   float min_z_range, float max_z_range,
+                                   float voxel_x_size, float voxel_y_size, float voxel_z_size,
+                                   int grid_y_size, int grid_x_size, int feature_num, int max_voxels,
+                                   int max_points_per_voxel,
+                                   unsigned int *hash_table, unsigned int *num_points_per_voxel,
+                                   float *voxels_temp, unsigned int *voxel_indices, unsigned int *real_voxel_num) {
+  
+  // give every point to a thread. Find the index of the current point within this kernel.
+  int point_idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (point_idx >= points_size) {
+    return;
+  }
+
+  // points is the array of points in the point cloud storing point features (x, y, z, intensity, t)
+  // in a serialized format. We access px, py, pz of this point now.
+  // feature_num is 5, representing the number of features per point.
+  float px = points[feature_num * point_idx];
+  float py = points[feature_num * point_idx + 1];
+  float pz = points[feature_num * point_idx + 2];
+
+  // If the point is outside the range along the (x, y, z) dimensions, stop further 
+  // processing and return.
+  if (px < min_x_range || px >= max_x_range || py < min_y_range || py >= max_y_range
+    || pz < min_z_range || pz >= max_z_range) {
+    return;
+  }
+
+  // Now find the voxel id for this point using the usual voxel conversion logic.
+  unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size);
+  unsigned int voxel_idy = floorf((py - min_y_range) / voxel_y_size);
+  unsigned int voxel_idz = floorf((pz - min_z_range) / voxel_z_size);
+  // Now find the voxel offset, which is the index of the voxel if all voxels are flattened.
+  unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size
+                            + voxel_idy * grid_x_size
+                            + voxel_idx;
+  // We perform a scatter operation to voxels, and the result is stored in 'voxel_id'.
+  unsigned int voxel_id = lookupHashTable(voxel_offset, points_size * 2 * 2, hash_table);
+  // If the current voxel id is greater than max_voxels, simply return.
+  if (voxel_id >= max_voxels) {
+    return;
+  }
+  
+  // With the voxel id, we can now atomically increment the counter for the number of points in the voxel.
+  unsigned int current_num = atomicAdd(num_points_per_voxel + voxel_id, 1);
+
+  // If the current number of points in the voxel exceeds the maximum allowed points per voxel, we return.
+  if (current_num >= max_points_per_voxel) {
+    return;
+  }
+
+  // Now we can proceed to add the current point to the voxel's feature list.
+  // Calculate the destination offset where the point's features will be stored in the voxels_temp array.
+  unsigned int dst_offset = voxel_id * (feature_num * max_points_per_voxel) + current_num * feature_num;
+  // Calculate the source offset of the current point's features in the points array.
+  unsigned int src_offset = point_idx * feature_num;
+  
+  // Copy the point's features from the points array to the corresponding location in the voxels_temp array.
+  // This effectively adds the point's features to the voxel's feature list.
+  for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
+    voxels_temp[dst_offset + feature_idx] = points[src_offset + feature_idx];
+  }
+  
+  // Store additional information about the voxel (its indices along X, Y, Z axes) for later processing.
+  uint4 idx = {0, voxel_idz, voxel_idy, voxel_idx};
+  ((uint4 *)voxel_indices)[voxel_id] = idx;
+
+}
+```
+
+Explanation:
+
+Here's how the `voxelizationKernel` works:
+
+1. `int point_idx = blockIdx.x * blockDim.x + threadIdx.x;`: This line calculates the index of the current point to be processed by the CUDA thread.
+
+2. `if (point_idx >= points_size) { return; }`: This condition checks if the thread index is out of bounds, i.e., beyond the number of points in the input points array. If so, the thread returns early to avoid processing invalid data.
+
+3. `float px = points[feature_num * point_idx]; float py = points[feature_num * point_idx + 1]; float pz = points[feature_num * point_idx + 2];`: These lines extract the X, Y, and Z coordinates of the current point from the input points array based on the `feature_num` (the number of features per point).
+
+4. `if (px < min_x_range || px >= max_x_range || py < min_y_range || py >= max_y_range || pz < min_z_range || pz >= max_z_range) { return; }`: This condition checks if the current point lies within the specified 3D range (min/max X, Y, Z). If the point is outside this range, it is not considered for voxelization, and the thread returns early.
+
+5. `unsigned int voxel_idx = floorf((px - min_x_range) / voxel_x_size); unsigned int voxel_idy = floorf((py - min_y_range) / voxel_y_size); unsigned int voxel_idz = floorf((pz - min_z_range) / voxel_z_size);`: These lines calculate the voxel coordinates (`voxel_idx`, `voxel_idy`, `voxel_idz`) corresponding to the current point's X, Y, and Z coordinates based on the specified voxel sizes and ranges.
+
+6. `unsigned int voxel_offset = voxel_idz * grid_y_size * grid_x_size + voxel_idy * grid_x_size + voxel_idx;`: This line calculates the voxel offset based on the voxel coordinates. The voxel offset is a unique identifier for each voxel within the 3D grid.
+
+7. `unsigned int voxel_id = lookupHashTable(voxel_offset, points_size * 2 * 2, hash_table);`: This line calls the `lookupHashTable` function to find the corresponding voxel ID for the current voxel offset using the hash table.
+
+8. `if (voxel_id >= max_voxels) { return; }`: This condition checks if the current voxel ID is greater than or equal to `max_voxels`, indicating that the maximum number of allowed voxels has been reached. If so, the thread returns early.
+
+9. `unsigned int current_num = atomicAdd(num_points_per_voxel + voxel_id, 1);`: This line uses the `atomicAdd` function to atomically increment the number of points in the voxel represented by `voxel_id` in the `num_points_per_voxel` array.
+
+10. `if (current_num < max_points_per_voxel) { ... }`: This condition checks if the current number of points in the voxel is less than the maximum allowed per voxel. If so, the thread proceeds to add the current point's features to the voxel.
+
+11. `unsigned int dst_offset = voxel_id * (feature_num * max_points_per_voxel) + current_num * feature_num; unsigned int src_offset = point_idx * feature_num;`: These lines calculate the offsets for copying the current point's features to the voxel in the `voxels_temp` array.
+
+12. `for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) { voxels_temp[dst_offset + feature_idx] = points[src_offset + feature_idx]; }`: This loop copies the features of the current point to the appropriate location in the `voxels_temp` array, effectively adding the point to the voxel.
+
+13. `uint4 idx = {0, voxel_idz, voxel_idy, voxel_idx}; ((uint4 *)voxel_indices)[voxel_id] = idx;`: These lines create an index vector (`idx`) containing information about the voxel's position in the grid and store it in the `voxel_indices` array at the location corresponding to `voxel_id`. This allows quick lookup of voxel information during subsequent processing.
+
+
+The `voxelizationKernel` efficiently assigns each point to its corresponding voxel, ensuring that points are appropriately added to the voxel's feature list without exceeding the maximum allowed points per voxel.
+
+
+**5. Voxelization Launch**
+
+The `voxelizationLaunch` function is a key step in the voxelization process. It is responsible for launching two CUDA kernels: `buildHashKernel` and `voxelizationKernel`. Let's break down the function and its components:
+
+
+```cpp
+cudaError_t voxelizationLaunch(const float *points, size_t points_size, float min_x_range, float max_x_range,
+                          float min_y_range, float max_y_range,float min_z_range, float max_z_range,
+                          float voxel_x_size, float voxel_y_size, float voxel_z_size, int grid_y_size,
+                          int grid_x_size, int feature_num, int max_voxels,int max_points_per_voxel,
+                          unsigned int *hash_table, unsigned int *num_points_per_voxel,float *voxel_features, 
+                          unsigned int *voxel_indices,unsigned int *real_voxel_num, cudaStream_t stream) 
+      {
+    // how many threads in each block
+    int threadNum = THREADS_FOR_VOXEL;
+    // how many blocks needed if each point gets on thread.
+    dim3 blocks((points_size+threadNum-1)/threadNum);
+    // how many threads in each block
+    dim3 threads(threadNum);
+    // how many blocks needed to launch the kernel, how many threads in each block,
+    // how many bytes for dynamic shared memory  ( zero here), cuda stream
+    buildHashKernel<<<blocks, threads, 0, stream>>>
+      (points, points_size,
+          min_x_range, max_x_range,
+          min_y_range, max_y_range,
+          min_z_range, max_z_range,
+          voxel_x_size, voxel_y_size, voxel_z_size,
+          grid_y_size, grid_x_size, feature_num, hash_table,
+    real_voxel_num);
+    voxelizationKernel<<<blocks, threads, 0, stream>>>
+      (points, points_size,
+          min_x_range, max_x_range,
+          min_y_range, max_y_range,
+          min_z_range, max_z_range,
+          voxel_x_size, voxel_y_size, voxel_z_size,
+          grid_y_size, grid_x_size, feature_num, max_voxels,
+          max_points_per_voxel, hash_table,
+    num_points_per_voxel, voxel_features, voxel_indices, real_voxel_num);
+    cudaError_t err = cudaGetLastError();
+    return err;
+}
+```
+  Explanation:
+Here's how the `voxelizationLaunch` function works:
+
+1. `int threadNum = THREADS_FOR_VOXEL;`: This line sets the number of threads per block for the CUDA kernel. The value is obtained from the constant `THREADS_FOR_VOXEL`, which likely represents an optimal number of threads for efficient computation.
+
+2. `dim3 blocks((points_size+threadNum-1)/threadNum);`: This line calculates the number of blocks needed to launch the kernel based on the total number of points (`points_size`) and the `threadNum`. It ensures that all points are processed by the threads efficiently.
+
+3. `dim3 threads(threadNum);`: This line sets the number of threads in each block based on the previously calculated `threadNum`.
+
+4. `buildHashKernel<<<blocks, threads, 0, stream>>>(...)`: This line launches the `buildHashKernel` CUDA kernel. It processes the input points to build the hash table, which maps voxel offsets to voxel IDs.
+
+5. `voxelizationKernel<<<blocks, threads, 0, stream>>>(...)`: This line launches the `voxelizationKernel` CUDA kernel. It voxelizes the input points based on the computed hash table, assigning points to corresponding voxels and storing the voxel features.
+
+6. `cudaError_t err = cudaGetLastError(); return err;`: These lines check for any errors that occurred during kernel launches. If there are any errors, they will be returned by the function, indicating a problem in the GPU computation.
+
+The `voxelizationLaunch` function serves as the entry point to initiate the voxelization process on the GPU. It efficiently divides the data into blocks and threads, launches the necessary CUDA kernels (`buildHashKernel` and `voxelizationKernel`), and checks for any errors in the GPU computation. By effectively utilizing the GPU's parallel processing capabilities, voxelization of large point clouds can be done efficiently and quickly.
+
+Overall, the `voxelizationLaunch` function is a crucial step in the voxelization process, coordinating the parallel execution of the CUDA kernels to efficiently process and voxelate the input point cloud data.
+
+
+**6. Feature Extraction Kernel**
+```cpp
+__global__ void featureExtractionKernel(float *voxels_temp,
+                                        unsigned int *num_points_per_voxel,
+                                        int max_points_per_voxel, int feature_num, half *voxel_features) {
+    int voxel_idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    num_points_per_voxel[voxel_idx] = num_points_per_voxel[voxel_idx] > max_points_per_voxel ?
+                                      max_points_per_voxel : num_points_per_voxel[voxel_idx];
+
+    int valid_points_num = num_points_per_voxel[voxel_idx];
+
+    int offset = voxel_idx * max_points_per_voxel * feature_num;
+
+    for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
+        for (int point_idx = 0; point_idx < valid_points_num - 1; ++point_idx) {
+            voxels_temp[offset + feature_idx] += voxels_temp[offset + (point_idx + 1) * feature_num + feature_idx];
+        }
+        voxels_temp[offset + feature_idx] /= valid_points_num;
+    }
+
+    for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
+        int dst_offset = voxel_idx * feature_num;
+        int src_offset = voxel_idx * feature_num * max_points_per_voxel;
+        voxel_features[dst_offset + feature_idx] = __float2half(voxels_temp[src_offset + feature_idx]);
+    }
+}
+
+```
+
+Here's how the `featureExtractionKernel` works:
+
+1. `int voxel_idx = blockIdx.x * blockDim.x + threadIdx.x;`: This line calculates the index of the current voxel to be processed by the CUDA thread. Each CUDA thread corresponds to one voxel, and the `voxel_idx` uniquely identifies the voxel.
+
+2. `num_points_per_voxel[voxel_idx] = num_points_per_voxel[voxel_idx] > max_points_per_voxel ? max_points_per_voxel : num_points_per_voxel[voxel_idx];`: This line checks if the number of points in the current voxel exceeds the `max_points_per_voxel`. If it does, it clips the value to ensure that the feature extraction is performed on a maximum of `max_points_per_voxel` points for each voxel.
+
+3. `int valid_points_num = num_points_per_voxel[voxel_idx];`: This line retrieves the actual number of valid points in the current voxel, which may have been clipped in the previous step.
+
+4. `int offset = voxel_idx * max_points_per_voxel * feature_num;`: This line calculates the offset for accessing the voxel's features in the `voxels_temp` array. It represents the index from which the current voxel's features start in the `voxels_temp` array.
+
+5. The goal of feature extraction is to take the average for each feature (x, y, z, intensity, time) of every point in the voxel. The next few lines of code achieve this by iterating over each feature and each point in the voxel, summing up the feature values, and then dividing the sum by the number of valid points to obtain the average value.
+
+6. `for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) { ... }`: This loop iterates over each feature (x, y, z, intensity, time) and calculates the average value for that feature in the current voxel.
+
+7. The next loop within the feature extraction loop iterates over each point in the voxel (`point_idx`), starting from the second point (index 1) since the first point's feature values were already added to `voxels_temp`.
+
+8. The feature values of each point are added to the corresponding feature in `voxels_temp`. After the loop, `voxels_temp[offset + feature_idx]` contains the sum of feature values for all points in the current voxel for the given feature.
+
+9. Finally, the sum for each feature is divided by the `valid_points_num` to calculate the average feature value for the current voxel. This average feature value is then stored in `voxels_temp` in the same location where the sum was stored earlier.
+
+10. The next loop moves the averaged voxel features from `voxels_temp` to the `voxel_features` array, ensuring that the features for each voxel are stored contiguously in `voxel_features`. The features are converted to the "half" data type (`__float2half`) for memory efficiency.
+
+In summary, the `featureExtractionKernel` takes each voxel represented by a CUDA thread and calculates the average feature values (x, y, z, intensity, time) for all valid points in that voxel. The averaged voxel features are then stored in the `voxel_features` array, which represents the final output of the feature extraction process. The GPU's parallel processing capabilities are utilized to efficiently perform this feature extraction on multiple voxels simultaneously, speeding up the overall computation for large point clouds.
+
+
+**7. Feature Extraction Launch**
+
+```cpp
+
+cudaError_t featureExtractionLaunch(float *voxels_temp, unsigned int *num_points_per_voxel,
+        const unsigned int real_voxel_num, int max_points_per_voxel, int feature_num,
+	half *voxel_features, cudaStream_t stream)
+{
+  int threadNum = THREADS_FOR_VOXEL;
+  dim3 blocks((real_voxel_num + threadNum - 1) / threadNum);
+  dim3 threads(threadNum);
+  featureExtractionKernel<<<blocks, threads, 0, stream>>>
+    (voxels_temp, num_points_per_voxel,
+        max_points_per_voxel, feature_num, voxel_features);
+  cudaError_t err = cudaGetLastError();
+  return err;
+}
+
+```
+The featureExtractionLaunch function is the launch function for the featureExtractionKernel, responsible for processing voxel data and extracting features. It takes the necessary input arrays, determines the block and thread configuration based on the number of voxels, launches the kernel, and captures any CUDA errors that might occur during execution.
+
+
+**8.Generate Voxels**
+This function in the `preprocess.cpp` file is responsible for performing voxelization and feature extraction on a set of input points using CUDA on the GPU. Here's how it works:
+
+```cpp
+int PreProcessCuda::generateVoxels(const float *points, size_t points_size, cudaStream_t stream)
+{
+    // flash memory for every run 
+    checkCudaErrors(cudaMemsetAsync(hash_table_, 0xff, hash_table_size_, stream));
+    checkCudaErrors(cudaMemsetAsync(voxels_temp_, 0xff, voxels_temp_size_, stream));
+
+    checkCudaErrors(cudaMemsetAsync(d_voxel_num_, 0, voxel_num_size_, stream));
+    checkCudaErrors(cudaMemsetAsync(d_real_num_voxels_, 0, sizeof(unsigned int), stream));
+    checkCudaErrors(cudaStreamSynchronize(stream));
+
+    checkCudaErrors(voxelizationLaunch(points, points_size,
+          params_.min_x_range, params_.max_x_range,
+          params_.min_y_range, params_.max_y_range,
+          params_.min_z_range, params_.max_z_range,
+          params_.pillar_x_size, params_.pillar_y_size, params_.pillar_z_size,
+          params_.getGridYSize(), params_.getGridXSize(), params_.feature_num, params_.max_voxels,
+          params_.max_points_per_voxel, hash_table_,
+    d_voxel_num_, /*d_voxel_features_*/voxels_temp_, d_voxel_indices_,
+    d_real_num_voxels_, stream));
+    checkCudaErrors(cudaMemcpyAsync(h_real_num_voxels_, d_real_num_voxels_, sizeof(int), cudaMemcpyDeviceToHost, stream));
+    checkCudaErrors(cudaStreamSynchronize(stream));
+
+    checkCudaErrors(featureExtractionLaunch(voxels_temp_, d_voxel_num_,
+          *h_real_num_voxels_, params_.max_points_per_voxel, params_.feature_num,
+    d_voxel_features_, stream));
+
+    checkCudaErrors(cudaStreamSynchronize(stream));
+    return 0;
+}
+```
+
+1. Memory Initialization: The function starts by clearing the flash memory for each run. It uses `cudaMemsetAsync` to set the `hash_table_` and `voxels_temp_` memory regions to 0xFF asynchronously. It also sets the `d_voxel_num_` and `d_real_num_voxels_` memory regions to 0 asynchronously.
+
+2. Voxelization: Next, the function calls `voxelizationLaunch` with the input `points` array and various parameters such as `min_x_range`, `max_x_range`, `pillar_x_size`, `max_voxels`, etc. This function performs voxelization on the input points, generates a hash table to map voxel offsets to voxel IDs, and records the number of points per voxel in `d_voxel_num_`. The result is stored in `voxels_temp_`.
+
+3. Synchronization: After voxelization, the function synchronizes the CUDA stream to ensure that the previous kernel launch and memory operations are completed before proceeding.
+
+4. Feature Extraction: The function then calls `featureExtractionLaunch` with `voxels_temp_` and other related parameters. This function calculates the average of each feature (x, y, z, intensity, t) for each voxel and stores the results in the `d_voxel_features_` memory region using the `d_voxel_num_` information.
+
+5. Final Synchronization: Lastly, the function synchronizes the CUDA stream again to ensure all computations are completed, and then it returns 0 to indicate successful execution.
+
+Overall, this function efficiently processes a large number of points by leveraging the parallel processing power of the GPU, leading to faster voxelization and feature extraction, crucial steps in point cloud processing and 3D data analysis.
