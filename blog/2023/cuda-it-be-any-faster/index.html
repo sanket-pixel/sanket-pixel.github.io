@@ -122,7 +122,7 @@
 
   <header class="post-header">
     <h1 class="post-title">CUDA it Be Any Faster?</h1>
-    <p class="post-meta">July 12, 2023</p>
+    <p class="post-meta">August 5, 2023</p>
     <p class="post-tags">
       <a href="/blog/2023"> <i class="fas fa-calendar fa-sm"></i> 2023 </a>
         ·  
@@ -142,58 +142,238 @@
   <article class="post-content">
     
     <div id="markdown-content">
-      <h4 id="experience-the-exhilarating-world-of-cuda-programming-as-we-revolutionize-point-cloud-processing-in-computer-vision-and-robotics-voxelization-the-process-of-converting-3d-points-into-discrete-voxels-has-faced-challenges-with-traditional-cpu-based-methods-limiting-groundbreaking-innovations-but-fear-not-as-we-harness-the-immense-power-of-parallelization-for-a-monumental-leap-in-processing-speed-dive-into-cudas-awe-inspiring-realm-where-each-point-gets-its-own-thread-enabling-lightning-fast-voxelization-and-opening-the-doors-to-real-time-applications-join-us-on-this-thrilling-ride-and-witness-the-magic-of-cuda-as-we-rewrite-the-future-of-point-cloud-processing-lets-embrace-the-sheer-power-of-cuda-together-and-change-the-game">Experience the exhilarating world of CUDA programming as we revolutionize point cloud processing in computer vision and robotics. Voxelization, the process of converting 3D points into discrete voxels, has faced challenges with traditional CPU-based methods, limiting groundbreaking innovations. But fear not, as we harness the immense power of parallelization for a monumental leap in processing speed! Dive into CUDA’s awe-inspiring realm, where each point gets its own thread, enabling lightning-fast voxelization and opening the doors to real-time applications. Join us on this thrilling ride and witness the magic of CUDA as we rewrite the future of point cloud processing. Let’s embrace the sheer power of CUDA together and change the game!</h4>
-
-<!-- ### Notes on how the logic works
-1. The point clouds are loaded directly from file and copied to device.
-2. We make the hash table for the given input points.
-    - The hash table will store all unique_voxels hashed voxel_offset as keys and the voxel_id for each unique voxel as ID.This means that we only store information about voxels that actually have a point in them. The voxels are flattened out to calculate offset and the hashed value of this flattened out voxel acts as key. The value is the 
-    index of the voxel in this sequence of unique voxels.
-    - Each point is processed on a seperate thread. First we compute the voxel_x, voxel_y, voxel_z for this point using general point to voxel clamping.
-    - Then, we insert the voxel_offset ( flattened out voxel id ) as key, current total unique voxels as value in a hash table. 
-        - The hash table stores all keys ( voxel offsets ) and value (voxel_id) serially. So if there are 100 unique voxels, the hash table will be of size 200,
-          and store 100 keys first, followed by 100 values. 
-        - To that end, we first calculate hash value of the key. The modulus function is applied on this hash value ( of hash_size/2) to find the slot where this 
-          key would fit in the hash table.
-        - So if the hash value of the key is 126, then the value after modulus will become 126%100 = 26. This means the key will be stored at index 26 and value will 
-          be stored at (26+100) = 126.
-        - We apply Compare and Swap function on this key. But there are three possible conditions while we apply AtomicCAS function on the key at the given slot. 
-             1. If empty, that means the insertion was successful. We then insert corresponding value
-               which is the unique voxel index.
-            2. If key matches current key, it means this voxel offset is already in hash table.
-            3. If key is another key, that is a collision, which means a different key with same hash value exists in table.
-               Apply linear probing to solve this problem. Check in the next slot.
-3. Then we apply Voxelization using the hash map we created. Again every point is processed on separate thread. The goal is to create an array called 
-   voxel_temp of size (max_voxels * max_points_per_voxel * num_features) where all point features for all voxels are stored serially where features from points
-   from the same voxel are together in memory. 
-   - First we compute voxel_x, voxel_y and voxel_z for the current point using clamping. 
-   - Then we compute the voxel_offset by flattening out the voxels from 3D to 2D and finding the linear index. 
-   - Then we pass the voxel_offset as key to lookup in the hash table. This gives us the corresponding value for this voxel_offset key,
-     which is the voxel_id. The voxel_id is the index of the voxel in unique voxels.
-   - Now we update the number of points in the current voxel by 1.
-   - Then, we calculate the dst_offset using voxel_id, max_points_per_voxel, feature_num, points_in_voxel.
-   - We compute the src_offset using point_idx and feature_num from points array.
-   - We now copy the current points feature from points array to voxel_temp array. 
-   - voxel_temp array stores all points features of all voxels,
-    in a serialized fashion in order of the voxel_id. For for example, for first voxel, ( if max points per voxel = 3),
-    voxel_temp stores [x11,y11,z11,i11,t11,x12,y12,z12,i12,t12,x13,y13,z13,i13,t13]. where i featureij indicates voxelid and j indiciates pointid i
-    in that voxel and feature is x,y,z, etc.
-   - We also store the voxel indices (b,x,y,z) in voxel_indices array using voxel_id.
-
-4. Now we begin the feature extraction kernel. We have all point features for all points stored serially in order of voxel_ids in voxel_temp. Now all that remains
-   is to take average of all these features (x,y,z,i,t) for all points for each voxel and store them in a voxel_features array.
-   - The feature extraction process happens on the voxel level. So now, we use one thread for every voxel. 
-   - First we upgrade the num_points_per_voxel array for this voxel.
-   - We will be updating the feature values of the first point of every voxel with the average of all features of all points in that voxel.
-   - To that end, we first compute offset for this voxel in the array which will be used to access this voxels first point in voxel_temp.
-   - Now we iterate over every feature and then over every point in this voxel, starting from second point ( because first is to be updated).
-   - Then we sum up all points features in this voxel and take average by dividing by total points.
-   - Finally the voxel_features array is updated using these averaged out features. Now we have features for every voxel in coninous memory in voxel_features array. -->
+      <h4 id="experience-the-exhilarating-world-of-nvidias-cuda-programming-as-we-revolutionize-point-cloud-processing-in-computer-vision-and-robotics-voxelization-the-process-of-converting-3d-points-into-discrete-voxels-has-faced-challenges-with-traditional-cpu-based-methods-limiting-groundbreaking-innovations-but-fear-not-as-we-harness-the-immense-power-of-parallelization-for-a-monumental-leap-of-over-580x-times-over-traditional-cpu-dive-into-cudas-awe-inspiring-realm-where-each-point-gets-its-own-thread-enabling-lightning-fast-voxelization-and-opening-the-doors-to-real-time-applications-join-us-on-this-thrilling-ride-and-witness-the-magic-of-cuda-as-we-rewrite-the-future-of-point-cloud-processing-lets-embrace-the-sheer-power-of-cuda-together-and-change-the-game">Experience the exhilarating world of NVIDIA’s CUDA programming as we revolutionize point cloud processing in computer vision and robotics. Voxelization, the process of converting 3D points into discrete voxels, has faced challenges with traditional CPU-based methods, limiting groundbreaking innovations. But fear not, as we harness the immense power of parallelization for a monumental leap of over 580x times over traditional CPU! Dive into CUDA’s awe-inspiring realm, where each point gets its own thread, enabling lightning-fast voxelization and opening the doors to real-time applications. Join us on this thrilling ride and witness the magic of CUDA as we rewrite the future of point cloud processing. Let’s embrace the sheer power of CUDA together and change the game!</h4>
 
 <p><br></p>
 
-<h2 id="1-intuition">1. Intuition</h2>
-<p>In this section, we will embark on an intuitive exploration of the point cloud voxelization process using CUDA. To that end, let’s first set the stage by taking a look at a simple 2D grid. We’ll create a 3x3 grid and randomly select 15 points within its boundaries. Some points will also lie slightly outside the grid to make the example more interesting. Visualizing this grid and its sample points, we get the following plot:</p>
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_2/voxelize.gif-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_2/voxelize.gif-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_2/voxelize.gif-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_2/voxelize.gif" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Input Point Cloud on the Left and Voxelized Point Cloud using CUDA programming on right. 
+</div>
+</div>
+
+<h2 id="why-should-you-read-this-blog">Why Should You Read This Blog?</h2>
+
+<p>Buckle up as we’re about to embark on an exhilarating journey into the world of NVIDIA GPU programming and CUDA wizardry. So, grab your favorite caffeinated beverage and prepare for some adrenaline-pumping excitement!</p>
+
+<p>Now, you might be wondering, “Why should I read this blog? Is it going to be another dull and dreary technical piece?” Well, fear not! This blog is anything but ordinary. We’re here to show you the mind-blowing power of CUDA programming on NVIDIA GPUs, and we’ve got a jaw-dropping example to demonstrate just that: voxelization!</p>
+
+<p>Okay, you might be thinking, “Voxelization? What in the world is that? Sounds like a made-up word from a sci-fi movie!” Well, in a way, it kind of is! Voxelization is the magical process of taking a ginormous LiDAR point cloud and breaking it down into tiny cubic chunks called voxels. Think of it as pixelating a 3D world, but on a whole new level!</p>
+
+<p>Now, hold on to your seat because here comes the fun part: we’re going to do all this voxelization stuff using the mighty NVIDIA GPUs and CUDA. That’s right, the same GPUs used in gaming rigs to unleash stunning graphics and epic frame rates are going to help us crunch numbers like there’s no tomorrow.  Together, we’ll venture into the depths of parallel programming, where our algorithms will run at supersonic speeds, leaving ordinary CPUs gasping for breath. Instead of using the age old for-loops to process every point one after another, we will process these points, all at once, by using a seperate thread for every point in the point cloud. This way, we make every thread count, squeezing out every ounce of performance, that the NVIDIA GPU has to offer. These concepts of parallelization that we will use for point-cloud processing can be seamlessly used for any other realm where parallelization is an option.</p>
+
+<p>But beware! As we venture further into the realm of CUDA programming, things might get a bit hairy. New concepts and parallel programming lingo might make you scratch your head in confusion. But hey, don’t give up just yet! Remember, the path to greatness is often paved with challenges. And in this case, the reward at the end of the tunnel is an unreal, mind-boggling, jaw-dropping <code class="language-plaintext highlighter-rouge">400x speedup</code>!</p>
+
+<p>Yes, you heard that right! By the time we’re done here, you’ll have a GPU-based voxelization algorithm that can chew through mountains of LiDAR data at an incredible speed, leaving your CPU-bound counterparts in the dust. It’s like having a supersonic jet compared to a horse-drawn carriage!</p>
+
+<p>So, stick with us, and we promise it’ll be worth it. Sure, there might be moments when you feel like you’re lost in a maze of CUDA syntax or buried under an avalanche of parallel processing concepts. But fear not, brave adventurer! We’re here to guide you, step by step, through the intricacies of GPU programming.</p>
+
+<p>So, are you ready for the ride of a lifetime? Strap on your GPU-powered jetpack, and let’s dive into the mind-bending universe of CUDA programming and voxelization. Together, we’ll unlock the secrets of parallel processing and witness the awe-inspiring 400x speedup that will leave you marveling at the wonders of modern technology!</p>
+
+<p><br></p>
+
+<h2 id="1-what-is-voxelization">1. What is Voxelization?</h2>
+
+<p>Voxelization is a fundamental process in computer graphics and 3D data analysis that involves converting continuous 3D space into a discrete representation using small cubic units known as “voxels.” The term <code class="language-plaintext highlighter-rouge">voxel</code> is a combination of <code class="language-plaintext highlighter-rouge">volume</code> and <code class="language-plaintext highlighter-rouge">pixel</code>, and it serves as the 3D equivalent of a 2D pixel.</p>
+
+<p>Imagine we have a 3D object or scene that we want to represent digitally. Voxelization begins by enclosing this continuous 3D space within an imaginary 3D grid. This grid subdivides the entire space into a series of equally-sized cubic voxels, and each cell is a voxel. Similar to pixels in a 2D image, each voxel corresponds to a specific region within the 3D space.</p>
+
+<p>The next step is to analyze the contents of each voxel and determine whether it is occupied or empty. This process is often referred to as <code class="language-plaintext highlighter-rouge">filling</code> the voxels. To fill the voxels, we examine the objects or entities within the 3D space and determine which voxels they intersect or occupy.</p>
+
+<p>For example, consider a 3D point cloud obtained from a LiDAR sensor. Each point in the point cloud represents a 3D coordinate in space. During voxelization, the points falling within a voxel’s boundaries are considered as <code class="language-plaintext highlighter-rouge">occupied</code> while the voxels without any points are <code class="language-plaintext highlighter-rouge">empty</code>.</p>
+
+<p>By analyzing the presence or absence of objects in each voxel, we create a binary representation of the 3D space. The voxels that are occupied are marked with a value of 1, while the empty voxels are assigned a value of 0. This binary representation forms a digital 3D model, often referred to as a <code class="language-plaintext highlighter-rouge">voxel grid</code> or <code class="language-plaintext highlighter-rouge">voxel map</code>.</p>
+
+<p>In the context of this blog, <code class="language-plaintext highlighter-rouge">voxelization</code> refers to the initial step of assigning individual 3D points from a LiDAR point cloud to discrete voxels within a 3D grid. Each voxel represents a small cubic region in the 3D space, and the process of voxelization categorizes points based on their spatial location. Points falling within a voxel’s boundaries are considered “occupied,” while voxels without any points are labeled as “empty.”</p>
+
+<p>After the voxelization step, the blog proceeds to <code class="language-plaintext highlighter-rouge">feature extraction</code>. In this step, we compute the average of certain features for all the points that belong to each voxel. The features of interest in our case are the x, y, z coordinates, and the intensity of the LiDAR points. By averaging these features for all the points within a voxel, we obtain a condensed representation of the original point cloud data.</p>
+
+<p>The voxelization and feature extraction steps are essential in processing large-scale LiDAR point cloud data efficiently and effectively. They provide several key benefits:</p>
+
+<p><strong>Data Summarization</strong>: Voxelization enables us to partition the complex and continuous point cloud data into smaller, discrete units, represented by voxels. This categorization allows us to summarize the content of the entire point cloud and simplifies subsequent analysis.</p>
+
+<p><strong>Reduced Computational Complexity</strong>: The process of assigning points to voxels significantly reduces the computational burden by processing points at a voxel level rather than individually. This reduction in complexity is crucial when dealing with massive point cloud datasets, as it enables faster processing and analysis.</p>
+
+<p><strong>Compact Representation</strong>: Feature extraction by averaging the x, y, z coordinates, and intensity within each voxel results in a compact representation of the original point cloud. Instead of dealing with millions of individual points, we obtain summarized information for each voxel, making it more manageable for downstream tasks.</p>
+
+<p><strong>Efficient Task-Specific Analysis</strong>: The condensed representation obtained through feature extraction provides valuable insights for various 3D tasks such as object detection, moving object segmentation, velocity estimation, and more. By processing voxel-level information, these tasks become computationally tractable and more efficient.</p>
+
+<h2 id="2-primer-on-cuda-programming">2. Primer on CUDA Programming</h2>
+
+<p>Before we embark on the exhilarating journey of GPU-powered voxelization, let’s take a moment to familiarize ourselves with the essence of CUDA programming. If you’re new to this realm, fear not, for we shall unravel the key concepts step by step, and soon, you’ll be navigating through the seas of parallel processing with confidence.</p>
+
+<p><em>Understanding CUDA: The Power of Parallelism</em></p>
+
+<p>At its core, CUDA is NVIDIA’s powerful parallel computing platform and programming model. It harnesses the raw computational might of NVIDIA GPUs to tackle intricate problems at breathtaking speeds. Imagine orchestrating a symphony where hundreds or thousands of independent operations perform in harmony, each contributing to the grand performance.</p>
+
+<p><em>The Building Blocks of CUDA: Threads, Blocks, and Grids</em></p>
+
+<p>CUDA operates on the principles of threads, blocks, and grids. Threads are the elemental units of computation, executing independently on the GPU. They group together into blocks, and these blocks, in turn, form a grid. This orchestrated arrangement of threads, blocks, and grids conducts the seamless symphony of parallelism.</p>
+
+<p><em>A Simple CUDA Example: Adding Numbers in Parallel</em></p>
+
+<p>Let’s commence our CUDA journey with a classic example: adding numbers in parallel. This seemingly simple task is a profound introduction to the world of parallel processing.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// CUDA kernel to add two arrays in parallel</span>
+<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">addNumbers</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">c</span><span class="p">,</span> <span class="kt">int</span> <span class="n">numElements</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tid</span> <span class="o">=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">tid</span> <span class="o">&lt;</span> <span class="n">numElements</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="n">tid</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Array size and memory allocation</span>
+    <span class="kt">int</span> <span class="n">numElements</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">numElements</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">h_a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">h_b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">h_c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+
+    <span class="c1">// Initialize arrays with some values</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numElements</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">h_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="n">h_b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Allocate GPU memory</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">d_a</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">d_b</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="kt">float</span><span class="o">*</span> <span class="n">d_c</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_a</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+    <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_b</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+    <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_c</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+
+    <span class="c1">// Copy input arrays from host to GPU memory</span>
+    <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_a</span><span class="p">,</span> <span class="n">h_a</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+    <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_b</span><span class="p">,</span> <span class="n">h_b</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+
+    <span class="c1">// Launch the CUDA kernel with 256 threads per block</span>
+    <span class="kt">int</span> <span class="n">blockSize</span> <span class="o">=</span> <span class="mi">256</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">numBlocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">numElements</span> <span class="o">+</span> <span class="n">blockSize</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">blockSize</span><span class="p">;</span>
+    <span class="n">addNumbers</span><span class="o">&lt;&lt;&lt;</span><span class="n">numBlocks</span><span class="p">,</span> <span class="n">blockSize</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">d_a</span><span class="p">,</span> <span class="n">d_b</span><span class="p">,</span> <span class="n">d_c</span><span class="p">,</span> <span class="n">numElements</span><span class="p">);</span>
+
+    <span class="c1">// Copy the result from GPU memory back to host</span>
+    <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">h_c</span><span class="p">,</span> <span class="n">d_c</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+
+    <span class="c1">// Free GPU memory and host arrays</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_a</span><span class="p">);</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_b</span><span class="p">);</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_c</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_a</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_b</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_c</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Code Explanation:</strong></p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">__global__</code> Function: The <code class="language-plaintext highlighter-rouge">addNumbers</code> function is marked as a <code class="language-plaintext highlighter-rouge">__global__</code> function. This indicates that it’s a GPU kernel that will be executed on the GPU.</p>
+  </li>
+  <li>
+    <p>Kernel Launch: The kernel is launched with the <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;numBlocks, blockSize&gt;&gt;&gt;</code> syntax, specifying the number of blocks (<code class="language-plaintext highlighter-rouge">numBlocks</code>) and the number of threads per block (<code class="language-plaintext highlighter-rouge">blockSize</code>). Each block contains multiple threads, and the threads execute the kernel function in parallel.</p>
+  </li>
+  <li>
+    <p>Thread Indexing: The <code class="language-plaintext highlighter-rouge">tid</code> (thread ID) is calculated using the <code class="language-plaintext highlighter-rouge">blockDim.x</code>, <code class="language-plaintext highlighter-rouge">blockIdx.x</code>, and <code class="language-plaintext highlighter-rouge">threadIdx.x</code> built-in variables. Each thread knows its global ID, allowing it to access the corresponding elements in arrays <code class="language-plaintext highlighter-rouge">a</code>, <code class="language-plaintext highlighter-rouge">b</code>, and <code class="language-plaintext highlighter-rouge">c</code>.</p>
+  </li>
+  <li>
+    <p>Array Initialization: Three arrays <code class="language-plaintext highlighter-rouge">h_a</code>, <code class="language-plaintext highlighter-rouge">h_b</code>, and <code class="language-plaintext highlighter-rouge">h_c</code> are allocated in host memory (<code class="language-plaintext highlighter-rouge">malloc</code>) and initialized with some values. These arrays represent the input arrays <code class="language-plaintext highlighter-rouge">a</code>, <code class="language-plaintext highlighter-rouge">b</code>, and the output array <code class="language-plaintext highlighter-rouge">c</code>.</p>
+  </li>
+  <li>
+    <p>Memory Allocation and Data Transfer: Memory is allocated on the GPU using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, and the input arrays <code class="language-plaintext highlighter-rouge">h_a</code> and <code class="language-plaintext highlighter-rouge">h_b</code> are copied to the GPU memory using <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>.</p>
+  </li>
+  <li>
+    <p>Kernel Execution: The <code class="language-plaintext highlighter-rouge">addNumbers</code> kernel is launched with the specified number of blocks and threads per block. Each thread computes the sum of the corresponding elements of <code class="language-plaintext highlighter-rouge">a</code> and <code class="language-plaintext highlighter-rouge">b</code>, storing the result in array <code class="language-plaintext highlighter-rouge">c</code> on the GPU.</p>
+  </li>
+  <li>
+    <p>Result Retrieval: The result is copied back from the GPU memory to the host array <code class="language-plaintext highlighter-rouge">h_c</code> using <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>.</p>
+  </li>
+  <li>
+    <p>Memory Deallocation: GPU memory is freed using <code class="language-plaintext highlighter-rouge">cudaFree</code>, and host arrays are freed using <code class="language-plaintext highlighter-rouge">free</code>.</p>
+  </li>
+</ol>
+
+<p><strong>Compiling the CUDA Code with CMake</strong></p>
+
+<p>To compile the CUDA code, we can use CMake, a popular build system that supports CUDA projects. Below is a minimal CMakeLists.txt file to build the CUDA example:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cmake_minimum_required</span><span class="p">(</span>VERSION 3.10<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span>CUDAExample<span class="p">)</span>
+
+<span class="c1"># Find CUDA</span>
+<span class="nb">find_package</span><span class="p">(</span>CUDA REQUIRED<span class="p">)</span>
+
+<span class="c1"># Set C++ version</span>
+<span class="nb">set</span><span class="p">(</span>CMAKE_CXX_STANDARD 14<span class="p">)</span>
+
+<span class="c1"># Include CUDA headers</span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="si">${</span><span class="nv">CUDA_INCLUDE_DIRS</span><span class="si">}</span><span class="p">)</span>
+
+<span class="c1"># Add the CUDA source file and executable</span>
+<span class="nf">cuda_add_executable</span><span class="p">(</span>cuda_example main.cu<span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Executing the CUDA Code</strong></p>
+
+<p>Once the CMakeLists.txt file is prepared, follow these steps to execute the CUDA example:</p>
+
+<ol>
+  <li>Create a directory (e.g., build) to build the project:
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="nb">mkdir </span>build
+  <span class="nb">cd </span>build
+</code></pre></div>    </div>
+  </li>
+  <li>Generate the Makefile using CMake:
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  cmake ..
+</code></pre></div>    </div>
+  </li>
+  <li>Build the project:
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  make
+</code></pre></div>    </div>
+  </li>
+  <li>Run the CUDA executable:
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>./cuda_example
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>And with that, we cover the basics of CUDA ,and  we are now ready to witness how these concepts are harnessed to implement highly efficient voxelization using the parallel processing capabilities of GPUs. Before we embark on this exciting journey into the world of GPU-accelerated voxelization, let’s delve deeper into the intuition and mechanics of this process. Get ready to experience the wonders of voxelization and the incredible performance boost it brings!</p>
+
+<p><br></p>
+
+<h2 id="3-intuition">3. Intuition</h2>
+<p>In this section, we will embark on an intuitive exploration of the point cloud voxelization process using CUDA. To that end, let’s first set the stage by taking a look at a simple 2D grid. We’ll create a 3x3 grid and randomly select 14 points with most points within its boundaries. Some points will also lie slightly outside the grid to make the example more interesting. The voxels here are analogous to voxels. Visualizing this grid and its sample points, we get the following plot:</p>
 
 <div style="width: 60%;margin: 0 auto;">
 <div class="row">
@@ -217,11 +397,11 @@
     </div>
 </div>
 <div class="caption">
-    The key steps involved in CUDA based Voxelization
+   Example 2D grid with 14 points. The voxels are analogous to voxels.
 </div>
 </div>
 
-<p>Now, let us understand one last detail before we begin the actual processing. In the figure shown below, on the left, we have a 2D grid representing the cells with their corresponding indices ranging from (0, 0) to (2, 2). Each cell in the grid is identified by its x and y coordinates, starting from the bottom-left corner and progressing towards the top-right corner. However, from now on, we will refer to this serialized integer index as <code class="language-plaintext highlighter-rouge">voxel_offset</code>,  which uniquely represents each cell in a sequential order from 0 to 8, as shown on the right side of the figure.</p>
+<p>Now, let us understand one last detail before we begin the actual processing. In the figure shown below, on the left, we have a 2D grid representing the voxels with their corresponding indices ranging from (0, 0) to (2, 2). Each voxel in the grid is identified by its x and y coordinates, starting from the bottom-left corner and progressing towards the top-right corner. However, from now on, we will refer to this serialized integer index as <code class="language-plaintext highlighter-rouge">voxel_offset</code>,  which uniquely represents each voxel in a sequential order from 0 to 8, as shown on the right side of the figure.</p>
 <div style="width: 70%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
@@ -244,12 +424,12 @@
     </div>
 </div>
 <div class="caption">
-    The key steps involved in CUDA based Voxelization
+   Left : 2D indices of the voxels (i,j), the x and ycoordinate respectively. Right : Flattened out 1D indices.
 </div> 
 </div>
-<p>This <code class="language-plaintext highlighter-rouge">voxel_offset</code>` plays a crucial role in the upcoming CUDA-based voxelization process, allowing us to efficiently access and process voxel data in a linear manner. By representing the grid in this serialized format, we can easily map each voxel’s position to its corresponding voxel ID, making the hash map implementation more streamlined and intuitive.</p>
+<p>This <code class="language-plaintext highlighter-rouge">voxel_offset</code> plays a crucial role in the upcoming CUDA-based voxelization process, allowing us to efficiently access and process voxel data in a linear manner. By representing the grid in this serialized format, we can easily map each voxel’s position to its corresponding voxel ID, making the hash map implementation more streamlined and intuitive. These concepts will get clear later.</p>
 
-<p>The process of converting a point cloud to voxels using CUDA involves three main steps: hash map building, voxelization, and feature extraction as shown in the Figure below. Hash map building efficiently stores information about unique voxels that contain points, eliminating the need to process all grid cells. Voxelization assigns each point to its corresponding voxel, creating a serialized array that stores point features for all voxels. Finally, feature extraction calculates the average features for each voxel, resulting in an efficient representation of point cloud features. In the following section we will understand each of these steps intuitively using our toy example before we delve into the real deal.</p>
+<p>The process of converting a point cloud to voxels using CUDA involves three main steps: <em>hash map building</em>, <em>voxelization</em>, and <em>feature extraction</em> as shown in the Figure below. Hash map building efficiently stores information about unique voxels that contain points, eliminating the need to process all grid voxels. Voxelization assigns each point to its corresponding voxel, creating a serialized array that stores point features for all voxels. Finally, feature extraction calculates the average features for each voxel, resulting in an efficient representation of point cloud features. In all of these steps, CUDA programming helps in parallelization, in that, every point or every voxel is processed on a seperate thread in parallel. In the following section we will understand each of these steps intuitively using our toy example before we delve into the real deal.</p>
 
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
@@ -277,7 +457,7 @@
 <p><br></p>
 
 <h3 id="a-build-hashmaps">A. Build Hashmaps</h3>
-<p>Now, let’s explore the crucial role of hash maps in the voxelization process. Before diving into the intricacies of building hash maps, it’s essential to understand why they are necessary. In our 3x3 grid example, we observed that out of the 9 cells, only 6 cells contain points, while the remaining 3 cells are entirely empty (as marked in red in the figure below). This situation presents a compelling opportunity for optimization, as processing all 9x9 cells would be highly inefficient and computationally wasteful. That’s where hash maps comes into play.</p>
+<p>Now, let’s explore the first step of building hash maps. Before diving into the intricacies of building hash maps, it’s essential to understand why they are necessary. In our 3x3 grid example, we observed that out of the 9 voxels, only 6 voxels contain points, while the remaining 3 voxels are entirely empty (as marked in red in the figure below). This situation presents a compelling opportunity for optimization, as processing all 9x9 voxels would be highly inefficient and computationally wasteful. That’s where hash maps comes into play.</p>
 
 <div style="width: 70%;margin: 0 auto;">
 <div class="row">
@@ -301,11 +481,11 @@
     </div>
 </div>
 <div class="caption">
-    The key steps involved in CUDA based Voxelization
+     Why use hash maps? To process only non-empty voxels.
 </div> 
 </div>
 
-<p>Hash maps offer an efficient way to store and access data by associating each voxel’s position with its corresponding information. By directly mapping the unique voxel positions as keys( <code class="language-plaintext highlighter-rouge">voxel_offset</code> as described earlier ) to their respective <code class="language-plaintext highlighter-rouge">voxel_id</code>s ( will be explained soon) as values, we can efficiently eliminate the need to process all the empty cells. This approach drastically reduces memory consumption and processing time, making voxelization of point clouds significantly faster and more resource-efficient. So, let’s now understand how we go from our scattered 2D points, with certain empty cells, to an efficient and compact hashmap :</p>
+<p>Hash maps offer an efficient way to store and access data by associating each voxel’s position with its corresponding information. By directly mapping the unique voxel positions as keys( <code class="language-plaintext highlighter-rouge">voxel_offset</code> as described earlier to their respective <code class="language-plaintext highlighter-rouge">voxel_id</code>s ( will be explained soon) as values, we can efficiently eliminate the need to process all the empty voxels. This approach drastically reduces memory consumption and processing time, making voxelization of point clouds significantly faster and more resource-efficient. We perform several operations on every point in the point cloud, for building the hash map. All these operation is performed for each point on a seperate thread in parallel using CUDA. Let’s now understand how we go from our scattered 2D points, with certain empty voxels, to an efficient and compact hashmap :</p>
 <ol>
   <li>
 <strong>Filtering Points</strong>: We begin by filtering out all the points that lie outside the defined boundary. These points are not relevant for our voxelization and can be safely excluded from further processing.</li>
@@ -362,7 +542,7 @@
   </li>
 </ol>
 
-<p>By following these three basic steps, we can efficiently insert points into the hash table, associating each voxel’s position with its corresponding unique ID. This enables us to store relevant information about the voxels containing points and optimize the voxelization process. Now, let’s dive into an example to illustrate this process in action.</p>
+<p>By following these three basic steps, we can efficiently insert points into the hash table, associating each voxel’s position with its corresponding unique ID. This enables us to store relevant information about the voxels containing points and optimize the voxelization process. A gentle reminder, that these steps occur every point on seperate thread in parallel. Now, let’s dive into an example to illustrate this process in action.</p>
 
 <h4 id="example-1">Example 1</h4>
 
@@ -477,7 +657,7 @@ The value is the count of the current voxels, which is 1.</p>
 </div>
 </div>
 <div class="caption">
-     Example 2 : Hash insert operation for point Pt(1.8,0.5) shown in red. Inserting key 1 at slot (2) and value 0, at slot (2+6=8). 
+     Example 2 : Hash insert operation for point Pt(1.8,0.5) shown in red. Inserting key 1 at slot (2) and value 1, at slot (2+6=8). 
 </div> 
 </div>
 
@@ -631,20 +811,20 @@ and the number of such unique voxels as values. Since this <code class="language
     The key steps involved in CUDA based Voxelization
 </div>
 
-<p>Having accomplished the challenging task of creating the hash table, we now move on to the second step: “Voxelization.” In this step, we utilize the hash table to efficiently process every point in a separate thread. The objective is to construct a 3D array called <code class="language-plaintext highlighter-rouge">voxel_temp</code> with a size of (<code class="language-plaintext highlighter-rouge">max_voxels</code> * <code class="language-plaintext highlighter-rouge">max_points_per_voxel</code> * <code class="language-plaintext highlighter-rouge">num_features</code>), where all point features for each voxel are stored serially. Points belonging to the same voxel are grouped together in memory, thereby optimizing data access and manipulation.We simplify the process by breaking it down into three logical steps.</p>
+<p>Having accomplished the challenging task of creating the hash table, we now move on to the second step: “Voxelization.” In this step, we utilize the hash table to efficiently store information of all points from the same voxel in contiguous memory locations. The objective is to construct an array called <code class="language-plaintext highlighter-rouge">voxel_temp</code> with a size of (<code class="language-plaintext highlighter-rouge">max_voxels</code> * <code class="language-plaintext highlighter-rouge">max_points_per_voxel</code> * <code class="language-plaintext highlighter-rouge">num_features</code>), where all point features for each voxel are stored serially. Points belonging to the same voxel are grouped together in memory, thereby optimizing data access and manipulation. If a voxel contains lesser points than <code class="language-plaintext highlighter-rouge">max_points_per_voxel</code>, then those memory locations are left empty. No points for guessing, that these operations are performed in parallel for every point on a seperate thread. We simplify the process by breaking it down into three logical steps.</p>
 
 <ol>
   <li>
     <p><strong>Compute Voxel Offset from Point</strong>
-For each point, we determine the corresponding voxel offset. The voxel offset represents a unique identifier for a specific voxel in our 3D grid. Imagine each voxel as a small box in our 3x3 grid, and the voxel offset as a label that tells us which box this point belongs to.</p>
+For each point, we determine the corresponding <code class="language-plaintext highlighter-rouge">voxel_offset</code> as described earlier, using the <code class="language-plaintext highlighter-rouge">floor</code> operation. The <code class="language-plaintext highlighter-rouge">voxel_offset</code> represents a unique identifier for a specific voxel in our 2D grid.</p>
   </li>
   <li>
     <p><strong>Efficiently Find Voxel ID from the Hash Table</strong>
-To quickly locate the voxel’s position in the array, we leverage the previously constructed hash table. Using the voxel offset as the key, we perform a constant-time search in the hash table to find the corresponding value, which represents the unique voxel ID. Think of this process as instantly finding the box’s label (voxel ID) when given the box’s unique identifier (voxel offset).</p>
+To quickly locate the voxel’s position in the array, we leverage the previously constructed hash table. Using the <code class="language-plaintext highlighter-rouge">voxel_offset</code> as the key, we perform a constant-time search in the hash table to find the corresponding <code class="language-plaintext highlighter-rouge">value</code>, which represents the unique <code class="language-plaintext highlighter-rouge">voxel_ID</code>. The intuition is that while making the hash table, the voxel that was identified first will be entered first in the <code class="language-plaintext highlighter-rouge">voxel_temp</code> array. So <code class="language-plaintext highlighter-rouge">voxel_ID</code> essentially provides us this voxel’s location in the <code class="language-plaintext highlighter-rouge">voxel_temp</code> array.</p>
   </li>
   <li>
     <p><strong>Store Point Features in the Voxel Array</strong>
-With the voxel ID in hand, we efficiently store the point’s features in the voxel_temp array. This array is designed to hold all the point features for every voxel in a serialized manner, ensuring that points from the same voxel are stored together. We use the voxel ID to determine the correct position in the array to store this point’s features, allowing us to efficiently group all points for each voxel.</p>
+With the <code class="language-plaintext highlighter-rouge">voxel_ID</code> in hand, we efficiently store the point’s features in the <code class="language-plaintext highlighter-rouge">voxel_temp</code> array. This array is designed to hold all the point features for every voxel in a serialized manner, ensuring that points from the same voxel are stored together. We use the <code class="language-plaintext highlighter-rouge">voxel_ID</code> to determine the correct position in the array to store this point’s features, allowing us to efficiently group all points for each voxel.</p>
   </li>
 </ol>
 
@@ -692,6 +872,8 @@ Step 3: Store Point Features in the Voxel Temp Array
   in the voxel_temp array at the 4th position. 
 - The voxel_temp array contains information about all points for each voxel, 
   ensuring that points within the same voxel are grouped together.
+- Since max_points_per_voxel in our example is 3, but this voxel has only 2 points, we keep 
+  the remaining space empty.
 
 </code></pre></div></div>
 
@@ -704,12 +886,12 @@ Step 3: Store Point Features in the Voxel Temp Array
 <p><br></p>
 
 <h3 id="c-feature-extraction">C. Feature extraction</h3>
-<p>In the final step of our voxelization process, known as Feature Extraction, we aim to extract meaningful information from the <code class="language-plaintext highlighter-rouge">voxel_temp</code> array, which contains all point features grouped by their respective voxel IDs. The goal is to compute average feature values for each voxel and store them in a <code class="language-plaintext highlighter-rouge">voxel_features</code> array.</p>
+<p>In the final step of our voxelization process, known as Feature Extraction, we aim to extract meaningful information from the <code class="language-plaintext highlighter-rouge">voxel_temp</code> array, which contains all point features grouped by their respective <code class="language-plaintext highlighter-rouge">voxel_IDs</code>. The goal is to compute average feature values for each voxel and store them in a <code class="language-plaintext highlighter-rouge">voxel_features</code> array. In the feature extraction step, since we are operating on the voxel level ( and not on point level ), we assign one thread for every voxel and perform all operations for every voxel in parallel using CUDA.</p>
 
 <ol>
   <li>
     <p><strong>Prepare for Feature Extraction</strong>
-The feature extraction process operates on a per-voxel basis, where each voxel’s features are processed independently. To begin, we initialize the num_points_per_voxel array to keep track of the number of points in each voxel. Then, for each voxel, we iterate over its points to calculate the total number of points and update the corresponding entry in the <code class="language-plaintext highlighter-rouge">num_points_per_voxel</code> array.</p>
+The feature extraction process operates on a per-voxel basis, where each voxel’s features are processed independently. To begin, we initialize the <code class="language-plaintext highlighter-rouge">num_points_per_voxel</code> array to keep track of the number of points in each voxel. Then, for each voxel, we iterate over its points to calculate the total number of points and update the corresponding entry in the <code class="language-plaintext highlighter-rouge">num_points_per_voxel</code> array.</p>
   </li>
   <li>
     <p><strong>Calculate Average Feature Values</strong>
@@ -717,11 +899,11 @@ Next, we calculate the average feature values for each voxel. Starting with the 
   </li>
   <li>
     <p><strong>Update Voxel Features</strong>
-After summing up the features for all points within the voxel, we calculate the average by dividing the sum by the total number of points in that voxel. These averaged feature values are then updated in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array at the position corresponding to the voxel’s ID.</p>
+After summing up the features for all points within the voxel, we calculate the average by dividing the sum by the total number of points in that voxel. These averaged feature values are then updated in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array at the position corresponding to the <code class="language-plaintext highlighter-rouge">voxel_ID</code>.</p>
   </li>
 </ol>
 
-<p>In summary, the Feature Extraction step processes <code class="language-plaintext highlighter-rouge">voxel_temp</code> data to calculate the average feature values for each voxel. This process is performed in parallel for all voxels, utilizing one thread per voxel. By the end of this step, the <code class="language-plaintext highlighter-rouge">voxel_features</code> array holds crucial information about each voxel’s characteristics in continuous memory, ready for further analysis and applications in point cloud processing. For example we see feature extraction for the voxel at position 4 as shown in the Figure below.</p>
+<p>In summary, the Feature Extraction step processes <code class="language-plaintext highlighter-rouge">voxel_temp</code> data to calculate the average feature values for each voxel. This process is performed in parallel for all voxels, utilizing one thread per voxel. By the end of this step, the <code class="language-plaintext highlighter-rouge">voxel_features</code> array holds crucial information about each voxel’s characteristics in continuous memory, ready for further analysis and applications in point cloud processing. Each voxel’s information is stored in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array at the position given by <code class="language-plaintext highlighter-rouge">voxel_ID</code>. For example we see feature extraction for the voxel at position 4 as shown in the Figure below.</p>
 
 <div style="width: 80%;margin: 0 auto;">
 <div class="row">
@@ -745,7 +927,7 @@ After summing up the features for all points within the voxel, we calculate the 
 </div>
 </div>
 <div class="caption">
-     Voxelization :  Points A and B in voxel with voxel_offset=5 are stored in position 4 in voxel_temp array. This position 4 is derived from the hash table by looking up value corresponding to the key 5.
+     Feature Extraction :  Extract point features from voxel_temp array for every voxel and store the average in voxel_features array at it's voxel_ID. Here the features are (x,y) coordinates.
 </div> 
 </div>
 
@@ -782,17 +964,18 @@ After summing up the features for all points within the voxel, we calculate the 
 
 </code></pre></div></div>
 
-<h2 id="2-inside-the-code">2. Inside the Code</h2>
-<p>In this section, we will take a comprehensive look at the CUDA-powered voxelization implementation. We’ll dissect the code, step by step, to understand the magic behind its blazing-fast performance. To begin our exploration, let’s first examine the folder structure that forms the foundation of this efficient voxelization engine. Understanding the organization of the code will serve as a solid starting point to grasp the inner workings of CUDA and its pivotal role in accelerating the voxelization process. So, let’s embark on this informative journey and unravel the secrets behind this powerful technique.</p>
+<h2 id="4-inside-the-code">4. Inside the Code</h2>
+<p>In this section, we will take a comprehensive look at the CUDA-powered voxelization implementation. We’ll dissect the code, step by step, to understand the magic behind its blazing-fast performance. To begin our exploration, let’s first setup and build the project locally and run the executable to see the CPU vs GPU performance. Then, we examine the folder structure that forms the foundation of this efficient voxelization engine. Understanding the organization of the code will serve as a solid starting point to grasp the inner workings of CUDA and its pivotal role in accelerating the voxelization process. So, let’s embark on this informative journey and unravel the secrets behind this powerful technique.</p>
 
-<h4 id="21-setting-up-locally">2.1 Setting up Locally</h4>
+<h4 id="41-setting-up-locally">4.1 Setting up Locally</h4>
 <p>Before diving into the code, let’s set up the project locally by following these steps:
 Setup Project Locally:</p>
 
 <ol>
-  <li>Install CUDA &gt; 11.4.</li>
+  <li>Install CUDA &gt; 11.1.</li>
   <li>Ensure you are using Ubuntu &gt; 18.04.</li>
   <li>Add CUDA path to <code class="language-plaintext highlighter-rouge">PATH</code> and <code class="language-plaintext highlighter-rouge">LD_LIBRARY_PATH</code>.</li>
+  <li>OPTIONAL : PCL &gt; 1.8.1 ( Only for visualization)</li>
 </ol>
 
 <p>Now, let’s build and run the project with the provided commands:
@@ -803,40 +986,48 @@ Setup Project Locally:</p>
 <span class="nb">mkdir </span>build <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build
 cmake ..
 make
-./voxelize_cuda ../data/test/
+./voxelize_cuda ../data/test/ <span class="nt">--cpu</span> 
 </code></pre></div></div>
 <p>You can expect an output similar to this:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GPU has cuda devices: 1
 ----device id: 0 info----
   GPU : GeForce RTX 2060 
-  Capability: 7.5
+  Capbility: 7.5
   Global memory: 5912MB
   Const memory: 64KB
   SM in a block: 48KB
-  Warp size: 32
-  Threads in a block: 1024
-  Block dimension: (1024,1024,64)
-  Grid dimension: (2147483647,65535,65535)
+  warp size: 32
+  threads in a block: 1024
+  block dim: (1024,1024,64)
+  grid dim: (2147483647,65535,65535)
+-------------------------
 
-Total 2
-
-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
-Load file: ../data/test/291e7331922541cea98122b607d24831.bin
-Find points num: 239911
-[TIME] Voxelization: 4.66307 ms
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
-
-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
-Load file: ../data/test/3615d82e7e8546fea5f181157f42e30b.bin
-Find points num: 267057
-[TIME] Voxelization: 2.34752 ms
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+Total 10
+Average GPU Voxelization Time : 0.643269
+Average CPU Voxelization Time : 374.432
+Average GPU vs CPU Speedup : 582.076x times 
 
 </code></pre></div></div>
+
+<p>To start the visualization, make sure the PCL Library is installed before building. Then execute with <code class="language-plaintext highlighter-rouge">--visualize</code> flag.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./voxelize_cuda ../data/test/ <span class="nt">--visualize</span> 
+</code></pre></div></div>
+<p>Two windows will open up with titles <code class="language-plaintext highlighter-rouge">Point Cloud Viewer</code> and <code class="language-plaintext highlighter-rouge">Voxel Cloud Viewer</code> showing the original and voxelized point cloud respectively. Note that voxelized here means the point cloud after the feature extraction step. So the points represents the average of all points in each voxel.</p>
+
+<p>To see detail logs of performance of every file, execute with <code class="language-plaintext highlighter-rouge">--verbose</code> flag.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./voxelize_cuda ../data/test/ <span class="nt">--verbose</span> 
+</code></pre></div></div>
+
+<p>By default the executable will just perform CUDA based Voxelization on GPU. To also perform voxelization
+on the CPU, execute with the <code class="language-plaintext highlighter-rouge">--cpu</code> flag.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./voxelize_cuda ../data/test/ <span class="nt">--cpu</span> 
+</code></pre></div></div>
+<p>This will show time comparisions of CPU and GPU.</p>
+
 <p>Once you have obtained this output, you can take a cup of coffee, as we are now ready to deep dive into the code. Let’s explore the implementation in detail.</p>
 
-<h4 id="22-folder-structure">2.2. Folder structure</h4>
+<h4 id="42-folder-structure">4.2. Folder structure</h4>
 
 <p>The project directory contains the following files and folders:</p>
 
@@ -845,15 +1036,23 @@ Find points num: 267057
     │   └── test
     │       ├── pc1.bin
     │       └── pc2.bin
+    |              .
+    |              .
+    |              .
     ├── include
     │   ├── common.h
     │   ├── kernel.h
-    │   └── preprocess.h
+    │   ├── visualizer.hpp
+    │   ├── VoxelizerCPU.hpp
+    │   └── VoxelizerGPU.h
+    |   
     ├── main.cpp
     ├── README.md
     └── src
-        ├── preprocess.cpp
-        └── preprocess_kernel.cu
+        ├── preprocess_kernel.cu
+        ├── visualizer.cpp
+        ├── VoxelizerCPU.cpp
+        └── VoxelizerGPU.cpp
 </code></pre></div></div>
 
 <ul>
@@ -874,7 +1073,11 @@ Find points num: 267057
       <li>
 <a href="#">kernel.h</a> - Header file with CUDA kernel function declarations.</li>
       <li>
-<a href="#">preprocess.h</a> - Header file for the preprocessing functions.</li>
+<a href="#">visualizer.hpp</a> - Header file for Visualizer functions.</li>
+      <li>
+<a href="#">VoxelizerCPU.hpp</a> - Header file with CPU Voxelization functions</li>
+      <li>
+<a href="#">VoxelizerGPU.h</a> - Header file for the CUDA based Voxelization functions.</li>
     </ul>
   </li>
   <li>
@@ -885,14 +1088,18 @@ Find points num: 267057
 <strong>src</strong> - Directory containing source files.
     <ul>
       <li>
-<a href="#">preprocess.cpp</a> - Source file with the implementation of preprocessing functions.</li>
-      <li>
 <a href="#">preprocess_kernel.cu</a> - CUDA source file with kernel implementations.</li>
+      <li>
+<a href="#">visualizer.cpp</a> - Visualization function implementations.</li>
+      <li>
+<a href="#">VoxelizerCPU.cpp</a> - CPU Voxelization function implementations.</li>
+      <li>
+<a href="#">VoxelizerGPU.cpp</a> - GPU Voxelization function implementations.</li>
     </ul>
   </li>
 </ul>
 
-<h4 id="23-code-walkthrough">2.3 Code Walkthrough</h4>
+<h4 id="43-code-walkthrough">4.3 Code Walkthrough</h4>
 
 <p>The main entry point of the program is the main function in the <code class="language-plaintext highlighter-rouge">main.cpp</code> file. It starts by checking the command-line arguments and loading the point cloud data from the specified folder.</p>
 
@@ -910,14 +1117,18 @@ Find points num: 267057
   </li>
 </ul>
 
-<h5 id="step-2-preprocessing">Step 2: Preprocessing</h5>
+<h5 id="step-2-voxelization-cpu">Step 2: Voxelization CPU</h5>
 
-<p>The preprocessing is handled by the <code class="language-plaintext highlighter-rouge">PreProcessCuda</code> class, defined in the <code class="language-plaintext highlighter-rouge">preprocess.h</code> and <code class="language-plaintext highlighter-rouge">preprocess.cpp</code> files.
-It performs three main operations: hash map building, voxelization, and feature extraction.</p>
+<p>The CPU Voxelization is handled by the <code class="language-plaintext highlighter-rouge">VoxelizerCPU</code> class, defined in the <code class="language-plaintext highlighter-rouge">VoxelizerCPU.h</code> and <code class="language-plaintext highlighter-rouge">VoxelizerCPU.cpp</code> files.
+It performs Voxelization on CPU using standard C++ operations.</p>
+
+<h4 id="step-3-voxelization-gpu">Step 3: Voxelization GPU</h4>
+<p>The CUDA based GPU Voxelization is handled by the <code class="language-plaintext highlighter-rouge">VoxelizerGPU</code> class, defined in the <code class="language-plaintext highlighter-rouge">VoxelizerGPU.h</code> and <code class="language-plaintext highlighter-rouge">VoxelizerGPU.cpp</code> files.
+It performs Voxelization on GPU using CUDA kernels for Hash Map Building, Voxelization and Feature Extraction.</p>
 
 <p><strong>A. Hash Map Building</strong>:</p>
 
-<p>The hash map building is performed in the <code class="language-plaintext highlighter-rouge">buildHashKernel</code> CUDA kernel defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel takes the input point cloud data and converts it into voxel coordinates using the specified voxel size and range. It then builds a hash table that maps each voxel offset to its corresponding voxel ID.</p>
+<p>The hash map building is performed in the <code class="language-plaintext highlighter-rouge">buildHashKernel</code> CUDA kernel defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel takes the input point cloud data and converts it into voxel coordinates using the specified voxel size and range. It then builds a hash table that maps each <code class="language-plaintext highlighter-rouge">voxel_offset</code> to its corresponding <code class="language-plaintext highlighter-rouge">voxel_ID</code>.</p>
 
 <p><strong>B. Voxelization</strong>:</p>
 
@@ -927,11 +1138,11 @@ It performs three main operations: hash map building, voxelization, and feature 
 
 <p>The feature extraction is handled by the <code class="language-plaintext highlighter-rouge">featureExtractionKernel</code> CUDA kernel, also defined in the <code class="language-plaintext highlighter-rouge">preprocess_kernel.cu</code> file. This kernel takes the serialized point features in the <code class="language-plaintext highlighter-rouge">voxels_temp</code> array and computes the average feature values for each voxel. It stores the averaged features in the <code class="language-plaintext highlighter-rouge">voxel_features</code> array.</p>
 
-<h5 id="step-3-output-and-cleanup">Step 3: Output and Cleanup</h5>
+<h4 id="step-4-output-and-cleanup">Step 4: Output and Cleanup</h4>
 
-<p>After the preprocessing is complete for all the input files, the program outputs the results and frees the allocated memory.</p>
+<p>After the Voxelization GPU is complete for all the input files, the program outputs the results and frees the allocated memory.</p>
 
-<h4 id="24-deep-dive">2.4 Deep Dive</h4>
+<h4 id="44-deep-dive">4.4 Deep Dive</h4>
 <p>Now that we have taken a closer look at the basic walkthrough of the code, let’s embark on a more comprehensive deep dive, exploring the intricacies of the CUDA kernels and delving into the inner workings of the preprocessor class. We will gradually progress from the core CUDA kernel, which handles the voxelization process efficiently through parallelism, to the preprocessor class, where these kernels are utilized. Finally, we will uncover how the main cpp file leverages the functionalities of the preprocessor class to apply voxelization on the input point cloud data, culminating in the generation of 3D voxels. This step-by-step approach will allow us to understand how each component contributes to the overall process and how they interact harmoniously to produce the desired output. So, let’s begin our journey from inside to out, unraveling the complexities of the code and gaining a deeper understanding of its functioning.</p>
 
 <p><strong>1. CUDA Kernel for Building HashTables</strong></p>
@@ -1379,10 +1590,11 @@ Here’s how the <code class="language-plaintext highlighter-rouge">voxelization
 </code></pre></div></div>
 <p>The featureExtractionLaunch function is the launch function for the featureExtractionKernel, responsible for processing voxel data and extracting features. It takes the necessary input arrays, determines the block and thread configuration based on the number of voxels, launches the kernel, and captures any CUDA errors that might occur during execution.</p>
 
-<p><strong>8.Generate Voxels</strong>
-This function in the <code class="language-plaintext highlighter-rouge">preprocess.cpp</code> file is responsible for performing voxelization and feature extraction on a set of input points using CUDA on the GPU. Here’s how it works:</p>
+<p><strong>8.Generate Voxels</strong></p>
 
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">PreProcessCuda</span><span class="o">::</span><span class="n">generateVoxels</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span> <span class="n">cudaStream_t</span> <span class="n">stream</span><span class="p">)</span>
+<p>This function in the <code class="language-plaintext highlighter-rouge">VoxelizerGPU.cpp</code> file is responsible for performing voxelization and feature extraction on a set of input points using CUDA on the GPU. Here’s how it works:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">VoxelizerGPU</span><span class="o">::</span><span class="n">generateVoxels</span><span class="p">(</span><span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">points_size</span><span class="p">,</span> <span class="n">cudaStream_t</span> <span class="n">stream</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="c1">// flash memory for every run </span>
     <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">hash_table_</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="n">hash_table_size_</span><span class="p">,</span> <span class="n">stream</span><span class="p">));</span>
@@ -1432,6 +1644,78 @@ This function in the <code class="language-plaintext highlighter-rouge">preproce
 </ol>
 
 <p>Overall, this function efficiently processes a large number of points by leveraging the parallel processing power of the GPU, leading to faster voxelization and feature extraction, crucial steps in point cloud processing and 3D data analysis.</p>
+
+<p>This completes the code deep dive of all crucial components of performing Voxelization on GPU using CUDA Kernels. Now, in the next section, we will get some insights on the speed improvements provided by the GPU by comparing it with just CPU based Voxelization.</p>
+
+<h2 id="5-conclusion">5. Conclusion</h2>
+
+<p>We have already looked at how to make the executable perform Voxelization on both GPU and CPU. But let us revisit the command.
+By default the executable will just perform CUDA based Voxelization on GPU. To also perform voxelization
+on the CPU, execute with the <code class="language-plaintext highlighter-rouge">--cpu</code> flag.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./voxelize_cuda ../data/test/ <span class="nt">--cpu</span> 
+</code></pre></div></div>
+
+<p>The output of this command will looks something like this :</p>
+
+<p>You can expect an output similar to this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GPU has cuda devices: 1
+----device id: 0 info----
+  GPU : GeForce RTX 2060 
+  Capbility: 7.5
+  Global memory: 5912MB
+  Const memory: 64KB
+  SM in a block: 48KB
+  warp size: 32
+  threads in a block: 1024
+  block dim: (1024,1024,64)
+  grid dim: (2147483647,65535,65535)
+-------------------------
+
+Total 10
+Average GPU Voxelization Time : 0.643269
+Average CPU Voxelization Time : 374.432
+Average GPU vs CPU Speedup : 582.076x times 
+
+</code></pre></div></div>
+
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_2/elon.gif-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_2/elon.gif-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_2/elon.gif-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_2/elon.gif" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+What getting 580x times speedup feels like.
+</div>
+</div>
+
+<p>Let than sink in for a moment. The GPU-based Voxelization, driven by the incredible CUDA programming, has showcased an astronomical performance boost of over 580 times compared to the traditional CPU approach. It’s like witnessing a swift and majestic leap from a snail’s pace to warp speed travel. The difference is staggering. To put this into perspective, if this process took 1 second for the GPU using CUDA programming, it would take around 10 minutes for the same process on the CPU. This is what 580x time means.</p>
+
+<p>The potential of CUDA programming is awe-inspiring and goes far beyond just voxelization. These concepts open doors to a world of possibilities in diverse fields. Whether it’s 3D detection, medical imaging, simulations, or artificial intelligence, CUDA unleashes a new dimension of coding brilliance.</p>
+
+<p>So, fasten your seatbelts as you venture into the thrilling realm of CUDA programming. Embrace the power and speed it offers, and watch your code transform into a force to be reckoned with. Sure, the journey might have its challenges, but the jaw-dropping speedup you’ll achieve is absolutely worth the effort.</p>
+
+<p>With CUDA, the sky is no longer the limit; it’s just the beginning. So go forth and conquer the universe of parallel programming! 🚀💻</p>
+
+<p>That concludes our exhilarating exploration of GPU-based Voxelization using CUDA. Happy coding, and may your adventures in parallel programming be as thrilling as this one!</p>
+
 
     </div>
   </article>
