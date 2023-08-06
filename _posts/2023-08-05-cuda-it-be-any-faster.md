@@ -38,13 +38,13 @@ Okay, you might be thinking, "Voxelization? What in the world is that? Sounds li
 
 Now, hold on to your seat because here comes the fun part: we're going to do all this voxelization stuff using the mighty NVIDIA GPUs and CUDA. That's right, the same GPUs used in gaming rigs to unleash stunning graphics and epic frame rates are going to help us crunch numbers like there's no tomorrow.  Together, we'll venture into the depths of parallel programming, where our algorithms will run at supersonic speeds, leaving ordinary CPUs gasping for breath. Instead of using the age old for-loops to process every point one after another, we will process these points, all at once, by using a seperate thread for every point in the point cloud. This way, we make every thread count, squeezing out every ounce of performance, that the NVIDIA GPU has to offer. These concepts of parallelization that we will use for point-cloud processing can be seamlessly used for any other realm where parallelization is an option.
 
-But beware! As we venture further into the realm of CUDA programming, things might get a bit hairy. New concepts and parallel programming lingo might make you scratch your head in confusion. But hey, don't give up just yet! Remember, the path to greatness is often paved with challenges. And in this case, the reward at the end of the tunnel is an unreal, mind-boggling, jaw-dropping `400x speedup`!
+But beware! As we venture further into the realm of CUDA programming, things might get a bit hairy. New concepts and parallel programming lingo might make you scratch your head in confusion. But hey, don't give up just yet! Remember, the path to greatness is often paved with challenges. And in this case, the reward at the end of the tunnel is an unreal, mind-boggling, jaw-dropping `580x speedup`!
 
 Yes, you heard that right! By the time we're done here, you'll have a GPU-based voxelization algorithm that can chew through mountains of LiDAR data at an incredible speed, leaving your CPU-bound counterparts in the dust. It's like having a supersonic jet compared to a horse-drawn carriage!
 
 So, stick with us, and we promise it'll be worth it. Sure, there might be moments when you feel like you're lost in a maze of CUDA syntax or buried under an avalanche of parallel processing concepts. But fear not, brave adventurer! We're here to guide you, step by step, through the intricacies of GPU programming.
 
-So, are you ready for the ride of a lifetime? Strap on your GPU-powered jetpack, and let's dive into the mind-bending universe of CUDA programming and voxelization. Together, we'll unlock the secrets of parallel processing and witness the awe-inspiring 400x speedup that will leave you marveling at the wonders of modern technology!
+So, are you ready for the ride of a lifetime? Strap on your GPU-powered jetpack, and let's dive into the mind-bending universe of CUDA programming and voxelization. Together, we'll unlock the secrets of parallel processing and witness the awe-inspiring 580x speedup that will leave you marveling at the wonders of modern technology!
 
 <br>
 
