@@ -212,6 +212,100 @@
 
 <p>Prepare to witness the fusion of AI and robotics—a fusion that empowers you to take your models beyond the notebook and into the real world, where C++ is the language of choice. Let’s embark on this transformative journey together.</p>
 
+<h2 id="1-intuition">1. Intuition</h2>
+<p>In the journey of merging the powerful capabilities of TensorRT with the versatile landscape of C++, we embark on a comprehensive exploration of intuitive concepts that form the bedrock of seamless model inference. This section of the blog delves into four key intuitions, each unraveling a layer of understanding that enriches our grasp of the integration process. From traversing the path from a Torch model to C++ inference to uncovering the mechanics where TensorRT and C++ converge, and from unraveling the intricacies of memory operations to mapping RGB channels for perfect alignment—the intuitions explored herein shed light on the intricate dance between theory and application. These insights, rooted in both practical implementation and theoretical foundations, propel us toward mastering the harmonious symphony that is “TensorRT meets C++.”</p>
+
+<h4 id="a-from-torch-model-to-c-inference">A. From Torch Model to C++ Inference</h4>
+
+<p>In the realm of AI and machine learning, the journey from a PyTorch model within the cozy confines of a Jupyter notebook to real-world applications demands a bridge—a bridge that harmonizes the worlds of deep learning and robust, high-performance C++ execution. Enter TensorRT, the catalyst that transforms this transition from an ambitious leap to a smooth stride. Let us look at an overview of how we make this transition.</p>
+
+<p><strong>Step 1: The Torch-to-ONNX Conversion</strong></p>
+
+<p>At the heart of this transformation lies the conversion of the PyTorch model into the Open Neural Network Exchange (<code class="language-plaintext highlighter-rouge">ONNX</code>) format. This universal format serves as the lingua franca between frameworks, unlocking the potential to bridge the gap between PyTorch and TensorRT. The Torch-to-ONNX conversion encapsulates the model’s architecture and parameters, setting the stage for seamless integration into the C++ landscape.</p>
+
+<p><strong>Step 2: The ONNX-to-TensorRT Metamorphosis</strong></p>
+
+<p>With the ONNX representation in hand, in form of an <code class="language-plaintext highlighter-rouge">.onnx</code> file, we traverse the second leg of our journey—the ONNX-to-TensorRT transformation. Here, the ONNX model metamorphoses into a high-performance TensorRT engine, optimized to harness the prowess of modern GPUs. TensorRT’s meticulous optimization techniques prune the neural network, leveraging the inherent parallelism of GPUs for expedited inference without compromising accuracy. This can happen via the <code class="language-plaintext highlighter-rouge">trtexec</code> tool provided by TensorRT, via the Python API or through the C++ API. Having already covered the Python API implementation in the previous blog, we shall see the C++ API execution later in this blog.</p>
+
+<p><strong>Step 3: Unveiling C++ Inference</strong></p>
+
+<p>And now, with the TensorRT engine prepared, in form of a <code class="language-plaintext highlighter-rouge">.engine</code> file, we navigate the final stretch of our voyage—the integration of the engine into C++ for inference. Armed with the TensorRT-powered engine, C++ becomes the stage where our models perform with astounding efficiency. Leveraging C++’s capabilities, we create a pipeline to read input data, offload it onto the GPU, execute inference, and retrieve the output—effortlessly spanning the distance between deep learning models and real-world applications.</p>
+
+<p>The diagram below captures the essence of this journey, illustrating how the torch model transforms into an optimized TensorRT engine and finds its home in the world of C++.</p>
+
+<!-- Insert your diagram here -->
+
+<p><br></p>
+
+<h4 id="b-the-fusion-where-tensorrt-meets-c">B. The Fusion: Where TensorRT Meets C++</h4>
+
+<p>In the intricate choreography between TensorRT and C++, a harmonious integration unfolds, paving the way for seamless model inference. As we transition from a TensorRT engine to the dynamic landscape of C++, a meticulous orchestration of steps ensures a blend of precision, speed, and efficiency that bridges the gap between these two powerful realms.</p>
+
+<p><strong>1. Setting the Stage: Input and Output Shapes</strong></p>
+
+<p>Our journey begins by laying a foundation of understanding—the dimensions of the engine’s input and output tensors. These dimensions become the architectural blueprints for memory allocation and data manipulation. Armed with this knowledge, we traverse the intricate memory pathways that interconnect the CPU and GPU.</p>
+
+<p><strong>2. Memory Allocation: The CPU-GPU Ballet</strong></p>
+
+<p>With dimensions in hand, the stage shifts to memory allocation. The CPU takes center stage, employing <code class="language-plaintext highlighter-rouge">malloc()</code> to reserve space for the input and output tensors (<code class="language-plaintext highlighter-rouge">host_input</code> and <code class="language-plaintext highlighter-rouge">host_output</code>). Simultaneously, the GPU claims its spot, using <code class="language-plaintext highlighter-rouge">cudaMalloc()</code> to allocate memory for the tensors (<code class="language-plaintext highlighter-rouge">device_input</code> and <code class="language-plaintext highlighter-rouge">device_output</code>). This synchronization lays the groundwork for the fluid movement of data between the CPU and GPU.</p>
+
+<p><strong>3. Orchestrating Data Flow: Copy and Serialize</strong></p>
+
+<p>As the memory symphony unfolds, we shift our focus to the heart of data manipulation. The input—an image in this case—is transformed into a flattened array and stored in (<code class="language-plaintext highlighter-rouge">host_input</code>) that succinctly encapsulates the image data in a 1D structure. This array, a language understood by both the CPU and GPU, prepares for its leap onto the GPU memory stage.</p>
+
+<p><strong>4. The Leap to GPU: Copy and Sync</strong></p>
+
+<p>The synchronization is executed with precision. Our flattened array, now embodied as <code class="language-plaintext highlighter-rouge">host_input</code>, takes its leap from CPU memory to the GPU’s allocated memory (<code class="language-plaintext highlighter-rouge">device_input</code>). This transition is elegantly facilitated by <code class="language-plaintext highlighter-rouge">cudaMemcpy()</code>, as the image data makes its home within GPU memory, seamlessly bridging the chasm between CPU and GPU.</p>
+
+<p><strong>5. The Grand Performance: Execution and Output</strong></p>
+
+<p>The pinnacle of our journey arrives with the TensorRT engine poised on the stage. Equipped with the memory addresses of the input and output residing within the GPU (<code class="language-plaintext highlighter-rouge">device_input</code> and <code class="language-plaintext highlighter-rouge">device_output</code>), the engine’s inference function takes the command, orchestrating a high-speed performance where calculations unfurl on the parallel prowess of the GPU. The outcome—a meticulously calculated inference output—is etched onto the GPU’s at <code class="language-plaintext highlighter-rouge">device_output</code>.</p>
+
+<p><strong>6. The Final Flourish: Retrieving the Output</strong></p>
+
+<p>As the GPU’s performance concludes, it’s time to unveil the masterpiece—the inference output <code class="language-plaintext highlighter-rouge">device_output</code>. Guided by <code class="language-plaintext highlighter-rouge">cudaMemcpy()</code>, the <code class="language-plaintext highlighter-rouge">device_output</code> elegantly navigates the CPU-GPU bridge, returning to the CPU at <code class="language-plaintext highlighter-rouge">host_output</code>. Here, the versatile arms of C++ embrace it, ready to be presented to the world—bridging the divide between a PyTorch model and real-world applications.</p>
+
+<p>This symphony, an interplay of dimensions, memory, and orchestration, encapsulates the essence of how TensorRT seamlessly converges with C++ for inference. As we explore each note of this symphony, we peel back the layers to reveal the intricate mechanics that underpin the fusion of “TensorRT meets C++.”</p>
+
+<p><br></p>
+
+<h4 id="c-understanding-memory-operations-malloc-cudamalloc-and-cudamemcpy">C. Understanding Memory Operations: Malloc, cudaMalloc, and cudaMemcpy</h4>
+
+<p>As we delve into the mechanics of TensorRT and C++ integration, let’s illuminate the roles of memory operations—<code class="language-plaintext highlighter-rouge">malloc</code>, <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, and <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>—through clear examples that illustrate their significance in data manipulation.</p>
+
+<p><strong>1. <code class="language-plaintext highlighter-rouge">malloc</code>: CPU Memory Allocation</strong></p>
+
+<p>Our journey begins with <code class="language-plaintext highlighter-rouge">malloc</code>, a venerable method for memory allocation in C++. This operation reserves memory space on the CPU, where data can be stored and manipulated. But here’s the catch—<code class="language-plaintext highlighter-rouge">malloc</code> operates in the realm of bytes. It expects the size of memory required in bytes. For instance, if we’re working with an array of integers, allocating space for 10 integers would involve requesting <code class="language-plaintext highlighter-rouge">10 * sizeof(int)</code> bytes. This allocated memory is crucial for accommodating data like input and output tensors (<code class="language-plaintext highlighter-rouge">host_input</code> and <code class="language-plaintext highlighter-rouge">host_output</code>) within the CPU’s memory space.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span><span class="o">*</span> <span class="n">host_input</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+</code></pre></div></div>
+<p>Here, <code class="language-plaintext highlighter-rouge">host_input</code> becomes an array of 10 integers, ready to hold data in the CPU’s memory space.</p>
+
+<p><strong>2. <code class="language-plaintext highlighter-rouge">cudaMalloc</code>: Alloacting GPU Memory</strong></p>
+
+<p>On the GPU’s side of the stage, <code class="language-plaintext highlighter-rouge">cudaMalloc</code> steps in as the protagonist. But there’s a twist—<code class="language-plaintext highlighter-rouge">cudaMalloc</code> needs a pointer on the CPU that stores the address of the allocated memory space on the GPU. This introduces the concept of a pointer to a pointer, often referred to as a double-pointer. Along with the size, you pass the address of the double-pointer where <code class="language-plaintext highlighter-rouge">cudaMalloc</code> will store the GPU memory’s address. This synchronization between the CPU and GPU is pivotal, as it aligns the allocated memory on both sides, preparing for data flow orchestrated by the memory maestro, <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span><span class="o">*</span> <span class="n">device_input</span><span class="p">;</span>
+<span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">device_input</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">device_input</code> becomes a pointer to GPU memory, reserved for 10 integers.</p>
+
+<p><strong>3. <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>: Bridging CPU and GPU</strong></p>
+
+<p>As the memory symphony crescendos, <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> takes the conductor’s baton. This operation orchestrates the harmonious movement of data between the CPU and GPU. With <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>, data—like the serialized input image in our journey—travels seamlessly from the CPU’s memory (<code class="language-plaintext highlighter-rouge">host_input</code>) to the GPU’s realm (<code class="language-plaintext highlighter-rouge">device_input</code>). This synchronization ensures that the data exists in both places, primed for the GPU’s parallel calculations and the impending inference. Transferring an array of integers from CPU (<code class="language-plaintext highlighter-rouge">host_input</code>) to GPU (<code class="language-plaintext highlighter-rouge">device_input</code>):</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">device_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+</code></pre></div></div>
+<p>This synchronizes the data, making <code class="language-plaintext highlighter-rouge">device_input</code> on the GPU a reflection of <code class="language-plaintext highlighter-rouge">host_input</code> on the CPU.</p>
+
+<p>With a deepened understanding of these memory operations, we unveil the intricacies of how memory becomes the thread that stitches together the CPU and GPU, forming the cohesive fabric that powers the integration of TensorRT and C++. The mechanics of <code class="language-plaintext highlighter-rouge">malloc</code>, <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, and <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> set the stage for the symphony of operations that unfolds in the TensorRT-powered C++ inference process.</p>
+
+<p><br></p>
+
+<h4 id="d-mapping-rgb-channels-aligning-image-data-for-inference">D. Mapping RGB Channels: Aligning Image Data for Inference</h4>
+<p>In the realm of integrating TensorRT with C++, the subtle yet pivotal process of aligning RGB channels when preparing an image for inference serves as an essential bridge between the image’s raw data and the expectations of the TensorRT engine. This alignment transforms the conventional RGB channel order (R1, G1, B1, R2, G2, B2, …) into a sequential arrangement that TensorRT comprehends (R1, R2, R3, G1, G2, G3, B1, B2, B3), ensuring that the spatial relationships within the image’s channels are preserved. This reordering not only ensures the engine’s calculations are accurate but also reflects the way neural networks interpret and extract features from images. This seemingly subtle transformation thus becomes a critical step in bridging the gap between image data and the intricacies of deep learning-powered inference.</p>
+
+<p>As we wrap up our exploration of these fundamental intuitions, we find ourselves equipped with a solid foundation that bridges the gap between theoretical understanding and practical implementation. From comprehending the journey from a Torch model to C++ inference, to diving into the seamless fusion of TensorRT and C++, understanding memory operations, and aligning image data for optimal inference—we have peeled back the layers that compose the intricate symphony of “TensorRT meets C++.”</p>
 
     </div>
   </article>
