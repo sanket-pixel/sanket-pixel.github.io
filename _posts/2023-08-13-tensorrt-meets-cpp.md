@@ -1,7 +1,7 @@
 ---
 layout: post
 title: TensorRT meets C++
-date: 2023-08-13 15:53:00-0400
+date: 2023-08-08 15:53:00-0400
 description: TensorRT inference in C++
 thumbnail : /assets/img/blog/blog_3/main.png
 categories: edge-ai
