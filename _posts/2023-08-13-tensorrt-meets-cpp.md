@@ -3,7 +3,7 @@ layout: post
 title: TensorRT meets C++
 date: 2023-08-08 15:53:00-0400
 description: TensorRT inference in C++
-thumbnail : /assets/img/blog/blog_3/main.png
+thumbnail : /assets/img/blog/blog_3/pt_cpp.drawio.png
 categories: edge-ai
 tag : [nvidia, tensorrt, deep-learning]
 giscus_comments: false
@@ -11,17 +11,17 @@ related_posts: true
 ---
 
 #### Building upon the foundations laid in our previous post, "Have you met TensorRT?," where we embarked on a journey into the world of basic concepts using Python, we now delve into the exciting realm of C++. By seamlessly integrating TensorRT with C++, this blog unlocks the potential for readers to effortlessly transition their PyTorch models into a C++ environment. We present an illustrative example of image classification, utilizing the familiar model from our earlier exploration. As the blog unfolds, the power of this integration becomes evident—readers will learn how to read an input image using OpenCV, copy it to the GPU, perform inference to get the output, and copy the output back to the CPU. This sets a strong foundation for utilizing this pipeline with any standard PyTorch model. This blog empowers readers with the knowledge to bridge the gap between two domains, ultimately enabling them to harness the capabilities of TensorRT in the world of C++.
-
-<br> 
+<br>
+<div style="width: 100%;margin: 0 auto;">
 <div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.html path="/assets/img/blog/blog_3/main.png" title="TensorRT meets C++" class="img-fluid rounded z-depth-1" %}
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_3/pt_cpp.drawio.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
-    TensorRT meets C++
+  TensorRT meets C++
 </div>
-
+</div>
 
 Welcome to our blog series where the worlds of TensorRT and C++ converge to revolutionize the AI landscape. In our previous installment, [Have you met TensorRT?](/blog/2023/introduction-to-tensorrt/), we embarked on an exciting exploration of the fundamental concepts, laying the groundwork for the cutting-edge journey we're about to embark upon. Now, with "TensorRT meets C++",  we usher you into a realm of possibilities where the seamless integration of these technologies has profound implications for AI, particularly in the context of robotics and edge computing.
 
