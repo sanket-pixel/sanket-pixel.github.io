@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2023-08-09T15:38:43+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">TensorRT meets C++</title><link href="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/" rel="alternate" type="text/html" title="TensorRT meets C++" /><published>2023-08-08T19:53:00+00:00</published><updated>2023-08-08T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/"><![CDATA[<h4 id="building-upon-the-foundations-laid-in-our-previous-post-have-you-met-tensorrt-where-we-embarked-on-a-journey-into-the-world-of-basic-concepts-using-python-we-now-delve-into-the-exciting-realm-of-c-by-seamlessly-integrating-tensorrt-with-c-this-blog-unlocks-the-potential-for-readers-to-effortlessly-transition-their-pytorch-models-into-a-c-environment-we-present-an-illustrative-example-of-image-classification-utilizing-the-familiar-model-from-our-earlier-exploration-as-the-blog-unfolds-the-power-of-this-integration-becomes-evidentreaders-will-learn-how-to-read-an-input-image-using-opencv-copy-it-to-the-gpu-perform-inference-to-get-the-output-and-copy-the-output-back-to-the-cpu-this-sets-a-strong-foundation-for-utilizing-this-pipeline-with-any-standard-pytorch-model-this-blog-empowers-readers-with-the-knowledge-to-bridge-the-gap-between-two-domains-ultimately-enabling-them-to-harness-the-capabilities-of-tensorrt-in-the-world-of-c">Building upon the foundations laid in our previous post, “Have you met TensorRT?,” where we embarked on a journey into the world of basic concepts using Python, we now delve into the exciting realm of C++. By seamlessly integrating TensorRT with C++, this blog unlocks the potential for readers to effortlessly transition their PyTorch models into a C++ environment. We present an illustrative example of image classification, utilizing the familiar model from our earlier exploration. As the blog unfolds, the power of this integration becomes evident—readers will learn how to read an input image using OpenCV, copy it to the GPU, perform inference to get the output, and copy the output back to the CPU. This sets a strong foundation for utilizing this pipeline with any standard PyTorch model. This blog empowers readers with the knowledge to bridge the gap between two domains, ultimately enabling them to harness the capabilities of TensorRT in the world of C++.</h4>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2023-08-28T12:51:47+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">TensorRT meets C++</title><link href="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/" rel="alternate" type="text/html" title="TensorRT meets C++" /><published>2023-08-08T19:53:00+00:00</published><updated>2023-08-08T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/"><![CDATA[<h4 id="building-upon-the-foundations-laid-in-our-previous-post-have-you-met-tensorrt-where-we-embarked-on-a-journey-into-the-world-of-basic-concepts-using-python-we-now-delve-into-the-exciting-realm-of-c-by-seamlessly-integrating-tensorrt-with-c-this-blog-unlocks-the-potential-for-readers-to-effortlessly-transition-their-pytorch-models-into-a-c-environment-we-present-an-illustrative-example-of-image-classification-utilizing-the-familiar-model-from-our-earlier-exploration-as-the-blog-unfolds-the-power-of-this-integration-becomes-evidentreaders-will-learn-how-to-read-an-input-image-using-opencv-copy-it-to-the-gpu-perform-inference-to-get-the-output-and-copy-the-output-back-to-the-cpu-this-sets-a-strong-foundation-for-utilizing-this-pipeline-with-any-standard-pytorch-model-this-blog-empowers-readers-with-the-knowledge-to-bridge-the-gap-between-two-domains-ultimately-enabling-them-to-harness-the-capabilities-of-tensorrt-in-the-world-of-c">Building upon the foundations laid in our previous post, “Have you met TensorRT?,” where we embarked on a journey into the world of basic concepts using Python, we now delve into the exciting realm of C++. By seamlessly integrating TensorRT with C++, this blog unlocks the potential for readers to effortlessly transition their PyTorch models into a C++ environment. We present an illustrative example of image classification, utilizing the familiar model from our earlier exploration. As the blog unfolds, the power of this integration becomes evident—readers will learn how to read an input image using OpenCV, copy it to the GPU, perform inference to get the output, and copy the output back to the CPU. This sets a strong foundation for utilizing this pipeline with any standard PyTorch model. This blog empowers readers with the knowledge to bridge the gap between two domains, ultimately enabling them to harness the capabilities of TensorRT in the world of C++.</h4>
 
 <p><br /></p>
 <div class="row">
@@ -25,7 +25,7 @@
     TensorRT meets C++
 </div>
 
-<p>Welcome to our blog series where the worlds of TensorRT and C++ converge to revolutionize the AI landscape. In our previous installment, “Have you met TensorRT?,” we embarked on an exciting exploration of the fundamental concepts, laying the groundwork for the cutting-edge journey we’re about to embark upon. Now, with “TensorRT meets C++,” we usher you into a realm of possibilities where the seamless integration of these technologies has profound implications for AI, particularly in the context of robotics and edge computing.</p>
+<p>Welcome to our blog series where the worlds of TensorRT and C++ converge to revolutionize the AI landscape. In our previous installment, <a href="/blog/2023/introduction-to-tensorrt/">Have you met TensorRT?</a>, we embarked on an exciting exploration of the fundamental concepts, laying the groundwork for the cutting-edge journey we’re about to embark upon. Now, with “TensorRT meets C++”,  we usher you into a realm of possibilities where the seamless integration of these technologies has profound implications for AI, particularly in the context of robotics and edge computing.</p>
 
 <h4 id="unveiling-the-power-of-integration">Unveiling the Power of Integration</h4>
 
@@ -39,6 +39,55 @@
 
 <p>Our blog isn’t just about one aspect of AI—it’s about a journey that spans diverse domains. This integration is the key that unlocks possibilities beyond image classification. From lidar-based perception to planning-based decision-making, from text-based sentiment analysis to complex deep reinforcement learning, the door to countless applications opens. All these, in the realm of robotics and edge AI where C++ reigns supreme. As you delve into this blog, you’re not merely mastering a technology; you’re bridging the chasm between your Jupyter notebooks and the robotics that can wield your models.</p>
 
+<h4 id="source-from-github">Source from Github</h4>
+<p>For those interested in exploring the code and gaining a deeper understanding of the concepts discussed in this blog on TensorRT and image classification, you can find the complete source code in the corresponding GitHub repository. The repository link is <a href="https://github.com/sanket-pixel/tensorrt_cpp">this</a>.</p>
+
+<h4 id="pre-requisites-and-installation">Pre-requisites and Installation</h4>
+<p><strong>1. Hardware requirements</strong></p>
+<ul>
+  <li>NVIDIA GPU</li>
+</ul>
+
+<p><strong>2. Software requirements</strong></p>
+<ul>
+  <li>Ubuntu &gt;= 18.04</li>
+  <li>Python &gt;= 3.8</li>
+</ul>
+
+<p><strong>3. Installation Guide</strong></p>
+<ol>
+  <li>Create conda environment and install required python packages.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>conda create -n trt python=3.8
+conda activate trt
+pip install -r requirements.txt
+</code></pre></div>    </div>
+  </li>
+  <li>Install TensorRT 
+Install TensorRT:</li>
+</ol>
+
+<ul>
+  <li>
+    <p>Download and install NVIDIA CUDA 11.4 or later following the official instructions: <a href="https://developer.nvidia.com/cuda-toolkit-archive">link</a></p>
+  </li>
+  <li>
+    <p>Download and extract CuDNN library for your CUDA version (&gt;8.9.0) from: <a href="https://developer.nvidia.com/cudnn">link</a></p>
+  </li>
+  <li>
+    <p>Download and extract NVIDIA TensorRT library for your CUDA version from: <a href="https://developer.nvidia.com/nvidia-tensorrt-8x-download">link</a>. Minimum required version is 8.5. Follow the Installation Guide for your system and ensure Python’s part is installed.</p>
+  </li>
+  <li>
+    <p>Add the absolute path to CUDA, TensorRT, and CuDNN libs to the environment variable PATH or LD_LIBRARY_PATH.</p>
+  </li>
+  <li>
+    <p>Install PyCUDA:</p>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install pycuda
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><br /></p>
+
 <h4 id="the-road-ahead-sections-to-explore">The Road Ahead: Sections to Explore</h4>
 
 <p>As we journey through “TensorRT meets C++,” we’ll traverse several vital sections:</p>
@@ -48,16 +97,10 @@
     <p><strong>Intuition</strong>: Lay the groundwork by understanding the synergy between TensorRT and C++.</p>
   </li>
   <li>
-    <p><strong>How to Copy Stuff Properly?</strong>: Tackle the challenge of efficient data copying, mastering the art of smooth GPU transitions.</p>
-  </li>
-  <li>
     <p><strong>Inside Deep Dive</strong>: Embark on an exploration of the inner workings, understanding the harmony of memory and processing.</p>
   </li>
   <li>
-    <p><strong>Latency Measurement</strong>: Quantify the gains—measure the reduced latency that TensorRT offers.</p>
-  </li>
-  <li>
-    <p><strong>Consistency with PyTorch Output</strong>: Bridge the gap by ensuring consistent output between your PyTorch and C++ TensorRT models.</p>
+    <p><strong>Latency and Consistency</strong>: Quantify the gains—measure the reduced latency that TensorRT offers.</p>
   </li>
   <li>
     <p><strong>Conclusion</strong>: Weave together the threads of knowledge, leaving you ready to wield the integration with confidence.</p>
@@ -69,31 +112,83 @@
 <h2 id="1-intuition">1. Intuition</h2>
 <p>In the journey of merging the powerful capabilities of TensorRT with the versatile landscape of C++, we embark on a comprehensive exploration of intuitive concepts that form the bedrock of seamless model inference. This section of the blog delves into four key intuitions, each unraveling a layer of understanding that enriches our grasp of the integration process. From traversing the path from a Torch model to C++ inference to uncovering the mechanics where TensorRT and C++ converge, and from unraveling the intricacies of memory operations to mapping RGB channels for perfect alignment—the intuitions explored herein shed light on the intricate dance between theory and application. These insights, rooted in both practical implementation and theoretical foundations, propel us toward mastering the harmonious symphony that is “TensorRT meets C++.”</p>
 
-<h4 id="a-from-torch-model-to-c-inference">A. From Torch Model to C++ Inference</h4>
+<h4 id="11-from-torch-model-to-c-inference">1.1. From Torch Model to C++ Inference</h4>
 
 <p>In the realm of AI and machine learning, the journey from a PyTorch model within the cozy confines of a Jupyter notebook to real-world applications demands a bridge—a bridge that harmonizes the worlds of deep learning and robust, high-performance C++ execution. Enter TensorRT, the catalyst that transforms this transition from an ambitious leap to a smooth stride. Let us look at an overview of how we make this transition.</p>
 
-<p><strong>Step 1: The Torch-to-ONNX Conversion</strong></p>
-
-<p>At the heart of this transformation lies the conversion of the PyTorch model into the Open Neural Network Exchange (<code class="language-plaintext highlighter-rouge">ONNX</code>) format. This universal format serves as the lingua franca between frameworks, unlocking the potential to bridge the gap between PyTorch and TensorRT. The Torch-to-ONNX conversion encapsulates the model’s architecture and parameters, setting the stage for seamless integration into the C++ landscape.</p>
-
-<p><strong>Step 2: The ONNX-to-TensorRT Metamorphosis</strong></p>
-
-<p>With the ONNX representation in hand, in form of an <code class="language-plaintext highlighter-rouge">.onnx</code> file, we traverse the second leg of our journey—the ONNX-to-TensorRT transformation. Here, the ONNX model metamorphoses into a high-performance TensorRT engine, optimized to harness the prowess of modern GPUs. TensorRT’s meticulous optimization techniques prune the neural network, leveraging the inherent parallelism of GPUs for expedited inference without compromising accuracy. This can happen via the <code class="language-plaintext highlighter-rouge">trtexec</code> tool provided by TensorRT, via the Python API or through the C++ API. Having already covered the Python API implementation in the previous blog, we shall see the C++ API execution later in this blog.</p>
-
-<p><strong>Step 3: Unveiling C++ Inference</strong></p>
-
-<p>And now, with the TensorRT engine prepared, in form of a <code class="language-plaintext highlighter-rouge">.engine</code> file, we navigate the final stretch of our voyage—the integration of the engine into C++ for inference. Armed with the TensorRT-powered engine, C++ becomes the stage where our models perform with astounding efficiency. Leveraging C++’s capabilities, we create a pipeline to read input data, offload it onto the GPU, execute inference, and retrieve the output—effortlessly spanning the distance between deep learning models and real-world applications.</p>
-
 <p>The diagram below captures the essence of this journey, illustrating how the torch model transforms into an optimized TensorRT engine and finds its home in the world of C++.</p>
 
-<!-- Insert your diagram here -->
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_3/pt_cpp.drawio-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_3/pt_cpp.drawio-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_3/pt_cpp.drawio-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_3/pt_cpp.drawio.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Going from Pytorch model to Inference in C++
+</div>
+</div>
 
 <p><br /></p>
 
-<h4 id="b-the-fusion-where-tensorrt-meets-c">B. The Fusion: Where TensorRT Meets C++</h4>
+<p><strong>1: The Torch-to-ONNX Conversion</strong></p>
+
+<p>At the heart of this transformation lies the conversion of the PyTorch model into the Open Neural Network Exchange (<code class="language-plaintext highlighter-rouge">ONNX</code>) format. This universal format serves as the lingua franca between frameworks, unlocking the potential to bridge the gap between PyTorch and TensorRT. The Torch-to-ONNX conversion encapsulates the model’s architecture and parameters, setting the stage for seamless integration into the C++ landscape.</p>
+
+<p><strong>2: The ONNX-to-TensorRT Metamorphosis</strong></p>
+
+<p>With the ONNX representation in hand, in form of an <code class="language-plaintext highlighter-rouge">.onnx</code> file, we traverse the second leg of our journey—the ONNX-to-TensorRT transformation. Here, the ONNX model metamorphoses into a high-performance TensorRT engine, optimized to harness the prowess of modern GPUs. TensorRT’s meticulous optimization techniques prune the neural network, leveraging the inherent parallelism of GPUs for expedited inference without compromising accuracy. This can happen via the <code class="language-plaintext highlighter-rouge">trtexec</code> tool provided by TensorRT, via the Python API or through the C++ API. Having already covered the Python API implementation in the previous blog, we shall see the C++ API execution later in this blog.</p>
+
+<p><strong>3: Unveiling C++ Inference</strong></p>
+
+<p>And now, with the TensorRT engine prepared, in form of a <code class="language-plaintext highlighter-rouge">.engine</code> file, we navigate the final stretch of our voyage—the integration of the engine into C++ for inference. Armed with the TensorRT-powered engine, C++ becomes the stage where our models perform with astounding efficiency. Leveraging C++’s capabilities, we create a pipeline to read input data, offload it onto the GPU, execute inference, and retrieve the output—effortlessly spanning the distance between deep learning models and real-world applications.</p>
+
+<h4 id="12-the-fusion-where-tensorrt-meets-c">1.2. The Fusion: Where TensorRT Meets C++</h4>
 
 <p>In the intricate choreography between TensorRT and C++, a harmonious integration unfolds, paving the way for seamless model inference. As we transition from a TensorRT engine to the dynamic landscape of C++, a meticulous orchestration of steps ensures a blend of precision, speed, and efficiency that bridges the gap between these two powerful realms.</p>
+
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_3/memory-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_3/memory-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_3/memory-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_3/memory.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Memory Transfers during inference.
+</div>
+</div>
+
+<p><br /></p>
 
 <p><strong>1. Setting the Stage: Input and Output Shapes</strong></p>
 
@@ -123,7 +218,7 @@
 
 <p><br /></p>
 
-<h4 id="c-understanding-memory-operations-malloc-cudamalloc-and-cudamemcpy">C. Understanding Memory Operations: Malloc, cudaMalloc, and cudaMemcpy</h4>
+<h4 id="13-understanding-memory-operations-malloc-cudamalloc-and-cudamemcpy">1.3. Understanding Memory Operations: Malloc, cudaMalloc, and cudaMemcpy</h4>
 
 <p>As we delve into the mechanics of TensorRT and C++ integration, let’s illuminate the roles of memory operations—<code class="language-plaintext highlighter-rouge">malloc</code>, <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, and <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>—through clear examples that illustrate their significance in data manipulation.</p>
 
@@ -156,10 +251,438 @@
 
 <p><br /></p>
 
-<h4 id="d-mapping-rgb-channels-aligning-image-data-for-inference">D. Mapping RGB Channels: Aligning Image Data for Inference</h4>
-<p>In the realm of integrating TensorRT with C++, the subtle yet pivotal process of aligning RGB channels when preparing an image for inference serves as an essential bridge between the image’s raw data and the expectations of the TensorRT engine. This alignment transforms the conventional RGB channel order (R1, G1, B1, R2, G2, B2, …) into a sequential arrangement that TensorRT comprehends (R1, R2, R3, G1, G2, G3, B1, B2, B3), ensuring that the spatial relationships within the image’s channels are preserved. This reordering not only ensures the engine’s calculations are accurate but also reflects the way neural networks interpret and extract features from images. This seemingly subtle transformation thus becomes a critical step in bridging the gap between image data and the intricacies of deep learning-powered inference.</p>
+<h4 id="14-mapping-rgb-channels-aligning-image-data-for-inference">1.4. Mapping RGB Channels: Aligning Image Data for Inference</h4>
+<p>In the realm of integrating TensorRT with C++, the subtle yet pivotal process of aligning RGB channels when preparing an image for inference serves as an essential bridge between the image’s raw data and the expectations of the TensorRT engine. This alignment transforms the conventional RGB channel order (R1, G1, B1, R2, G2, B2, …) into a sequential arrangement that TensorRT comprehends (R1, R2, R3, G1, G2, G3, B1, B2, B3), ensuring that the spatial relationships within the image’s channels are preserved. The opencv image is stored in memory as <code class="language-plaintext highlighter-rouge">(H,W,C)</code> while most deep learning based torch models take input image as <code class="language-plaintext highlighter-rouge">(C,H,W)</code>. Hence, this reordering is needed. This reordering not only ensures the engine’s calculations are accurate but also reflects the way neural networks interpret and extract features from images. This seemingly subtle transformation thus becomes a critical step in bridging the gap between image data and the intricacies of deep learning-powered inference.</p>
 
-<p>As we wrap up our exploration of these fundamental intuitions, we find ourselves equipped with a solid foundation that bridges the gap between theoretical understanding and practical implementation. From comprehending the journey from a Torch model to C++ inference, to diving into the seamless fusion of TensorRT and C++, understanding memory operations, and aligning image data for optimal inference—we have peeled back the layers that compose the intricate symphony of “TensorRT meets C++.”</p>]]></content><author><name></name></author><category term="edge-ai" /><category term="nvidia" /><category term="tensorrt" /><category term="deep-learning" /><summary type="html"><![CDATA[TensorRT inference in C++]]></summary></entry><entry><title type="html">CUDA it Be Any Faster?</title><link href="https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster/" rel="alternate" type="text/html" title="CUDA it Be Any Faster?" /><published>2023-08-05T19:53:00+00:00</published><updated>2023-08-05T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster/"><![CDATA[<h4 id="experience-the-exhilarating-world-of-nvidias-cuda-programming-as-we-revolutionize-point-cloud-processing-in-computer-vision-and-robotics-voxelization-the-process-of-converting-3d-points-into-discrete-voxels-has-faced-challenges-with-traditional-cpu-based-methods-limiting-groundbreaking-innovations-but-fear-not-as-we-harness-the-immense-power-of-parallelization-for-a-monumental-leap-of-over-580x-times-over-traditional-cpu-dive-into-cudas-awe-inspiring-realm-where-each-point-gets-its-own-thread-enabling-lightning-fast-voxelization-and-opening-the-doors-to-real-time-applications-join-us-on-this-thrilling-ride-and-witness-the-magic-of-cuda-as-we-rewrite-the-future-of-point-cloud-processing-lets-embrace-the-sheer-power-of-cuda-together-and-change-the-game">Experience the exhilarating world of NVIDIA’s CUDA programming as we revolutionize point cloud processing in computer vision and robotics. Voxelization, the process of converting 3D points into discrete voxels, has faced challenges with traditional CPU-based methods, limiting groundbreaking innovations. But fear not, as we harness the immense power of parallelization for a monumental leap of over 580x times over traditional CPU! Dive into CUDA’s awe-inspiring realm, where each point gets its own thread, enabling lightning-fast voxelization and opening the doors to real-time applications. Join us on this thrilling ride and witness the magic of CUDA as we rewrite the future of point cloud processing. Let’s embrace the sheer power of CUDA together and change the game!</h4>
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_3/ocv_cpp-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_3/ocv_cpp-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_3/ocv_cpp-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_3/ocv_cpp.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+ Transforming input image from OpenCV to TensorRT to compensate for (C,H,W) to (H,C,W)
+</div>
+</div>
+
+<p><br /></p>
+
+<p>As we wrap up our exploration of these fundamental intuitions, we find ourselves equipped with a solid foundation that bridges the gap between theoretical understanding and practical implementation. From comprehending the journey from a Torch model to C++ inference, to diving into the seamless fusion of TensorRT and C++, understanding memory operations, and aligning image data for optimal inference—we have peeled back the layers that compose the intricate symphony of “TensorRT meets C++.”</p>
+
+<h2 id="2-inside-the-code">2. Inside the Code</h2>
+
+<p>In this section, we will take a comprehensive journey through the heart of our project, diving deep into the codebase and uncovering its intricacies. Our exploration will be structured into three phases: understanding the project’s folder structure, executing the project on your machine, and delving into an in-depth explanation of the crucial code components.</p>
+<h3 id="21-folder-structure">2.1 Folder Structure</h3>
+
+<p>Here, we unveil the architectural framework that underpins our C++ inference codebase, ensuring a structured and organized approach to integrating TensorRT into the C++ environment. Our code repository encompasses various directories and files, each with a distinct role in facilitating the intricate dance of “TensorRT meets C++.”</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>├── build
+├── CMakeLists.txt
+├── data
+│   ├── hotdog.jpg
+│   └── imagenet-classes.txt
+├── deploy_tools
+│   ├── resnet.engine
+│   └── resnet.onnx
+├── include
+│   ├── inference.hpp
+│   ├── postprocessor.hpp
+│   └── preprocessor.hpp
+├── main.cpp
+├── README.md
+├── src
+│   ├── inference.cpp
+│   ├── postprocess.cpp
+│   └── preprocessor.cpp
+├── tools
+│   ├── environment.sh
+│   ├── run.sh
+│   └── torch_inference.py
+└── torch_stuff
+    ├── latency.txt
+    └── output.txt
+</code></pre></div></div>
+
+<ul>
+  <li><strong>src</strong>: Source code for inference, pre-processing, and post-processing.</li>
+  <li><strong>include</strong>: Header files for communication between project components.</li>
+  <li><strong>deploy_tools</strong>: Serialized TensorRT engine and original ONNX model.</li>
+  <li><strong>data</strong>: Input data like images and class labels.</li>
+  <li><strong>tools</strong>: Utilities for setup, execution, and PyTorch inference.</li>
+  <li><strong>build</strong>: Build artifacts and configuration files.</li>
+  <li><strong>CMakeLists.txt</strong>: Build configuration.</li>
+  <li><strong>main.cpp</strong>: Entry point for the application.</li>
+  <li><strong>README.md</strong>: Comprehensive guide.</li>
+  <li><strong>torch_stuff</strong>: Pytorch Latency and Output</li>
+</ul>
+
+<h3 id="22-project-setup-and-execution">2.2 Project Setup and Execution</h3>
+
+<p>To set up and run the project on your machine, follow these steps:</p>
+
+<ol>
+  <li>Open the <code class="language-plaintext highlighter-rouge">tools/environment.sh</code> script and adjust the paths for <code class="language-plaintext highlighter-rouge">TensorRT</code> and <code class="language-plaintext highlighter-rouge">CUDA</code> libraries as per your system configuration:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nb">export </span><span class="nv">TensorRT_Lib</span><span class="o">=</span>/path/to/TensorRT/lib
+ <span class="nb">export </span><span class="nv">TensorRT_Inc</span><span class="o">=</span>/path/to/TensorRT/include
+ <span class="nb">export </span><span class="nv">TensorRT_Bin</span><span class="o">=</span>/path/to/TensorRT/bin
+
+ <span class="nb">export </span><span class="nv">CUDA_Lib</span><span class="o">=</span>/path/to/CUDA/lib64
+ <span class="nb">export </span><span class="nv">CUDA_Inc</span><span class="o">=</span>/path/to/CUDA/include
+ <span class="nb">export </span><span class="nv">CUDA_Bin</span><span class="o">=</span>/path/to/CUDA/bin
+ <span class="nb">export </span><span class="nv">CUDA_HOME</span><span class="o">=</span>/path/to/CUDA
+
+ <span class="nb">export </span><span class="nv">MODE</span><span class="o">=</span>inference
+
+ <span class="nb">export </span><span class="nv">CONDA_ENV</span><span class="o">=</span>tensorrt
+</code></pre></div>    </div>
+    <p>Set the <code class="language-plaintext highlighter-rouge">MODE</code> to <code class="language-plaintext highlighter-rouge">build_engine</code> for building the TensorRT engine or make it <code class="language-plaintext highlighter-rouge">inference</code> for running inference on the sample image with the engine.</p>
+  </li>
+  <li>
+    <p>Run the <code class="language-plaintext highlighter-rouge">tools/run.sh</code> script to execute the PyTorch inference and save its output:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> bash tools/run.sh
+</code></pre></div>    </div>
+
+    <p>Upon executing the above steps, you’ll observe an informative output similar to the one below, detailing both PyTorch and TensorRT C++ inference results:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ===============================================================
+ ||  MODE: inference
+ ||  TensorRT: /path/to/TensorRT/lib
+ ||  CUDA: /path/to/CUDA
+ ===============================================================
+ Configuration done!
+ =================== STARTING PYTORCH INFERENCE===============================
+ class: hotdog, hot dog, red hot, confidence: 60.50566864013672 %, index: 934
+ Saved Pytorch output in torch_stuff/output.txt
+ Average Latency for 10 iterations: 5.42 ms
+ =============================================================================
+ -- Configuring done
+ -- Generating done
+ -- Build files have been written to: /path/to/project/build
+ =================== STARTING C++ TensorRT INFERENCE==========================
+ class: hotdog, hot dog, red hot, confidence: 59.934%, index: 934
+ Mean Absolute Difference in Pytorch and TensorRT C++: 0.0121075
+ Average Latency for 10 iterations: 2.19824 ms
+ =====================================SUMMARY=================================
+ Pytorch Latency: 5.42 ms
+ TensorRT in C++ Latency: 2.19824 ms
+ Speedup by Quantization: 2.46561x
+ Mean Absolute Difference in Pytorch and TensorRT C++: 0.0121075
+ =============================================================================
+</code></pre></div>    </div>
+
+    <p>With this guide, you can effortlessly set up and run the project on your local machine, leveraging the power of TensorRT in C++ inference and comparing it with PyTorch’s results.</p>
+  </li>
+</ol>
+
+<h3 id="23-code-deep-dive">2.3 Code Deep Dive</h3>
+<p>In this section, we’ll take a deep dive into the core concepts of running inference with a TensorRT engine in C++. We’ll dissect the essential components of our project’s codebase and explore how they come together to enable efficient model inference. While we’ll primarily focus on the key functions and concepts, we’ll also provide an intuitive overview of the supporting functions to ensure a comprehensive understanding of the process.</p>
+
+<h4 id="a-exploring-the-inference-class">A. Exploring the Inference Class:</h4>
+<p>The heart of our project lies in the <code class="language-plaintext highlighter-rouge">Inference</code> class defined in <code class="language-plaintext highlighter-rouge">inference.hpp</code> and <code class="language-plaintext highlighter-rouge">inference.cpp</code>, which orchestrates the entire inference process. To understand how the magic happens, we’ll focus on the two pivotal functions: <code class="language-plaintext highlighter-rouge">initialize_inference</code> and <code class="language-plaintext highlighter-rouge">do_inference</code>. While we’ll provide a high-level overview of other functions for context, these two functions encapsulate the most critical aspects of model loading, memory management, and inference execution. Let’s break down how these functions work together to achieve accurate and speedy inference results.</p>
+
+<p><strong>inference.hpp:</strong></p>
+
+<ol>
+  <li>
+    <p><strong>Header Inclusions:</strong> The header includes necessary libraries, such as Nvidia TensorRT headers, OpenCV, CUDA runtime API, and others, for building and running the TensorRT inference engine.</p>
+  </li>
+  <li>
+    <p><strong>Parameters Struct:</strong> The <code class="language-plaintext highlighter-rouge">Params</code> struct holds various parameters needed for configuring the inference process, such as file paths, engine attributes, and model parameters.</p>
+  </li>
+  <li>
+    <p><strong>InferLogger Class:</strong> This class derives from <code class="language-plaintext highlighter-rouge">nvinfer1::ILogger</code> and is used to handle log messages generated during inference. It’s specialized to only print error messages.</p>
+  </li>
+  <li>
+    <p><strong>Inference Class:</strong> This class encapsulates the entire inference process. It has member functions for building the engine, initializing inference, performing inference, and other helper functions for pre-processing, post-processing, and more.</p>
+
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">build()</code>: Constructs a TensorRT engine by parsing the ONNX model, creating the network, and serializing the engine to a file.</li>
+      <li><code class="language-plaintext highlighter-rouge">buildFromSerializedEngine()</code>: Loads a pre-built serialized engine from a file, sets up the TensorRT runtime, and creates an execution context.</li>
+      <li><code class="language-plaintext highlighter-rouge">initialize_inference()</code>: Allocates memory for input and output buffers on the GPU, prepares input and output bindings.</li>
+      <li><code class="language-plaintext highlighter-rouge">do_inference()</code>: Reads an input image, preprocesses it, populates the input buffer, performs inference, and processes the output to get class predictions.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Helper Functions:</strong> Some inline helper functions are defined for convenience, such as <code class="language-plaintext highlighter-rouge">getElementSize</code> to determine the size of different data types.</p>
+  </li>
+</ol>
+
+<p><strong>inference.cpp:</strong></p>
+
+<ol>
+  <li>
+    <p><strong>constructNetwork():</strong> This function is responsible for constructing the TensorRT network by parsing the ONNX model. It configures builder, network, and parser based on user-defined parameters.</p>
+  </li>
+  <li>
+    <p><strong>build():</strong> This function constructs the TensorRT engine by creating a builder, network, and parser, and then serializing the engine to a file.</p>
+  </li>
+  <li>
+    <p><strong>buildFromSerializedEngine():</strong> This function loads a pre-built serialized engine from a file, sets up the runtime, and creates an execution context.</p>
+  </li>
+  <li>
+    <p><strong>read_image():</strong> Reads an input image using OpenCV.</p>
+  </li>
+  <li>
+    <p><strong>preprocess():</strong> Preprocesses the input image by resizing and normalizing it.</p>
+  </li>
+  <li>
+    <p><strong>enqueue_input():</strong> Takes the preprocessed image and flattens the RGB channels into the input buffer in a specific order.</p>
+  </li>
+  <li>
+    <p><strong>initialize_inference():</strong> Allocates GPU memory for input and output buffers, and sets up input and output bindings for the execution context.</p>
+  </li>
+  <li>
+    <p><strong>do_inference():</strong> Reads an image, preprocesses it, enqueues input, performs inference, calculates latency, and processes the output predictions.</p>
+  </li>
+</ol>
+
+<p>These files encapsulate the core functionality of loading an ONNX model, building a TensorRT engine, performing inference, and processing the results, with necessary pre-processing and post-processing steps. This structure enables you to easily integrate and run the inference process in a C++ environment. Now let us look at the two pivotal functions <code class="language-plaintext highlighter-rouge">initialize_inference()</code> and <code class="language-plaintext highlighter-rouge">do_inference()</code> in detail.</p>
+
+<p><strong>initialize_inference():</strong></p>
+
+<p>This function is responsible for setting up the necessary memory allocations and configurations required for running inference using the TensorRT engine. Let’s break down the code step by step:</p>
+
+<ol>
+  <li><strong>Input and Output Buffer Sizes:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">input_idx</span> <span class="o">=</span> <span class="n">mEngine</span><span class="o">-&gt;</span><span class="n">getBindingIndex</span><span class="p">(</span><span class="s">"input"</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">input_dims</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">-&gt;</span><span class="n">getBindingDimensions</span><span class="p">(</span><span class="n">input_idx</span><span class="p">);</span>
+<span class="n">nvinfer1</span><span class="o">::</span><span class="n">DataType</span> <span class="n">input_type</span> <span class="o">=</span> <span class="n">mEngine</span><span class="o">-&gt;</span><span class="n">getBindingDataType</span><span class="p">(</span><span class="n">input_idx</span><span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">input_vol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">input_dims</span><span class="p">.</span><span class="n">nbDims</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input_vol</span> <span class="o">*=</span> <span class="n">input_dims</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="n">input_size_in_bytes</span> <span class="o">=</span> <span class="n">input_vol</span> <span class="o">*</span> <span class="nf">getElementSize</span><span class="p">(</span><span class="n">input_type</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>This block of code calculates the size of the input buffer based on the input dimensions and data type defined in the TensorRT engine.</p>
+  </li>
+  <li><strong>Memory Allocation for Input Buffer:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">device_input</span><span class="p">,</span> <span class="n">input_size_in_bytes</span><span class="p">);</span>
+<span class="n">host_input</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">input_size_in_bytes</span><span class="p">);</span>
+<span class="n">bindings</span><span class="p">[</span><span class="n">input_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">device_input</span><span class="p">;</span>
+</code></pre></div>    </div>
+    <p>The input buffer is allocated on the GPU using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, and corresponding host memory is allocated using <code class="language-plaintext highlighter-rouge">malloc</code>. The <code class="language-plaintext highlighter-rouge">bindings</code> array is updated with the device input buffer.</p>
+  </li>
+  <li><strong>Output Buffer Setup:</strong>
+Similar steps are performed for the output buffer:
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">output_idx</span> <span class="o">=</span> <span class="n">mEngine</span><span class="o">-&gt;</span><span class="n">getBindingIndex</span><span class="p">(</span><span class="s">"output"</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">output_dims</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">-&gt;</span><span class="n">getBindingDimensions</span><span class="p">(</span><span class="n">output_idx</span><span class="p">);</span>
+<span class="n">nvinfer1</span><span class="o">::</span><span class="n">DataType</span> <span class="n">output_type</span> <span class="o">=</span> <span class="n">mEngine</span><span class="o">-&gt;</span><span class="n">getBindingDataType</span><span class="p">(</span><span class="n">output_idx</span><span class="p">);</span>
+<span class="kt">size_t</span> <span class="n">output_vol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">output_dims</span><span class="p">.</span><span class="n">nbDims</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">output_vol</span> <span class="o">*=</span> <span class="n">output_dims</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="n">output_size_in_bytes</span> <span class="o">=</span> <span class="n">output_vol</span> <span class="o">*</span> <span class="nf">getElementSize</span><span class="p">(</span><span class="n">output_type</span><span class="p">);</span>
+
+<span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">device_output</span><span class="p">,</span> <span class="n">output_size_in_bytes</span><span class="p">);</span>
+<span class="n">host_output</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">output_size_in_bytes</span><span class="p">);</span>
+<span class="n">bindings</span><span class="p">[</span><span class="n">output_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">device_output</span><span class="p">;</span>
+</code></pre></div>    </div>
+    <p>The output buffer size is calculated, memory is allocated on the GPU and host, and the <code class="language-plaintext highlighter-rouge">bindings</code> array is updated.</p>
+  </li>
+</ol>
+
+<p><strong>do_inference():</strong></p>
+
+<p>This function performs the actual inference using the configured TensorRT engine. Let’s delve into the detailed explanation:</p>
+
+<ol>
+  <li><strong>Read and Preprocess Input Image:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">img</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="n">mParams</span><span class="p">.</span><span class="n">ioPathsParams</span><span class="p">.</span><span class="n">image_path</span><span class="p">);</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">preprocessed_image</span><span class="p">;</span>
+<span class="n">preprocess</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">preprocessed_image</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>The input image is read using the <code class="language-plaintext highlighter-rouge">read_image</code> function, and then preprocessed using the <code class="language-plaintext highlighter-rouge">preprocess</code> function.</p>
+  </li>
+  <li><strong>Enqueue Input Data:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">enqueue_input</span><span class="p">(</span><span class="n">host_input</span><span class="p">,</span> <span class="n">preprocessed_image</span><span class="p">);</span>
+<span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">device_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="n">input_size_in_bytes</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>The preprocessed image data is enqueued into the input buffer using <code class="language-plaintext highlighter-rouge">enqueue_input</code>, and then the input data is copied from the host to the GPU using <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>.</p>
+  </li>
+  <li><strong>Perform Inference:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="n">status_0</span> <span class="o">=</span> <span class="n">mContext</span><span class="o">-&gt;</span><span class="n">executeV2</span><span class="p">(</span><span class="n">bindings</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>The inference is executed using the <code class="language-plaintext highlighter-rouge">executeV2</code> method of the execution context.</p>
+  </li>
+  <li><strong>Copy Output Data to Host:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">host_output</span><span class="p">,</span> <span class="n">device_output</span><span class="p">,</span> <span class="n">output_size_in_bytes</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>The output data from the GPU is copied back to the host using <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>.</p>
+  </li>
+  <li><strong>Calculate Latency:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">end_time</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">milli</span><span class="o">&gt;</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">;</span>
+<span class="n">latency</span> <span class="o">=</span> <span class="n">duration</span><span class="p">.</span><span class="n">count</span><span class="p">();</span>
+</code></pre></div>    </div>
+    <p>The execution time is calculated to determine the inference latency.</p>
+  </li>
+  <li><strong>Post-process Output and Classify:</strong>
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span><span class="o">*</span> <span class="n">class_flattened</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">host_output</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">predictions</span><span class="p">(</span><span class="n">class_flattened</span><span class="p">,</span> <span class="n">class_flattened</span> <span class="o">+</span> <span class="n">mParams</span><span class="p">.</span><span class="n">modelParams</span><span class="p">.</span><span class="n">num_classes</span><span class="p">);</span>
+<span class="n">mPostprocess</span><span class="p">.</span><span class="n">softmax_classify</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">verbose</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>The output data is processed to calculate class predictions using softmax, and the <code class="language-plaintext highlighter-rouge">softmax_classify</code> function is called from the <code class="language-plaintext highlighter-rouge">mPostprocess</code> object.</p>
+  </li>
+</ol>
+
+<h4 id="b-exploring-the-preprocess-and-postprocess-class">B. Exploring the Preprocess and Postprocess Class</h4>
+<p>In this section, we’ll dive into the preprocessor and postprocessor classes. These classes are vital for preparing input data and interpreting model outputs. We’ll see how the preprocessor class resizes and normalizes images, while the postprocessor class calculates softmax probabilities and identifies top predicted classes. Understanding these components sheds light on the core data transformations and result analysis in your inference workflow.</p>
+
+<p><strong>Preprocessor Class:</strong></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">preprocessor</code> class handles image preprocessing tasks before feeding them into the neural network for inference. It consists of two main functions: <code class="language-plaintext highlighter-rouge">resize</code> and <code class="language-plaintext highlighter-rouge">normalization</code>.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">resize</code>:
+This function takes an input image and resizes it to a predefined size using OpenCV’s <code class="language-plaintext highlighter-rouge">cv::resize</code> function. The resized image is stored in the <code class="language-plaintext highlighter-rouge">output_image</code> parameter. This step ensures that the input image has consistent dimensions that match the requirements of the neural network.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">normalization</code>:
+The normalization function standardizes the pixel values of the resized image to be suitable for the neural network. It performs the following steps:</p>
+    <ol>
+      <li>Converts the input image to a floating-point representation and scales pixel values to the range [0, 1].</li>
+      <li>Subtracts mean values from each channel (RGB) of the image.</li>
+      <li>Divides the subtracted image by the standard deviation values.
+The normalized image is stored in the <code class="language-plaintext highlighter-rouge">output_image</code> parameter. These preprocessing steps help ensure that the neural network receives inputs in a consistent format.</li>
+    </ol>
+  </li>
+</ul>
+
+<p><strong>Postprocessor Class:</strong></p>
+
+<p>Now let’s move on to the <code class="language-plaintext highlighter-rouge">postprocessor</code> class, which handles processing the model outputs after inference.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Postprocessor</code> Constructor:
+The constructor of the <code class="language-plaintext highlighter-rouge">postprocessor</code> class initializes an instance of the class and accepts a path to a file containing class names. This file is used to map class indices to their human-readable names.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">softmax_classify</code>:
+The <code class="language-plaintext highlighter-rouge">softmax_classify</code> function performs post-processing on the model’s output probabilities. It calculates softmax probabilities from the raw output values and prints the top predicted classes along with their confidences. Here’s a breakdown of the steps:</p>
+    <ol>
+      <li>The function reads class names from the provided class file and stores them in the <code class="language-plaintext highlighter-rouge">classes</code> vector.</li>
+      <li>The softmax probabilities are calculated from the raw output values using the exponential function and normalized.</li>
+      <li>The function sorts the predicted classes based on their confidences.</li>
+      <li>If the <code class="language-plaintext highlighter-rouge">verbose</code> flag is enabled, the top predicted classes with confidences greater than 50% are printed to the console.</li>
+    </ol>
+  </li>
+</ul>
+
+<p>Overall, the <code class="language-plaintext highlighter-rouge">postprocessor</code> class helps interpret the model’s output probabilities and provides human-readable class predictions along with confidence values.</p>
+
+<h4 id="c-exploring-the-main-code-maincpp">C. Exploring the Main Code: main.cpp</h4>
+
+<p>The <code class="language-plaintext highlighter-rouge">main.cpp</code> file is the heart of our inference application, where we orchestrate the entire process of building and using the TensorRT engine for inference. Let’s break down the key parts of this code to understand how it works.</p>
+
+<ol>
+  <li>
+    <p><strong>Command-line Arguments:</strong> The program accepts command-line arguments to determine its behavior. If no arguments are provided or if <code class="language-plaintext highlighter-rouge">--help</code> is used, a help message is displayed.</p>
+  </li>
+  <li>
+    <p><strong>Initializing Inference:</strong> The <code class="language-plaintext highlighter-rouge">Params</code> struct is used to configure various parameters for the inference process. We create an instance of the <code class="language-plaintext highlighter-rouge">Inference</code> class, passing these parameters.</p>
+  </li>
+  <li>
+    <p><strong>Command-line Argument Processing:</strong> We iterate through the provided command-line arguments. If <code class="language-plaintext highlighter-rouge">--build_engine</code> is passed, the TensorRT engine is built using the ONNX model. If <code class="language-plaintext highlighter-rouge">--inference</code> is passed, the built engine is used for inference.</p>
+  </li>
+  <li><strong>Performing Inference:</strong> When <code class="language-plaintext highlighter-rouge">--inference</code> is specified, the following steps occur:
+    <ul>
+      <li>We build the TensorRT engine from the serialized engine file.</li>
+      <li>We initialize the inference context and memory buffers.</li>
+      <li>We perform inference using the <code class="language-plaintext highlighter-rouge">do_inference()</code> method from the <code class="language-plaintext highlighter-rouge">Inference</code> class.</li>
+      <li>We read the Python-generated output from a file and calculate the mean absolute difference between the Python output and C++ TensorRT output.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Measuring Latency and Speedup:</strong> We measure the average latency of the TensorRT inference over multiple iterations. We also read the Python-generated latency from a file. By comparing the latencies, we calculate the speedup achieved by the TensorRT inference.</p>
+  </li>
+  <li><strong>Displaying Summary:</strong> Finally, we display a summary of the results, including the PyTorch latency, TensorRT latency, speedup, and mean absolute difference in predictions.</li>
+</ol>
+
+<p>This <code class="language-plaintext highlighter-rouge">main.cpp</code> file demonstrates how we can effectively build, deploy, and analyze the performance and accuracy of our TensorRT-based inference system.</p>
+
+<h4 id="d-building-the-project-with-cmake-cmakeliststxt">D. Building the Project with CMake: CMakeLists.txt</h4>
+
+<p>The <code class="language-plaintext highlighter-rouge">CMakeLists.txt</code> file is crucial for configuring the build process of your project. It defines how to compile the code and link various libraries. Let’s dive into the key components of this CMake configuration.</p>
+
+<ol>
+  <li>
+    <p><strong>Minimum Required Version:</strong> Specify the minimum required CMake version for your project.</p>
+  </li>
+  <li>
+    <p><strong>Project Configuration:</strong> Set the project name and C++ standard version.</p>
+  </li>
+  <li>
+    <p><strong>Setting RPATH:</strong> Configure the runtime path for your executable using <code class="language-plaintext highlighter-rouge">$ORIGIN</code>.</p>
+  </li>
+  <li>
+    <p><strong>Include Directories:</strong> Define the include directories for your project, including OpenCV and CUDA.</p>
+  </li>
+  <li>
+    <p><strong>Find OpenCV:</strong> Use the <code class="language-plaintext highlighter-rouge">find_package</code> command to locate and configure OpenCV.</p>
+  </li>
+  <li>
+    <p><strong>Find CUDA:</strong> Use the <code class="language-plaintext highlighter-rouge">find_package</code> command to locate and configure CUDA.</p>
+  </li>
+  <li>
+    <p><strong>Enable CUDA Support:</strong> Set the CUDA compiler and flags to enable CUDA support.</p>
+  </li>
+  <li>
+    <p><strong>Linking Preprocessor and Postprocessor Libraries:</strong> Build and link the <code class="language-plaintext highlighter-rouge">pre_processor</code> and <code class="language-plaintext highlighter-rouge">post_processor</code> libraries. These libraries contain the preprocessing and postprocessing logic.</p>
+  </li>
+  <li>
+    <p><strong>Building the Inference Library:</strong> Create the <code class="language-plaintext highlighter-rouge">Inference</code> shared library by compiling and linking the <code class="language-plaintext highlighter-rouge">inference.cpp</code> file. This library is used to perform inference using TensorRT.</p>
+  </li>
+  <li>
+    <p><strong>Linking Dependencies:</strong> Link the <code class="language-plaintext highlighter-rouge">Inference</code> library with the <code class="language-plaintext highlighter-rouge">pre_processor</code>, <code class="language-plaintext highlighter-rouge">post_processor</code>, and necessary libraries such as <code class="language-plaintext highlighter-rouge">nvinfer</code>, <code class="language-plaintext highlighter-rouge">nvonnxparser</code>, <code class="language-plaintext highlighter-rouge">stdc++fs</code>, CUDA libraries, and OpenCV.</p>
+  </li>
+  <li>
+    <p><strong>Creating the Executable:</strong> Build the <code class="language-plaintext highlighter-rouge">main</code> executable, which serves as the entry point for your application. Link it with the <code class="language-plaintext highlighter-rouge">Inference</code> library.</p>
+  </li>
+</ol>
+
+<p>This <code class="language-plaintext highlighter-rouge">CMakeLists.txt</code> file defines how your project will be built, linking various libraries and ensuring proper configuration for successful compilation and execution.</p>
+
+<h2 id="3-latency-and-consistency">3. Latency and Consistency</h2>
+
+<p>In this section, we will delve into the results obtained from our TensorRT-powered inference and compare them with PyTorch. The performance improvements achieved through TensorRT are significant, showcasing both speedup and consistency in inference latency.</p>
+
+<h3 id="31-speedup-by-quantization">3.1 Speedup by Quantization</h3>
+
+<p>Quantization is a technique that reduces the memory and computational requirements of neural network models. When comparing PyTorch’s latency to that of our C++ TensorRT-powered model, we observe a remarkable speedup. PyTorch exhibits a latency of 5.42 ms, while the C++ TensorRT combination achieves an impressive latency of 2.19824 ms. This translates to a speedup of approximately <code class="language-plaintext highlighter-rouge">2.46561 times.</code></p>
+
+<h3 id="32-minimal-output-difference">3.2 Minimal Output Difference</h3>
+
+<p>Although the inference latencies have changed, it’s crucial to ensure that the actual outputs remain consistent between the original PyTorch model and the C++ TensorRT implementation. Fortunately, our analysis reveals that the Mean Absolute Difference between the two is merely <code class="language-plaintext highlighter-rouge">0.0121075</code>. This minor variation in output demonstrates the reliability and accuracy of the TensorRT-powered inference.</p>
+
+<p>The combined benefits of reduced latency and minimal output differences make the integration of TensorRT into the project a powerful optimization, ensuring efficient and consistent real-time inferencing for various applications.</p>
+
+<h2 id="4-conclusion">4. Conclusion</h2>
+
+<p>In this project, we embarked on a journey to optimize neural network inference using TensorRT, a high-performance deep learning inference optimizer and runtime library. By integrating TensorRT into our C++ application, we achieved remarkable improvements in inference speed and consistency, enhancing the overall efficiency of our model.</p>
+
+<p>Throughout the exploration, we dissected the intricacies of the TensorRT engine, delving into core concepts such as building, initializing, and executing the engine for both PyTorch and C++ implementations. We gained insights into preprocessing and postprocessing techniques to ensure accurate input and output handling. Our journey was enriched by understanding the integration of CUDA and OpenCV libraries, which are essential for seamless GPU acceleration and image processing.</p>
+
+<p>By combining the power of TensorRT, CUDA, and C++, we witnessed a substantial reduction in inference latency. The speedup achieved—showcased through a quantified speedup factor—highlighted the importance of optimizing deep learning models for real-time applications. Additionally, our evaluation revealed a minimal Mean Absolute Difference between the outputs of PyTorch and the C++ TensorRT implementation, affirming the reliability of our optimization strategy.</p>
+
+<p>In conclusion, our project underscores the significance of leveraging TensorRT in tandem with C++ for neural network inference. This integration paves the way for enhanced performance, making it a pivotal solution for real-time applications across various domains. Through this exploration, we’ve gained valuable insights into the world of deep learning optimization, setting the stage for further innovations in the field.</p>]]></content><author><name></name></author><category term="edge-ai" /><category term="nvidia" /><category term="tensorrt" /><category term="deep-learning" /><summary type="html"><![CDATA[TensorRT inference in C++]]></summary></entry><entry><title type="html">CUDA it Be Any Faster?</title><link href="https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster/" rel="alternate" type="text/html" title="CUDA it Be Any Faster?" /><published>2023-08-05T19:53:00+00:00</published><updated>2023-08-05T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/cuda-it-be-any-faster/"><![CDATA[<h4 id="experience-the-exhilarating-world-of-nvidias-cuda-programming-as-we-revolutionize-point-cloud-processing-in-computer-vision-and-robotics-voxelization-the-process-of-converting-3d-points-into-discrete-voxels-has-faced-challenges-with-traditional-cpu-based-methods-limiting-groundbreaking-innovations-but-fear-not-as-we-harness-the-immense-power-of-parallelization-for-a-monumental-leap-of-over-580x-times-over-traditional-cpu-dive-into-cudas-awe-inspiring-realm-where-each-point-gets-its-own-thread-enabling-lightning-fast-voxelization-and-opening-the-doors-to-real-time-applications-join-us-on-this-thrilling-ride-and-witness-the-magic-of-cuda-as-we-rewrite-the-future-of-point-cloud-processing-lets-embrace-the-sheer-power-of-cuda-together-and-change-the-game">Experience the exhilarating world of NVIDIA’s CUDA programming as we revolutionize point cloud processing in computer vision and robotics. Voxelization, the process of converting 3D points into discrete voxels, has faced challenges with traditional CPU-based methods, limiting groundbreaking innovations. But fear not, as we harness the immense power of parallelization for a monumental leap of over 580x times over traditional CPU! Dive into CUDA’s awe-inspiring realm, where each point gets its own thread, enabling lightning-fast voxelization and opening the doors to real-time applications. Join us on this thrilling ride and witness the magic of CUDA as we rewrite the future of point cloud processing. Let’s embrace the sheer power of CUDA together and change the game!</h4>
 
 <p><br /></p>
 
