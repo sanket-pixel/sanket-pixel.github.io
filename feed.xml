@@ -1,4 +1,387 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2023-08-28T13:17:10+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">TensorRT meets C++</title><link href="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/" rel="alternate" type="text/html" title="TensorRT meets C++" /><published>2023-08-08T19:53:00+00:00</published><updated>2023-08-08T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/"><![CDATA[<h4 id="building-upon-the-foundations-laid-in-our-previous-post-have-you-met-tensorrt-where-we-embarked-on-a-journey-into-the-world-of-basic-concepts-using-python-we-now-delve-into-the-exciting-realm-of-c-by-seamlessly-integrating-tensorrt-with-c-this-blog-unlocks-the-potential-for-readers-to-effortlessly-transition-their-pytorch-models-into-a-c-environment-we-present-an-illustrative-example-of-image-classification-utilizing-the-familiar-model-from-our-earlier-exploration-as-the-blog-unfolds-the-power-of-this-integration-becomes-evidentreaders-will-learn-how-to-read-an-input-image-using-opencv-copy-it-to-the-gpu-perform-inference-to-get-the-output-and-copy-the-output-back-to-the-cpu-this-sets-a-strong-foundation-for-utilizing-this-pipeline-with-any-standard-pytorch-model-this-blog-empowers-readers-with-the-knowledge-to-bridge-the-gap-between-two-domains-ultimately-enabling-them-to-harness-the-capabilities-of-tensorrt-in-the-world-of-c">Building upon the foundations laid in our previous post, “Have you met TensorRT?,” where we embarked on a journey into the world of basic concepts using Python, we now delve into the exciting realm of C++. By seamlessly integrating TensorRT with C++, this blog unlocks the potential for readers to effortlessly transition their PyTorch models into a C++ environment. We present an illustrative example of image classification, utilizing the familiar model from our earlier exploration. As the blog unfolds, the power of this integration becomes evident—readers will learn how to read an input image using OpenCV, copy it to the GPU, perform inference to get the output, and copy the output back to the CPU. This sets a strong foundation for utilizing this pipeline with any standard PyTorch model. This blog empowers readers with the knowledge to bridge the gap between two domains, ultimately enabling them to harness the capabilities of TensorRT in the world of C++.</h4>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-03-30T10:02:01+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Quantization explained, like you are five.</title><link href="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/" rel="alternate" type="text/html" title="Quantization explained, like you are five." /><published>2024-03-29T19:53:00+00:00</published><updated>2024-03-29T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/"><![CDATA[<h4 id="in-the-era-of-extravagence-where-models-casually-cross-100b-parameters-devouring-over-500gb-of-gpu-memory-and-costing-millions-of-dollars-for-a-single-training-session-quantization-comes-in-as-a-prudent-accountant-it-ensures-that-models-refrain-from-indulging-in-excessive-memory-consumption-while-minimizing-any-loss-in-model-quality---in-this-blog-post-we-aim-to-demystify-this-potent-mathematical-framework-using-intuitive-explanations-relatable-examples-and-accessible-language-we-will-also-delve-into-the-fancy-jargons-and-the-ugly-math-that-come-along-with-quantization-just-deeply-enough-to-allow-readers-to-nagivate-research-papers-and-documentation-on-quantization-libraries-the-objective-is-to-make-these-esoteric-concepts-more-approachable-and-less-daunting-so-buckle-up-as-we-embark-on-this-journey-as-we-learn-how-to-take-mammoth-ml-models-and-prune-them-down-to-preserve-only-the-essential">In the era of extravagence, where models casually cross 100B parameters, devouring over 500GB of GPU memory and costing millions of dollars for a single training session, quantization comes in as a prudent accountant. It ensures that models refrain from indulging in excessive memory consumption while minimizing any loss in model quality.   In this blog post, we aim to demystify this potent mathematical framework using intuitive explanations, relatable examples, and accessible language. We will also delve into the fancy jargons and the ugly math that come along with quantization, just deeply enough to allow readers to nagivate research papers and documentation on quantization libraries. The objective is to make these esoteric concepts more approachable and less daunting. So buckle up as we embark on this journey, as we learn how to take mammoth ML models, and prune them down to preserve only the essential.</h4>
+
+<p><br /></p>
+<div style="width: 95%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/michael-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/michael-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/michael-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/michael.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Explained so simply, even Michael Scott would get it.
+</div>
+</div>
+
+<h3 id="why-bother-learning-about-quantization">Why bother learning about Quantization?</h3>
+<p>In recent years, both language models and computer vision models have undergone a significant evolution, with newer models boasting unprecedented sizes and complexities. For instance, language models like GPT-3 and computer vision models like EfficientNet have reached staggering parameter counts, with GPT-3 having 175 billion parameters and EfficientNet surpassing billions of parameters across its variants.</p>
+
+<p>However, the sheer size of these models presents practical challenges, particularly in terms of deployment on everyday devices. Consider a language model like GPT-3—its inference alone demands extensive computational resources, with estimates suggesting the need for multiple high-performance GPUs. Similarly, for computer vision tasks, deploying models like EfficientNet on resource-constrained devices can be daunting due to their computational and memory requirements.</p>
+
+<p>To overcome these hurdles, techniques such as quantization have emerged as indispensable tools. By compressing the parameters of these large models into lower precision formats, such as INT8, quantization offers a pathway to significantly reduce memory footprint and computational demands without compromising performance. This is crucial for making these cutting-edge models accessible and deployable across a diverse range of devices, from smartphones to edge devices.</p>
+
+<p>To summarize, learning about quantization, will help you deploy large models, on relatively small devices, while also consuming less power. But before we delve into the core quantization concepts, let us first look at the common data types used in Machine Learning.</p>
+
+<h3 id="0-common-data-types-in-machine-learning">0. Common Data Types in Machine Learning</h3>
+
+<p>In machine learning, data types, or precision, play a vital role in model performance and efficiency. The most common data types used include float32, float16, bfloat16, and int8.
+<br /></p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/types-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/types-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/types-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/types.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="quantization steps" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 0. Common Data Types in Machine Learning
+</div>
+</div>
+<ul>
+  <li>
+    <p><strong>Float32 (FP32):</strong> This 32-bit floating point representation offers a wide range of numbers, with 8 bits for the exponent, 23 bits for the mantissa, and 1 bit for the sign. FP32 provides high precision and dynamic range suitable for most computations.</p>
+  </li>
+  <li>
+    <p><strong>Float16 (FP16):</strong> With 5 bits for the exponent and 10 bits for the mantissa, FP16 offers lower precision compared to FP32. While efficient for many computations, FP16’s limited dynamic range can lead to overflow and underflow issues.</p>
+  </li>
+  <li>
+    <p><strong>Bfloat16 (BF16):</strong> BF16 addresses the limitations of FP16 by allocating 8 bits for the exponent and 7 bits for the fraction. This allows it to maintain the dynamic range of FP32 while sacrificing some precision.</p>
+  </li>
+  <li>
+    <p><strong>Int8 (INT8):</strong> Int8 consists of an 8-bit representation capable of storing 2^8 different values. While it offers lower precision than floating point formats, INT8 is often used in quantization to reduce model size and improve inference efficiency.</p>
+  </li>
+</ul>
+
+<p>In the context of quantization, FP32 is considered full precision, while FP16, BF16, and INT8 are referred to as reduced precision formats. During training, a mixed precision approach may be employed, where FP32 weights are used as a reference, while computations are performed in lower precision formats to enhance training speed and resource efficiency. This allows for efficient utilization of computational resources while maintaining model accuracy.</p>
+
+<h3 id="1-what-is-quantization">1. What is Quantization?</h3>
+<p>Quantization, simply put, is the art of converting all decimal numbers ( ex. <code class="language-plaintext highlighter-rouge">float32</code>) in your data, into whole numbers within a fixed range (ex. <code class="language-plaintext highlighter-rouge">int8</code>), with a mathematical framework, that still allows us to recover the original decimal number from the whole number when needed. This is ofcourse an oversimplicatoin, if there ever was one. While the description might seem straightforward, quantization is more of an art than a rigid science. The conversion methodology is not set in stone and lacks strict determinism, which is what makes it fun, and blog worthy.</p>
+
+<p>Let’s envision a scenario where we have a full HD image of a cat, occupying a hefty 8 megabytes of memory. Now, through the magic of quantization, we pixelate this image just enough to lose some fine details while retaining the essence of the feline subject. As a result, the memory storage required to represent the image diminishes significantly, perhaps to just a fraction of its original size. This trade-off between fidelity and memory efficiency encapsulates the essence of quantization, where the reduction in granularity leads to tangible benefits in terms of resource optimization. Just as pixelation preserves the overall identity of the cat in our image, quantization ensures that our deep learning models maintain their performance while operating within constrained memory environments.</p>
+
+<h3 id="2-fundamentals-of-quantization">2. Fundamentals of Quantization</h3>
+<p>Before we get into the ugly math and fancy jarons, let us understand the intuition. Quantization (however fancy it may sound) is just converting decimal values ( eg. <code class="language-plaintext highlighter-rouge">float32</code> ) into whole numbers (eg. <code class="language-plaintext highlighter-rouge">int8</code> ), in a way that it is feasible to recover the decimal number back from the whole number. Lets say we want to quantize a list of float values that are all between -4.0 and +4.0. And we want to represnet these float values in a universe that just consists of integers between -127 and 127. We would like to have a mechanism, wherein, the minimum value -4.0 maps to -127, and the maximum value +4.0, maps to 127. This would allow us to caputure the essence of all the float values in this only-integer universe of ours. Let us understand how we quantize our list of decimal values, one step at a time.</p>
+
+<p><br /></p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/quantize-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/quantize-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/quantize-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/quantize.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="quantization steps" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 1. Steps in Quantization
+</div>
+</div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Original float array to be quantized :
+[-2.3, -1.1, 0.0, 1.5, 2.8, 4.0]
+
+STEP 1 : Find the maximum value in the array 
+max([-2.3, -1.1, 0.0, 1.5, 2.8, 4.0]) = 4.0
+
+STEP 2 : Calculate the scaling constant  
+s = 127/4.0 = 31.75
+
+STEP 3 : Multiply all values in array by scaling constant
+=  [-2.3, -1.1, 0.0, 1.5, 2.8, 4.0] * 31.75
+=  [ -73.025, -34.925, 0, 47.625, 88.9, 127.0]
+
+STEP 4 : Round all numbers to obtain integer representation. 
+         Clamp all numbers between (-127,127)
+= [-73, -35, 0, 47, 127]                    &lt;---- Quantized Values
+
+</code></pre></div></div>
+
+<p><br /></p>
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/dequantization-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/dequantization-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/dequantization-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/dequantization.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="quantization steps" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 2. Steps in Dequantization to recover original values
+</div>
+</div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dequantization for recovering original values :
+
+STEP 5 : Recover original number by dividing by scaling constant.
+= [-2.299, -1.1023, 0, 1.5118, 2.8031, 4.0] &lt;---- Dequantized Values
+
+</code></pre></div></div>
+
+<p>As we can see, after division by scaling constant, we were able to reasonably approximate the orignal float values from the quantized value. We will refer to <code class="language-plaintext highlighter-rouge">STEP 3</code> and <code class="language-plaintext highlighter-rouge">STEP 4</code> as <strong>Quantization</strong> and <code class="language-plaintext highlighter-rouge">STEP 5</code> as <strong>Dequantization</strong>.</p>
+
+<p>Okay, now as promised, presenting the same ideas explained above, but with the <em>ugly math</em> and fancy jargons. The fancy jargons, we shall now deal with include :</p>
+
+<ol>
+  <li>Range Mapping
+    <ul>
+      <li>Scale Quantization</li>
+      <li>Affine Quantization</li>
+    </ul>
+  </li>
+  <li>Tensor Quantization Granularity
+    <ul>
+      <li>Per Tensor Granularity</li>
+      <li>Per Element Granularity.</li>
+      <li>Per Row/Column/Channel Granularity</li>
+    </ul>
+  </li>
+  <li>Calibration</li>
+</ol>
+
+<p>Lets understand them one at a time.</p>
+
+<h4 id="21-range-mapping">2.1 Range Mapping</h4>
+<p>Range mapping, as the names suggest, is the mechanism for transforming continuous float values into discrete integers. Let’s denote the chosen range of representable real values as \([\beta, \alpha]\), similar to -4 and +4 in earlier example. Let the signed integer space be restricted to the bit-width b. In earlier example, since the signed integer universe had range of {-128,127}, the bit width was 8.  The process of quantization involves mapping an input value \(x ∈ [β, α]\) to reside within the range \([−2^{b-1}, 2^{b-1} - 1]\). This mapping can either be an affine transformation \(f(x) = s.x + z\) or, its special case \(f(x) = s.x\) where \(x, s, z ∈ R\). We refer to these mappins as <em>affine mapping</em> and <em>scale mapping</em> respectively.</p>
+
+<h5 id="211-affine-mapping">2.1.1 Affine Mapping</h5>
+<p>This mapping usually takes place using multiplication (scaling) with a <strong>scaling factor <em>s</em></strong>, \(f (x) = s · x\).  Another variant of this mapping can be <em>affine mapping</em>. Affine mapping, is just scaling, along with addition of  a constant called <strong>zero point \(z\)</strong>,  \(f(x) = s · x + z\). The constant in affine mapping \(z\) is called <strong>zero point</strong> because it represents the value in the quantized integer space, that corresponds to the zero in the float space. Now, let’s delve into the math that underlies these transformations and understand how they bring about the crucial conversion from continuous to discrete representations.
+<br /></p>
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/affine-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/affine-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/affine-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/affine.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="affine" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 3. Affine Mapping
+</div>
+</div>
+<p>Affine quantization serves as the bridge that maps a real value \(x \in \mathbb{R}\) to a \(b\)-bit signed integer \(x_p \in \{-2^{(n-1)}, -2^{(n-1)} + 1, ..., 2^{(n-1)} - 1\}\). The transformation function \(f(x) = s \cdot x + z\) is defined by:</p>
+
+\[s = \frac{2^{(b - 1)}}{\alpha - \beta}\]
+
+\[z = - \text{round}(\beta \cdot s) - 2^{(b-1)}\]
+
+<p>Here, \(s\) is the scale factor, and \(z\) is the zero-point - the integer value to which the real value zero is mapped. For an 8-bit representation \(b = 8\), \(s = \frac{255}{\alpha - \beta}\) and \(z = - \text{round}(\beta \cdot s) - 128\). The quantize operation, described by the equations below, involves clipping the result to the specified range:</p>
+
+\[x_p = \text{quantize}(x, b, s, z) = \text{clip}(\text{round}(s \cdot x + z), -2^{(b-1)}, 2^{(b-1)} - 1)\]
+
+<p>The dequantize function provides an approximation of the original real-valued input \(x\):</p>
+
+\[x̂ = \text{dequantize}(x_p, s, z) = \frac{1}{s} (x_p - z)\]
+
+<p>This transformation ensures the mapping of real values to int8 representation with affine quantization, where \(s\) represents the ratio of the integer-representable range to the chosen real range.</p>
+
+<h5 id="212-scale-mapping">2.1.2 Scale Mapping</h5>
+
+<p>Scale quantization performs range mapping with only a scale transformation, using multiplication (scaling) with a <strong>scaling factor <em>s</em></strong>, \(f (x) = s · x\). We focus on the symmetric variant of scale quantization, where the input range and integer range are symmetric around zero. In this case, for int8, the integer range is {−127, 127}, avoiding the value -128 in favor of symmetry. Here, the zero point in the float space, maps to the zero point in the integer space.</p>
+
+<p><br /></p>
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/scale-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/scale-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/scale-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/scale.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="scale" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 4. Scale Mapping
+</div>
+</div>
+
+<p>We define the scale quantization of a real value \(x\), with a chosen representable range \([−α, α]\), producing a \(b\)-bit integer value, \(x_q\) as follows,</p>
+
+\[s=\frac{2^{b−1}−1}{α}\]
+
+\[x_q=quantize(x,b,s)=clip(round(s⋅x),−2^{b−1}+1,2^{b−1}−1)\]
+
+<p>We recover the approximate original value using the dequantize operation for scale quantization as follows.</p>
+
+\[x̂=dequantize(x_q,s) = \frac{1}{s}{x_q}\]
+
+<p>The scale mapping is similar to the example we looked at earlier, where we quantize by multiplying with a constant, and dequantize by dividing with the same constant.</p>
+
+<h4 id="22-quantization-granularity">2.2 Quantization Granularity</h4>
+<p>The scaling factor \(s,z\) are referred to as quantization parameters. The effectiveness of quantization, is entirely dependent of the choice of these parameters. While performing quantization for a neural network graph, we want to quantize the inputs tensors, ( activations ) and also the corresponding weights before performing the operation. The term <em>quantization granularity</em> refers to the level at which quantization parameters are shared among tensor elements. Here are the common choices for quantization granularity:
+<br /></p>
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/granularity-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/granularity-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/granularity-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/granularity.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="granularity" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 5. Quanization Granularity Mapping
+</div>
+</div>
+<ol>
+  <li>
+    <p><strong>Per Tensor Granularity</strong>: In this approach, the same quantization parameters are shared by all elements in the entire tensor. It is the coarsest granularity and implies that the entire tensor is treated as a single entity during quantization and all elements have the same scaling factor \(s\) and zero point \(z\).</p>
+  </li>
+  <li>
+    <p><strong>Per Element Granularity</strong>: At the finest granularity, each element in the tensor has its individual quantization parameters. This means that each element is quantized independently.</p>
+  </li>
+  <li>
+    <p><strong>Per Row/Column/Channel Granularity</strong>: For 2D matrices or 3D tensors (like images), quantization parameters can be shared over various dimensions. For example, quantization parameters may be shared per row or per column in 2D matrices, or per channel in 3D tensors.</p>
+  </li>
+</ol>
+
+<p>The choice of quantization granularity affects how quantization parameters are applied to the elements of the tensor, and it provides flexibility in adapting quantization to different structures within the data. Here is a general rule guide for choice of granularity.</p>
+<ol>
+  <li>
+    <p><strong>Weights</strong> : Use per column granularity for weights tensor. All elements in a column of weights tensor should have same quantization parameters.</p>
+  </li>
+  <li>
+    <p><strong>Activations/Inputs</strong> : Use per tensor granularity for activations or inputs to the network. All elements of the entire input tensor should have same quantization paramters.</p>
+  </li>
+</ol>
+
+<h4 id="23-calibration">2.3 Calibration</h4>
+<p>Quantization, as we’ve learned, is the process of converting continuous numerical values into a discrete representation. Calibration, in this context, is the art of carefully choosing the parameters that guide this conversion. Let’s dive into the intuition behind calibration before exploring three calibration methods.</p>
+
+<p>In the quantization process, we aim to squeeze a broad spectrum of real-numbered values into a limited integer space. Calibration ensures we choose the right boundaries for this squeeze, allowing us to maintain the essence of our data while mapping it to a more compact form. Think of it as finding the sweet spot that captures the diversity of values in our model without losing critical information.
+<br /></p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_4/calibration-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_4/calibration-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_4/calibration-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_4/calibration.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="quantization steps" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+  Figure 6.Types of calibration
+</div>
+</div>
+
+<p>There are three major strategies to find the correct quantization paramters given the distribution of the values being quantized :</p>
+<ol>
+  <li>
+    <p><strong>Max Calibration</strong>: Simple yet effective, this method sets the range based on the maximum absolute value observed during calibration. It’s like saying, “Let’s make sure we cover the extremes.”</p>
+  </li>
+  <li>
+    <p><strong>Entropy Calibration</strong>: This method leverages KL divergence to minimize information loss between original floating-point values and their quantized counterparts. It’s a nuanced approach, aiming to preserve the distribution of information.</p>
+  </li>
+  <li>
+    <p><strong>Percentile Calibration</strong>: Tailored to the data distribution, this method involves setting the range to a percentile of the absolute values seen during calibration. For instance, a 99% calibration clips the largest 1% of magnitude values.</p>
+  </li>
+</ol>
+
+<p>Each method brings its own flavor to the calibration process, ensuring that the quantized model not only fits the data but also does so intelligently, preserving crucial details. Calibration becomes the bridge that connects the continuous world of real numbers to the discrete universe of quantization.</p>
+
+<h3 id="3-conclusion">3. Conclusion</h3>
+<p>In conclusion, we’ve explored the fundamentals of quantization, ranging from simple examples of quantization and dequantization to more advanced topics such as range mapping, tensor quantization granularity, and calibration. By delving into concepts like scale quantization, affine quantization, and different granularities of tensor quantization, we’ve gained a deeper understanding of how quantization optimizes model memory and computational efficiency without sacrificing performance. In the next blog post, we’ll dive into concrete Python and PyTorch examples to illustrate how these concepts translate into practice, empowering readers to implement quantization techniques effectively in their machine learning workflows. Stay tuned as we continue our journey into the realm of quantization and its transformative impact on machine learning models.</p>]]></content><author><name></name></author><category term="quantization" /><category term="deep-learning" /><category term="quantization" /><summary type="html"><![CDATA[Explaining the intuition behind quantization]]></summary></entry><entry><title type="html">TensorRT meets C++</title><link href="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/" rel="alternate" type="text/html" title="TensorRT meets C++" /><published>2023-08-08T19:53:00+00:00</published><updated>2023-08-08T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2023/tensorrt-meets-cpp/"><![CDATA[<h4 id="building-upon-the-foundations-laid-in-our-previous-post-have-you-met-tensorrt-where-we-embarked-on-a-journey-into-the-world-of-basic-concepts-using-python-we-now-delve-into-the-exciting-realm-of-c-by-seamlessly-integrating-tensorrt-with-c-this-blog-unlocks-the-potential-for-readers-to-effortlessly-transition-their-pytorch-models-into-a-c-environment-we-present-an-illustrative-example-of-image-classification-utilizing-the-familiar-model-from-our-earlier-exploration-as-the-blog-unfolds-the-power-of-this-integration-becomes-evidentreaders-will-learn-how-to-read-an-input-image-using-opencv-copy-it-to-the-gpu-perform-inference-to-get-the-output-and-copy-the-output-back-to-the-cpu-this-sets-a-strong-foundation-for-utilizing-this-pipeline-with-any-standard-pytorch-model-this-blog-empowers-readers-with-the-knowledge-to-bridge-the-gap-between-two-domains-ultimately-enabling-them-to-harness-the-capabilities-of-tensorrt-in-the-world-of-c">Building upon the foundations laid in our previous post, “Have you met TensorRT?,” where we embarked on a journey into the world of basic concepts using Python, we now delve into the exciting realm of C++. By seamlessly integrating TensorRT with C++, this blog unlocks the potential for readers to effortlessly transition their PyTorch models into a C++ environment. We present an illustrative example of image classification, utilizing the familiar model from our earlier exploration. As the blog unfolds, the power of this integration becomes evident—readers will learn how to read an input image using OpenCV, copy it to the GPU, perform inference to get the output, and copy the output back to the CPU. This sets a strong foundation for utilizing this pipeline with any standard PyTorch model. This blog empowers readers with the knowledge to bridge the gap between two domains, ultimately enabling them to harness the capabilities of TensorRT in the world of C++.</h4>
 <p><br /></p>
 <div style="width: 100%;margin: 0 auto;">
 <div class="row">
