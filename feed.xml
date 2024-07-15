@@ -1,4 +1,421 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-03-30T10:03:29+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Quantization explained, like you are five.</title><link href="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/" rel="alternate" type="text/html" title="Quantization explained, like you are five." /><published>2024-03-29T19:53:00+00:00</published><updated>2024-03-29T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/"><![CDATA[<h4 id="in-the-era-of-extravagence-where-models-casually-cross-100b-parameters-devouring-over-500gb-of-gpu-memory-and-costing-millions-of-dollars-for-a-single-training-session-quantization-comes-in-as-a-prudent-accountantit-ensures-that-models-refrain-from-indulging-in-excessive-memory-consumption-while-minimizing-any-loss-in-model-quality---in-this-blog-post-we-aim-to-demystify-this-potent-mathematical-framework-using-intuitive-explanations-relatable-examples-and-accessible-language-we-will-also-delve-into-the-fancy-jargons-and-the-ugly-math-that-come-along-with-quantization-just-deeply-enough-to-allow-readers-to-nagivate-research-papers-and-documentation-on-quantization-libraries-the-objective-is-to-make-these-esoteric-concepts-more-approachable-and-less-daunting-so-buckle-up-as-we-embark-on-this-journey-as-we-learn-how-to-take-mammoth-ml-models-and-prune-them-down-to-preserve-only-the-essential">In the era of extravagence, where models casually cross 100B parameters, devouring over 500GB of GPU memory and costing millions of dollars for a single training session, quantization comes in as a prudent accountant.It ensures that models refrain from indulging in excessive memory consumption while minimizing any loss in model quality.   In this blog post, we aim to demystify this potent mathematical framework using intuitive explanations, relatable examples, and accessible language. We will also delve into the fancy jargons and the ugly math that come along with quantization, just deeply enough to allow readers to nagivate research papers and documentation on quantization libraries. The objective is to make these esoteric concepts more approachable and less daunting. So buckle up as we embark on this journey, as we learn how to take mammoth ML models, and prune them down to preserve only the essential.</h4>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-07-15T16:59:25+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Down the CudaMemory lane</title><link href="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/" rel="alternate" type="text/html" title="Down the CudaMemory lane" /><published>2024-07-14T19:53:00+00:00</published><updated>2024-07-14T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/"><![CDATA[<h4 id="in-the-fast-paced-landscape-of-deep-learning-deployment-where-performance-optimization-is-critical-understanding-the-foundational-principles-behind-memory-management-and-data-transfer-between-cpus-and-gpus-is-essential-this-blog-aims-to-demystify-these-concepts-by-starting-from-first-principles-well-explore-how-memory-allocation-operates-on-cpus-using-malloc-and-on-gpus-using-cudamalloc-shedding-light-on-their-distinct-functionalities-additionally-well-unravel-the-complexities-of-cudamemcpy-a-crucial-function-for-seamless-data-exchange-between-these-processing-units-by-clarifying-these-fundamental-concepts-we-empower-developers-to-strategically-optimize-their-applications-for-maximum-efficiency-and-speed-in-gpu-accelerated-environments">In the fast-paced landscape of deep learning deployment, where performance optimization is critical, understanding the foundational principles behind memory management and data transfer between CPUs and GPUs is essential. This blog aims to demystify these concepts by starting from first principles. We’ll explore how memory allocation operates on CPUs using <code class="language-plaintext highlighter-rouge">malloc</code> and on GPUs using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, shedding light on their distinct functionalities. Additionally, we’ll unravel the complexities of <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>, a crucial function for seamless data exchange between these processing units. By clarifying these fundamental concepts, we empower developers to strategically optimize their applications for maximum efficiency and speed in GPU-accelerated environments.</h4>
+
+<p><br /></p>
+<div style="width: 95%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_5/memory-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_5/memory-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_5/memory-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_5/memory.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+ Data Transfers Between CPU and GPU 
+</div>
+</div>
+
+<p>We will understand the fundamentals of CPU and GPU memory manipulations and writing and reading data from the same in the following sections. We first look at how to allocate memory on CPU and GPU, following which we look at how to copy data from the CPU to the GPU and vice versa.</p>
+
+<h3 id="1-understanding-memory-allocation">1. Understanding Memory Allocation</h3>
+<p>Efficient memory allocation is fundamental to optimizing computational tasks, particularly when working with CPU and GPU resources. This section delves into the specifics of <code class="language-plaintext highlighter-rouge">malloc</code> and <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, the primary functions used for memory allocation in C++ and CUDA respectively, and highlights the key differences between CPU and GPU memory allocation.</p>
+
+<h4 id="11-malloc">1.1 malloc</h4>
+<p><code class="language-plaintext highlighter-rouge">malloc</code>, short for “memory allocation,” is a standard library function in C and C++ used to allocate a block of memory on the heap. The memory allocated by malloc is uninitialized and is typically used for dynamic data structures such as arrays and linked lists.</p>
+
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_5/malloc-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_5/malloc-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_5/malloc-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_5/malloc.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="malloc" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+Malloc
+</div>
+</div>
+
+<p><strong>Example Usage</strong></p>
+
+<p>In this example, we allocate memory for an array of integers of size 10.</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span> <span class="c1">// Allocate memory for 10 integers</span>
+</code></pre></div></div>
+<p>We first compute the size of the memory that needs to be allocated on the CPU in bytes, since the malloc function accepts the size parameter in bytes. To that end, we multiply the desired array size ( 10 in this case ) with the bytesize of the desired data type ( integer in this case ). The <code class="language-plaintext highlighter-rouge">sizeof</code> function returns the size of the datatype in bytes. Just for information, this results in 40 ( 10 * 4) since each integer has the size of 4 bytes.</p>
+
+<p>Next, we use the all important <code class="language-plaintext highlighter-rouge">malloc()</code> function to allocate the memory of the size computed before.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</code></pre></div></div>
+<p>The malloc function returns a pointer pointing to the memory address in the CPU where the allocation has been done. In particular, it returns a <code class="language-plaintext highlighter-rouge">void*</code> type pointer. Since we are trying to create an array of integers, we type case this <code class="language-plaintext highlighter-rouge">void*</code> to <code class="language-plaintext highlighter-rouge">int*</code>.</p>
+
+<p>A good question that should arise at this point is, what difference does this typecasting have on the actual CPU memory. The memory block allocated by <code class="language-plaintext highlighter-rouge">malloc</code> is simply a contiguous block of raw bytes. The casting does not alter this raw memory. The casting simply lets the compiler know that this memory address points to an array of integers. The advantages are as follows :</p>
+
+<p><strong>a. Pointer Arthematic</strong></p>
+
+<p>With an <code class="language-plaintext highlighter-rouge">int*</code> pointer, pointer arithmetic operates in units of <code class="language-plaintext highlighter-rouge">int</code>. For example, if array is an <code class="language-plaintext highlighter-rouge">int*</code>, then array + 1 points to the next int in the array (4 bytes away if sizeof(int) is 4).</p>
+
+<p><strong>b. Assigning Elements</strong></p>
+
+<p>After type typecasting to <code class="language-plaintext highlighter-rouge">int*</code> integer values can be assigned by simply passing indexm like a regular integer array.</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// Store the square of i in the allocated array</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>c. Accessing Elements</strong></p>
+
+<p><code class="language-plaintext highlighter-rouge">array[i]</code> accesses the i-th int in the allocated memory block.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">// Print the values stored in the array</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>To summarize, here is the code for allocating memory on the CPU for an array of 10 integers.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span> <span class="c1">// Allocate memory for 10 integers</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">array</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate memory"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// Use the allocated memory</span>
+<span class="n">free</span><span class="p">(</span><span class="n">array</span><span class="p">);</span> <span class="c1">// Free the allocated memory when done</span>
+
+</code></pre></div></div>
+<h4 id="12-cudamalloc">1.2 cudaMalloc</h4>
+<p><code class="language-plaintext highlighter-rouge">cudaMalloc</code> is a function provided by CUDA for allocating memory on the GPU. This function is analogous to malloc but is specifically designed for GPU memory, allowing developers for accessing and manipulating GPU memory.</p>
+
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_5/cudamalloc-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_5/cudamalloc-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_5/cudamalloc-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_5/cudamalloc.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="malloc" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+CudaMalloc
+</div>
+</div>
+
+<p><strong>Example Usage</strong></p>
+
+<p>Let us stick with the same example as we used for malloc(), but this time we allocate the array of integers of size 10 on the GPU.
+For starters, just like before, lets compute the number of bytes needed for an integer array of size 10.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span> <span class="c1">// Allocate memory for 10 integers on GPU</span>
+</code></pre></div></div>
+<p>Now, we declare a pointer to the start of this integer array, just like we would for the CPU.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">d_array</span><span class="p">;</span>
+</code></pre></div></div>
+<p>But there is a small catch here.</p>
+
+<p><strong><em>Alhthough we declare the <code class="language-plaintext highlighter-rouge">int *d_array</code> on the CPU, this pointer is intended to point to a memory location on the GPU.</em></strong></p>
+
+<p>We will understand this in further detail, once we complete the memory allocation on the GPU.
+To that end, we now add the final missing piece which is calling <code class="language-plaintext highlighter-rouge">cudaMalloc()</code></p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>As shown above, the <code class="language-plaintext highlighter-rouge">cudaMalloc()</code> function, expects <strong>a pointer to a pointer</strong> as input. In other words, we first declare a device pointer <code class="language-plaintext highlighter-rouge">int *d_array</code>, and then pass the address of this pointer on the CPU <code class="language-plaintext highlighter-rouge">(&amp;d_array)</code> to the cudaMalloc function.
+We then cast this pointer to a pointer to type <code class="language-plaintext highlighter-rouge">(void**)</code> and pass that as input along with the size of intended memory allocation in bytes.</p>
+
+<p>This function then allocates the expected size of memory onto the GPU starting from memory location <code class="language-plaintext highlighter-rouge">d_array</code>. Let us understand this visually.</p>
+
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_5/deviceptr-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_5/deviceptr-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_5/deviceptr-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_5/deviceptr.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="malloc" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+Intuition of a Device Pointer. The CPU location 4 stores the allocated GPU memory location C.
+</div>
+</div>
+
+<p>In this example, for the sake of simplicity, lets assume that the CPU memory address is indexed by numbers 1,2,3… and so on. 
+Furthermore, the GPU is indexed by A,B,C.. and so on.  In the first step, when <code class="language-plaintext highlighter-rouge">int *d_array</code> is declared, the memory location 4 on the CPU
+is allocated, to store the address of the GPU.</p>
+
+<p>Then after <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, this address stores the value C, which is the memory location allocated on the GPU.
+In this context, <code class="language-plaintext highlighter-rouge">*d_array</code> is <strong>C</strong> (on the GPU) and <code class="language-plaintext highlighter-rouge">&amp;(*d_array)</code> is <strong>4</strong> ( on the CPU).
+To summarize, here is the code for allocating memory for 10 integers on the GPU.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span> <span class="c1">// Allocate memory for 10 integers on GPU</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">d_array</span><span class="p">;</span>
+<span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate GPU memory: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now that we have understood memory allocation, lets look at how to copy data within the CPU, GPU and between CPU and GPU.</p>
+
+<h3 id="2-copying-explained-from-first-principals">2. Copying explained from first principals</h3>
+
+<p>Now that we have understood memory allocation on both the CPU and GPU, let us understand how to transfer data between them.
+We will use the same example of an integer array of size 10, to keep life simple, and focus on understanding the underlying concepts from first principals.</p>
+
+<p>In this example, we will perform the following operations :</p>
+
+<ol>
+  <li>Allocate memory on the CPU for integer array of size 10.</li>
+  <li>Allocate memory on the GPU for integer array of size 10.</li>
+  <li>Initialize the CPU array with squares of integers from 1 to 10.</li>
+  <li>Copy data from the CPU to the GPU.</li>
+  <li>Copy the data back from the GPU to the CPU.</li>
+  <li>Print values to verify it all works.</li>
+</ol>
+
+<p>Lets look at each step, one at a time.</p>
+
+<h4 id="step-1--allocate-memory-on-the-cpu">STEP 1 : Allocate memory on the CPU</h4>
+
+<p>As already explained, we first compute the size in bytes and allocate appropriate memory using <code class="language-plaintext highlighter-rouge">malloc()</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+<span class="c1">// Allocate memory on the CPU (host)</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">h_array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">h_array</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate CPU memory"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="step-2---allocate-memory-on-the-gpu">STEP 2 : : Allocate Memory on the GPU</h4>
+<p>We first compute the size of allocation in bytes and use <code class="language-plaintext highlighter-rouge">cudaMalloc</code> as explained above.</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Allocate memory on the GPU (device)</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">d_array</span><span class="p">;</span>
+<span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate GPU memory: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span> <span class="c1">// Free CPU memory if GPU allocation fails</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="step-3-initialize-the-cpu-array">Step 3: Initialize the CPU Array</h4>
+
+<p>We initialize the CPU array with the squares of integers from 1 to 10.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Initialize CPU memory with data</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// Squares of integers from 1 to 10</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="step-4-copy-data-from-the-cpu-to-the-gpu">Step 4: Copy Data from the CPU to the GPU</h4>
+<p>We now copy this data from the CPU to GPU in the allocated memory.
+Here we take a small stop, and first understand <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> in detail.</p>
+
+<h5 id="41-cudamemcpy-explained">4.1 cudaMemcpy Explained</h5>
+<p>The <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> function is essential for transferring data between the <code class="language-plaintext highlighter-rouge">host</code> (CPU) and the <code class="language-plaintext highlighter-rouge">device</code> (GPU) in CUDA programming. Let’s break down this function and understand it intuitively from first principles. First, the syntax is as shown in the figure below.</p>
+
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_5/cudamemcpy-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_5/cudamemcpy-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_5/cudamemcpy-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_5/cudamemcpy.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="malloc" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+Syntax of cudaMemcpy.
+</div>
+</div>
+
+<p>The function takes in the destination pointer ( the memory location where the data needs to be copied to), source pointer (the memory location from where the data needs to be copied from ). Furhtermore, it also takes in the number of bytes that need to copied from. It is important to note, that these destination and source pointers may be on the CPU and GPU, depending on the direction of copying provided in the final parameter <code class="language-plaintext highlighter-rouge">cudaMemcpyKind</code>.
+It is pretty obvious that there can only be 4 possible direction of copying data in this context.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">cudaMemcpyHostToHost</code>: Copy data from host to host.</li>
+  <li><code class="language-plaintext highlighter-rouge">cudaMemcpyHostToDevice</code>: Copy data from host to device.</li>
+  <li><code class="language-plaintext highlighter-rouge">cudaMemcpyDeviceToHost</code>: Copy data from device to host.</li>
+  <li><code class="language-plaintext highlighter-rouge">cudaMemcpyDeviceToDevice</code>: Copy data from device to device.</li>
+</ol>
+
+<p>Now that we have the syntax and intuition of <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> covered, let us continue with our example and use this function.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Copy data from CPU to GPU</span>
+<span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_array</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from CPU to GPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Here, we use <code class="language-plaintext highlighter-rouge">cudaMemcpy</code> to copy the data from the CPU (<code class="language-plaintext highlighter-rouge">h_array</code>) to the GPU (<code class="language-plaintext highlighter-rouge">d_array</code>). We specify <code class="language-plaintext highlighter-rouge">cudaMemcpyHostToDevice</code> to indicate the direction of the copy.</p>
+
+<h4 id="step-5--copy-data-from-the-gpu-to-the-cpu">Step 5:  Copy Data from the GPU to the CPU</h4>
+<p>We now copy the data back to the CPU from the GPU. As expected the source pointer now becomes the GPU pointer and destination becomes the CPU pointer.
+Furthermore the direction of copying is from device to host so the <code class="language-plaintext highlighter-rouge">cudaMemcpyKind</code> will be <code class="language-plaintext highlighter-rouge">cudaMemcpyDeviceToHost</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">h_array</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from GPU to CPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h4 id="step-6--verify-consistency-after-copying">Step 6 : Verify consistency after copying</h4>
+
+<p>Just for completeness we now verify if the data copied back from the GPU to CPU is as expected by simply printing the host array.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Print the data copied back from GPU to CPU</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Free the allocated memory</span>
+<span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span>
+<span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<p>In the end, we free the GPU and CPU memory using <code class="language-plaintext highlighter-rouge">cudaFree</code> and <code class="language-plaintext highlighter-rouge">free</code> respectively,</p>
+
+<p>Let us look at the entire code to recap.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Step 1: Allocate Memory on the CPU for an Integer Array of Size 10</span>
+    <span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+    <span class="c1">// Allocate memory on the CPU (host)</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">h_array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">h_array</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate CPU memory"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 2: Allocate Memory on the GPU for an Integer Array of Size 10</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">d_array</span><span class="p">;</span>
+    <span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate GPU memory: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span> <span class="c1">// Free CPU memory if GPU allocation fails</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 3: Initialize the CPU Array with Squares of Integers from 1 to 10</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// Squares of integers from 1 to 10</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 4: Copy Data from the CPU to the GPU</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_array</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from CPU to GPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 5: Copy the Data Back from the GPU to the CPU</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">h_array</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from GPU to CPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 6: Print Values to Verify It All Works</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="c1">// Free the allocated memory</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="3-conclusion">3. Conclusion</h3>
+
+<p>In this blog, we explored the essential concepts of memory allocation and data transfer between the CPU and GPU, which are key to optimizing performance in GPU-accelerated applications. We began by examining how memory is allocated on the CPU using malloc, which reserves a block of memory for use in programs. We then discussed GPU memory allocation with cudaMalloc, which functions similarly but is used for allocating memory on the GPU.</p>
+
+<p>Following memory allocation, we demonstrated how to transfer data between the CPU and GPU using cudaMemcpy. We highlighted the process of copying data from the CPU to the GPU, performing computations, and then copying the results back to the CPU. This seamless data transfer enables efficient use of the GPU’s processing power, allowing for faster and more powerful computations. Understanding these fundamental operations is crucial for anyone looking to leverage GPU acceleration in their applications.</p>]]></content><author><name></name></author><category term="cuda" /><category term="cuda" /><category term="nvidia" /><summary type="html"><![CDATA[Data Transfers Between CPU and GPU]]></summary></entry><entry><title type="html">Quantization explained, like you are five.</title><link href="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/" rel="alternate" type="text/html" title="Quantization explained, like you are five." /><published>2024-03-29T19:53:00+00:00</published><updated>2024-03-29T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/"><![CDATA[<h4 id="in-the-era-of-extravagence-where-models-casually-cross-100b-parameters-devouring-over-500gb-of-gpu-memory-and-costing-millions-of-dollars-for-a-single-training-session-quantization-comes-in-as-a-prudent-accountantit-ensures-that-models-refrain-from-indulging-in-excessive-memory-consumption-while-minimizing-any-loss-in-model-quality---in-this-blog-post-we-aim-to-demystify-this-potent-mathematical-framework-using-intuitive-explanations-relatable-examples-and-accessible-language-we-will-also-delve-into-the-fancy-jargons-and-the-ugly-math-that-come-along-with-quantization-just-deeply-enough-to-allow-readers-to-nagivate-research-papers-and-documentation-on-quantization-libraries-the-objective-is-to-make-these-esoteric-concepts-more-approachable-and-less-daunting-so-buckle-up-as-we-embark-on-this-journey-as-we-learn-how-to-take-mammoth-ml-models-and-prune-them-down-to-preserve-only-the-essential">In the era of extravagence, where models casually cross 100B parameters, devouring over 500GB of GPU memory and costing millions of dollars for a single training session, quantization comes in as a prudent accountant.It ensures that models refrain from indulging in excessive memory consumption while minimizing any loss in model quality.   In this blog post, we aim to demystify this potent mathematical framework using intuitive explanations, relatable examples, and accessible language. We will also delve into the fancy jargons and the ugly math that come along with quantization, just deeply enough to allow readers to nagivate research papers and documentation on quantization libraries. The objective is to make these esoteric concepts more approachable and less daunting. So buckle up as we embark on this journey, as we learn how to take mammoth ML models, and prune them down to preserve only the essential.</h4>
 
 <p><br /></p>
 <div style="width: 95%;margin: 0 auto;">
