@@ -4,7 +4,7 @@ title: Down the CudaMemory lane
 date: 2024-07-14 15:53:00-0400
 description: Data Transfers Between CPU and GPU 
 thumbnail : /assets/img/blog/blog_5/memory.png
-categories: cuda
+categories: quantization
 tag : [cuda, nvidia]
 giscus_comments: false
 related_posts: true
