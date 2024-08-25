@@ -1,4 +1,483 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-07-15T17:01:13+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">Down the CudaMemory lane</title><link href="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/" rel="alternate" type="text/html" title="Down the CudaMemory lane" /><published>2024-07-14T19:53:00+00:00</published><updated>2024-07-14T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/"><![CDATA[<h4 id="in-the-fast-paced-landscape-of-deep-learning-deployment-where-performance-optimization-is-critical-understanding-the-foundational-principles-behind-memory-management-and-data-transfer-between-cpus-and-gpus-is-essential-this-blog-aims-to-demystify-these-concepts-by-starting-from-first-principles-well-explore-how-memory-allocation-operates-on-cpus-using-malloc-and-on-gpus-using-cudamalloc-shedding-light-on-their-distinct-functionalities-additionally-well-unravel-the-complexities-of-cudamemcpy-a-crucial-function-for-seamless-data-exchange-between-these-processing-units-by-clarifying-these-fundamental-concepts-we-empower-developers-to-strategically-optimize-their-applications-for-maximum-efficiency-and-speed-in-gpu-accelerated-environments">In the fast-paced landscape of deep learning deployment, where performance optimization is critical, understanding the foundational principles behind memory management and data transfer between CPUs and GPUs is essential. This blog aims to demystify these concepts by starting from first principles. We’ll explore how memory allocation operates on CPUs using <code class="language-plaintext highlighter-rouge">malloc</code> and on GPUs using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, shedding light on their distinct functionalities. Additionally, we’ll unravel the complexities of <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>, a crucial function for seamless data exchange between these processing units. By clarifying these fundamental concepts, we empower developers to strategically optimize their applications for maximum efficiency and speed in GPU-accelerated environments.</h4>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-08-25T20:12:38+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">A practical guide to Quantization</title><link href="https://sanket-pixel.github.io//blog/2024/a-practical-guide-to-quantization/" rel="alternate" type="text/html" title="A practical guide to Quantization" /><published>2024-07-21T14:53:00+00:00</published><updated>2024-07-21T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/a-practical-guide-to-quantization</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/a-practical-guide-to-quantization/"><![CDATA[<h4 id="in-this-blog-we-delve-into-the-practical-side-of-model-optimization-focusing-on-how-to-leverage-tensorrt-for-int8-quantization-to-drastically-improve-inference-speed-by-walking-through-the-process-step-by-step-we-compare-pure-pytorch-inference-tensorrt-optimization-and-finally-int8-quantization-with-calibration-the-results-highlight-the-incredible-potential-of-these-techniques-with-an-over-10x-speedup-in-performance-whether-youre-aiming-to-deploy-deep-learning-models-in-production-or-simply-seeking-to-enhance-your-understanding-of-model-optimization-this-blog-provides-valuable-insights-into-achieving-faster-and-more-efficient-inference">In this blog, we delve into the practical side of model optimization, focusing on how to leverage TensorRT for INT8 quantization to drastically improve inference speed. By walking through the process step-by-step, we compare pure PyTorch inference, TensorRT optimization, and finally, INT8 quantization with calibration. The results highlight the incredible potential of these techniques, with an over <code class="language-plaintext highlighter-rouge">10x speedup</code> in performance. Whether you’re aiming to deploy deep learning models in production or simply seeking to enhance your understanding of model optimization, this blog provides valuable insights into achieving faster and more efficient inference.</h4>
+
+<p><br /></p>
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_6/compare-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_6/compare-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_6/compare-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_6/compare.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+ A practical guide to Quantization
+</div>
+</div>
+
+<p>In our previous blog post,  <a href="/blog/2024/quantization-explained-like-youre-five/">Quantization explained, like you are five</a>, we covered the theory and intuition behind quantization in detail. If you haven’t read it yet, we highly recommend doing so to gain a solid understanding of the fundamental concepts. This current post serves as a sequel, diving into the practical aspects of quantization. We will guide you through the process of applying quantization to a neural network, demonstrating how it can significantly speed up inference.</p>
+
+<p>In this blog, we would using the resnet based image classfication model as an example. We would be using TensorRT as well for quantization. This constrains this code only for NVIDIA GPU devices. But these same concepts can be extended to other devices and tools without loss of generality. 
+If you need a primer on how resnet based image classifciation can be deployed using TensorRT on nvidia devices, refer to previous blog <a href="/blog/2023/introduction-to-tensorrt/">Have you met TensorRT?</a> where we saw how to use FP16 based TensorRT engine for inference. In this blog we will take it a step further by quantizing the same model to INT8.</p>
+
+<p>We will go about this using 3 major steps :</p>
+
+<p><strong>1. Inference with Pure PyTorch</strong></p>
+<ul>
+  <li>Establish a baseline for latency and accuracy using the original PyTorch model.</li>
+  <li>Measure inference time and accuracy on a sample dataset.</li>
+</ul>
+
+<p><strong>2. Inference with TensorRT Engine</strong></p>
+<ul>
+  <li>Convert the PyTorch model to a TensorRT engine using FP16 precision.</li>
+  <li>Measure and compare the latency and accuracy to the PyTorch baseline.</li>
+</ul>
+
+<p><strong>3. Inference with TensorRT Engine (INT8, With Calibration)</strong></p>
+<ul>
+  <li>Perform INT8 quantization with calibration using a calibration dataset.</li>
+  <li>Measure latency and accuracy, highlighting the trade-offs and benefits of quantization.</li>
+</ul>
+
+<h4 id="1-inference-with-pure-pytorch">1. Inference with Pure Pytorch</h4>
+
+<p>To establish a baseline for both accuracy and latency, we will first run inference using the ResNet-50 model in PyTorch. This section will cover the preprocessing, inference, and postprocessing steps. The results here will serve as a comparison for the performance improvements we achieve using TensorRT and INT8 quantization in later steps.</p>
+
+<h5 id="a-preprocessing">a. Preprocessing</h5>
+
+<p>The preprocessing step involves preparing the input image so that it is suitable for the ResNet-50 model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">cv2</span>
+<span class="kn">import</span> <span class="n">torch</span>
+<span class="kn">from</span> <span class="n">torchvision.transforms</span> <span class="kn">import</span> <span class="n">Resize</span><span class="p">,</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Normalize</span>
+
+<span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
+    <span class="c1"># Transformations for the input data
+</span>    <span class="n">transforms</span> <span class="o">=</span> <span class="nc">Compose</span><span class="p">([</span>
+        <span class="nc">ToTensor</span><span class="p">(),</span>
+        <span class="nc">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+        <span class="nc">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+    <span class="p">])</span>
+    <span class="c1"># Read input image
+</span>    <span class="n">input_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="p">.</span><span class="nf">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+    <span class="c1"># Apply transformations
+</span>    <span class="n">input_data</span> <span class="o">=</span> <span class="nf">transforms</span><span class="p">(</span><span class="n">input_img</span><span class="p">)</span>
+    <span class="n">batch_data</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">batch_data</span>
+</code></pre></div></div>
+
+<h5 id="b-postprocessing">b. Postprocessing</h5>
+<p>After inference, the output from the model needs to be processed to extract meaningful predictions.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">output_data</span><span class="p">):</span>
+    <span class="c1"># Get class names
+</span>    <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">data/imagenet-classes.txt</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">.</span><span class="nf">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">.</span><span class="nf">readlines</span><span class="p">()]</span>
+    <span class="c1"># Calculate human-readable values by softmax
+</span>    <span class="n">confidences</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">functional</span><span class="p">.</span><span class="nf">softmax</span><span class="p">(</span><span class="n">output_data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="c1"># Find top predicted classes
+</span>    <span class="n">_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nf">sort</span><span class="p">(</span><span class="n">output_data</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Print the top classes predicted by the model
+</span>    <span class="k">while</span> <span class="n">confidences</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">class_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+        <span class="nf">print</span><span class="p">(</span>
+            <span class="sh">"</span><span class="s">class:</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">classes</span><span class="p">[</span><span class="n">class_idx</span><span class="p">],</span>
+            <span class="sh">"</span><span class="s">, confidence:</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">confidences</span><span class="p">[</span><span class="n">class_idx</span><span class="p">].</span><span class="nf">item</span><span class="p">(),</span>
+            <span class="sh">"</span><span class="s">%, index:</span><span class="sh">"</span><span class="p">,</span>
+            <span class="n">class_idx</span><span class="p">.</span><span class="nf">item</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="c1"># Postprocess the output
+</span><span class="nf">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</code></pre></div></div>
+<h5 id="c-inference">c. Inference</h5>
+
+<p>This step involves running the preprocessed image through the ResNet-50 model to obtain predictions.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">import</span> <span class="n">torch.backends.cudnn</span> <span class="k">as</span> <span class="n">cudnn</span>
+<span class="kn">import</span> <span class="n">time</span>
+<span class="c1"># Load and prepare the model
+</span><span class="n">cudnn</span><span class="p">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="p">.</span><span class="nf">resnet50</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="nf">cuda</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="nf">eval</span><span class="p">()</span>
+<span class="c1"># Preprocess the input image
+</span><span class="nb">input</span> <span class="o">=</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="sh">"</span><span class="s">data/hotdog.jpg</span><span class="sh">"</span><span class="p">).</span><span class="nf">cuda</span><span class="p">()</span>
+<span class="c1"># Perform inference
+</span><span class="n">output</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+<span class="c1"># Warm-up the GPU
+</span><span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="nf">no_grad</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+<span class="c1"># Measure latency
+</span><span class="n">latencies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="nf">no_grad</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="nf">synchronize</span><span class="p">()</span>  <span class="c1"># Ensure that all CUDA operations are finished
+</span>        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+        
+        <span class="n">latency</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="n">latencies</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">latency</span><span class="p">)</span>
+<span class="nf">postprocess</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<span class="n">average_latency</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nf">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Average Latency: </span><span class="si">{</span><span class="n">average_latency</span> <span class="o">*</span> <span class="mi">1000</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> ms</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="d-performance">d. Performance</h5>
+<p>The output from pure Pytorch inference would look something like this.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class: hotdog, hot dog, red hot , confidence: 85.24353790283203 %, index: 934
+Average Latency: 3.94 ms
+</code></pre></div></div>
+
+<h4 id="2-tensorrt-inference">2. TensorRT inference</h4>
+
+<p>In this section, we demonstrate how to convert a trained PyTorch model to an ONNX format, then build a TensorRT engine, and finally perform inference using the TensorRT engine. This process significantly optimizes the inference performance on NVIDIA GPUs.</p>
+
+<p>For more detailed explanations on converting PyTorch models to TensorRT engines, refer to our previous blog post, <a href="/blog/2023/introduction-to-tensorrt/">Have you met TensorRT?</a>.</p>
+
+<h5 id="a-convert-pytorch-model-to-onnx">a. Convert PyTorch Model to ONNX</h5>
+
+<p>First, we export the PyTorch model to the ONNX format. This intermediate representation serves as a bridge between different deep learning frameworks and tools like TensorRT.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ONNX_FILE_PATH</span> <span class="o">=</span> <span class="sh">'</span><span class="s">deploy_tools/resnet50.onnx</span><span class="sh">'</span>
+<span class="n">torch</span><span class="p">.</span><span class="n">onnx</span><span class="p">.</span><span class="nf">export</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">ONNX_FILE_PATH</span><span class="p">,</span> <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">input</span><span class="sh">'</span><span class="p">],</span>
+                  <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">output</span><span class="sh">'</span><span class="p">],</span> <span class="n">export_params</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+<h5 id="b-build-tensorrt-engine">b. Build TensorRT Engine</h5>
+
+<p>Next, we parse the ONNX model and build the TensorRT engine, which is optimized for the target NVIDIA GPU.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pycuda.driver</span> <span class="k">as</span> <span class="n">cuda</span>
+<span class="kn">import</span> <span class="n">pycuda.autoinit</span>
+<span class="kn">import</span> <span class="n">tensorrt</span> <span class="k">as</span> <span class="n">trt</span>
+
+<span class="n">TRT_LOGGER</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Logger</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">Logger</span><span class="p">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Builder</span><span class="p">(</span><span class="n">TRT_LOGGER</span><span class="p">)</span>
+
+<span class="n">EXPLICIT_BATCH</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nf">int</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">NetworkDefinitionCreationFlag</span><span class="p">.</span><span class="n">EXPLICIT_BATCH</span><span class="p">)</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_network</span><span class="p">(</span><span class="n">EXPLICIT_BATCH</span><span class="p">)</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">OnnxParser</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">TRT_LOGGER</span><span class="p">)</span>
+<span class="n">success</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nf">parse_from_file</span><span class="p">(</span><span class="n">ONNX_FILE_PATH</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="n">num_errors</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="nf">get_error</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_builder_config</span><span class="p">()</span>
+<span class="n">config</span><span class="p">.</span><span class="nf">set_memory_pool_limit</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">MemoryPoolType</span><span class="p">.</span><span class="n">WORKSPACE</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># 1 MiB
+</span><span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">build_serialized_network</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">deploy_tools/resnet50.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">wb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">serialized_engine</span><span class="p">)</span>
+</code></pre></div></div>
+<p>This code snippet handles the following:</p>
+
+<ul>
+  <li><strong>Logger</strong>: Initializes the TensorRT logger to monitor errors during the engine creation.</li>
+  <li><strong>Builder and Network</strong>: Creates the TensorRT builder and network definition.</li>
+  <li><strong>ONNX Parser</strong>: Parses the ONNX model into the TensorRT network.</li>
+  <li><strong>Engine Serialization</strong>: Serializes the TensorRT engine and saves it to a file for later use.</li>
+</ul>
+
+<h5 id="c-inference-with-tensorrt-engine">c. Inference with TensorRT Engine</h5>
+
+<p>After building the TensorRT engine, we can load it and run inference on the input data. The process involves transferring data to the GPU, executing the engine, and retrieving the results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">runtime</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Runtime</span><span class="p">(</span><span class="n">TRT_LOGGER</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">deploy_tools/resnet50.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">rb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">runtime</span><span class="p">.</span><span class="nf">deserialize_cuda_engine</span><span class="p">(</span><span class="n">serialized_engine</span><span class="p">)</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">engine</span><span class="p">.</span><span class="nf">create_execution_context</span><span class="p">()</span>
+
+<span class="c1"># Determine dimensions and create memory buffers for inputs/outputs
+</span><span class="n">h_input</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">pagelocked_empty</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="nf">volume</span><span class="p">(</span><span class="n">engine</span><span class="p">.</span><span class="nf">get_binding_shape</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">h_output</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">pagelocked_empty</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="nf">volume</span><span class="p">(</span><span class="n">engine</span><span class="p">.</span><span class="nf">get_binding_shape</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">d_input</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="n">h_input</span><span class="p">.</span><span class="n">nbytes</span><span class="p">)</span>
+<span class="n">d_output</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="n">h_output</span><span class="p">.</span><span class="n">nbytes</span><span class="p">)</span>
+<span class="n">stream</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nc">Stream</span><span class="p">()</span>
+
+<span class="c1"># Preprocess input image
+</span><span class="n">host_input</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="nf">preprocess_image</span><span class="p">(</span><span class="sh">"</span><span class="s">data/hotdog.jpg</span><span class="sh">"</span><span class="p">).</span><span class="nf">numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="sh">'</span><span class="s">C</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># Warm-up the GPU
+</span><span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_htod_async</span><span class="p">(</span><span class="n">d_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">context</span><span class="p">.</span><span class="nf">execute_async_v2</span><span class="p">(</span><span class="n">bindings</span><span class="o">=</span><span class="p">[</span><span class="nf">int</span><span class="p">(</span><span class="n">d_input</span><span class="p">),</span> <span class="nf">int</span><span class="p">(</span><span class="n">d_output</span><span class="p">)],</span> <span class="n">stream_handle</span><span class="o">=</span><span class="n">stream</span><span class="p">.</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_dtoh_async</span><span class="p">(</span><span class="n">h_output</span><span class="p">,</span> <span class="n">d_output</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">stream</span><span class="p">.</span><span class="nf">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Measure latency
+</span><span class="n">latencies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_htod_async</span><span class="p">(</span><span class="n">d_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">context</span><span class="p">.</span><span class="nf">execute_async_v2</span><span class="p">(</span><span class="n">bindings</span><span class="o">=</span><span class="p">[</span><span class="nf">int</span><span class="p">(</span><span class="n">d_input</span><span class="p">),</span> <span class="nf">int</span><span class="p">(</span><span class="n">d_output</span><span class="p">)],</span> <span class="n">stream_handle</span><span class="o">=</span><span class="n">stream</span><span class="p">.</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_dtoh_async</span><span class="p">(</span><span class="n">h_output</span><span class="p">,</span> <span class="n">d_output</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">stream</span><span class="p">.</span><span class="nf">synchronize</span><span class="p">()</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+    <span class="n">latency</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+    <span class="n">latencies</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">latency</span><span class="p">)</span>
+
+<span class="n">average_latency</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nf">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Average Latency: </span><span class="si">{</span><span class="n">average_latency</span> <span class="o">*</span> <span class="mi">1000</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> ms</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Postprocess and display results
+</span><span class="n">tensorrt_output</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nc">Tensor</span><span class="p">(</span><span class="n">h_output</span><span class="p">).</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="nf">postprocess</span><span class="p">(</span><span class="n">tensorrt_output</span><span class="p">)</span>
+<span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="nf">empty_cache</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>In this step:</p>
+
+<ul>
+  <li><strong>Runtime and Engine</strong>: We deserialize the saved TensorRT engine and create an execution context.</li>
+  <li><strong>Memory Allocation</strong>: Allocate memory for inputs and outputs on both host (CPU) and device (GPU).</li>
+  <li><strong>Inference</strong>: Perform inference using the TensorRT engine, measuring the latency over multiple iterations.</li>
+  <li><strong>Postprocessing</strong>: Convert the output back to a PyTorch tensor for easier postprocessing and interpretation of the results.</li>
+</ul>
+
+<h5 id="d-performance-1">d. Performance</h5>
+<p>The output from TensorRT inference is as follows ( may vary on different GPUs)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average Latency: 2.73 ms
+class: hotdog, hot dog, red hot , confidence: 85.29612731933594 %, index: 934
+</code></pre></div></div>
+<p>With just basic TensorRT engine conversion, we achieved a <code class="language-plaintext highlighter-rouge">1.44x</code> speedup. Now lets convert it to a quantized INT8 TensorRT engine and see how much speedup we can achieve.</p>
+
+<h4 id="3-inference-with-int8-quantization">3. Inference with INT8 Quantization</h4>
+
+<p><br /></p>
+<div style="width: 100%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_6/quantization-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_6/quantization-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_6/quantization-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_6/quantization.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+Steps for Quantization
+</div>
+</div>
+
+<p>In this section, we’ll dive into the heart of the optimization process: calibration and quantization. This process is essential for converting a model to INT8 precision, which can significantly boost inference speed while maintaining a good level of accuracy.</p>
+
+<h5 id="a-implementing-a-custom-calibration-class">a. Implementing a Custom Calibration Class</h5>
+
+<p>Before we can convert our model to INT8, we need to calibrate it. Calibration is the process where we run a representative dataset through the model to collect statistical information about its activations. This data is crucial for accurately mapping the floating-point values to INT8 values. To do this in TensorRT, we implement a custom calibration class that extends from the base trt.IInt8EntropyCalibrator2 class.</p>
+
+<p>Here’s how we set up the calibration process:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ImageCalibrator</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">IInt8EntropyCalibrator2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">image_dir_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">(</span><span class="n">ImageCalibrator</span><span class="p">,</span> <span class="n">self</span><span class="p">).</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">current_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">load_images_paths</span><span class="p">(</span><span class="n">image_dir_path</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">image_paths</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">device_image</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="mi">3</span><span class="o">*</span><span class="mi">224</span><span class="o">*</span><span class="mi">224</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_images_paths</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">image_dir_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">image_dir_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_batch_size</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">batch_size</span>
+
+    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">current_index</span> <span class="o">&gt;=</span> <span class="n">self</span><span class="p">.</span><span class="n">num_samples</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">image_paths</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">current_index</span><span class="p">]</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="sh">"</span><span class="s">data/calibration_dataset/</span><span class="sh">"</span> <span class="o">+</span> <span class="n">image_path</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_htod</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">device_image</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">image</span><span class="p">.</span><span class="nf">numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="sh">'</span><span class="s">C</span><span class="sh">'</span><span class="p">))</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">current_index</span> <span class="o">+=</span> <span class="n">self</span><span class="p">.</span><span class="n">batch_size</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">device_image</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">read_calibration_cache</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">calibration.cache</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">rb</span><span class="sh">'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
+        <span class="k">except</span> <span class="nb">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">write_calibration_cache</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">calibration.cache</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">wb</span><span class="sh">'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>What’s Happening Here?</p>
+
+<p><strong>Initialization</strong>: The class is initialized with the directory path containing calibration images. These images are loaded into memory as the calibration process iterates through them.</p>
+
+<p><strong>Image Preprocessing</strong>: Each image from the calibration dataset is preprocessed and then copied to the GPU’s memory for use in calibration. The batch size is set to 1 for simplicity, but this can be adjusted based on your needs.</p>
+
+<p><strong>Handling the Calibration Cache</strong>: TensorRT can cache the calibration data, so you don’t have to recalibrate the model every time you run this process. The cache is read from and written to the disk, allowing for faster reuse of calibration data in future runs.</p>
+
+<p>When calibrating other models, you’ll need to implement a similar class tailored to the specific preprocessing and data handling requirements of your model.</p>
+
+<h5 id="b-building-the-tensorrt-engine-with-int8-quantization">b. Building the TensorRT Engine with INT8 Quantization</h5>
+
+<p>Once we’ve set up our calibrator, we’re ready to build the TensorRT engine with INT8 precision. The steps involve parsing the model from an ONNX file and configuring the builder to use the INT8 calibration data.</p>
+
+<p>Here’s how it’s done:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ONNX_FILE_PATH</span> <span class="o">=</span> <span class="sh">"</span><span class="s">deploy_tools/resnet50.onnx</span><span class="sh">"</span>
+<span class="n">image_dir</span> <span class="o">=</span> <span class="sh">"</span><span class="s">data/calibration_dataset</span><span class="sh">"</span>
+<span class="n">TRT_LOGGER</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Logger</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">Logger</span><span class="p">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Builder</span><span class="p">(</span><span class="n">TRT_LOGGER</span><span class="p">)</span>
+<span class="n">EXPLICIT_BATCH</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nf">int</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">NetworkDefinitionCreationFlag</span><span class="p">.</span><span class="n">EXPLICIT_BATCH</span><span class="p">)</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_network</span><span class="p">(</span><span class="n">EXPLICIT_BATCH</span><span class="p">)</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">OnnxParser</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">TRT_LOGGER</span><span class="p">)</span>
+<span class="n">success</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nf">parse_from_file</span><span class="p">(</span><span class="n">ONNX_FILE_PATH</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="n">num_errors</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="nf">get_error</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">create_builder_config</span><span class="p">()</span>
+<span class="n">config</span><span class="p">.</span><span class="nf">set_memory_pool_limit</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">MemoryPoolType</span><span class="p">.</span><span class="n">WORKSPACE</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># 1 GiB
+</span>
+<span class="c1"># Assign the custom calibrator
+</span><span class="n">config</span><span class="p">.</span><span class="n">int8_calibrator</span> <span class="o">=</span> <span class="nc">ImageCalibrator</span><span class="p">(</span><span class="n">image_dir</span><span class="p">)</span>
+<span class="n">config</span><span class="p">.</span><span class="nf">set_flag</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="n">BuilderFlag</span><span class="p">.</span><span class="n">INT8</span><span class="p">)</span>
+
+<span class="c1"># Build and serialize the INT8 TensorRT engine
+</span><span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">builder</span><span class="p">.</span><span class="nf">build_serialized_network</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">deploy_tools/resnet_int8.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">wb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">serialized_engine</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Key Points:</p>
+
+<ul>
+  <li>
+    <p><strong>ONNX Parser</strong>: The model is parsed from the ONNX format, and the network is created using TensorRT.</p>
+  </li>
+  <li>
+    <p><strong>INT8 Calibration</strong>: The custom calibrator class we defined earlier is assigned to the builder configuration. The INT8 flag is set, instructing TensorRT to use the calibration data for quantizing the model.</p>
+  </li>
+  <li>
+    <p><strong>Engine Serialization</strong>: Once the engine is built with INT8 precision, it is serialized and saved to disk. This engine is now optimized for fast inference using 8-bit integer operations.</p>
+  </li>
+</ul>
+
+<p>For more details on the general process of building TensorRT engines, refer to our previous post, “Have you met TensorRT?”.</p>
+
+<h5 id="c-running-inference-with-the-int8-optimized-engine">c. Running Inference with the INT8-Optimized Engine</h5>
+
+<p>Finally, we can run inference using the INT8-optimized TensorRT engine. Here’s how it’s done:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">runtime</span> <span class="o">=</span> <span class="n">trt</span><span class="p">.</span><span class="nc">Runtime</span><span class="p">(</span><span class="n">TRT_LOGGER</span><span class="p">)</span>
+<span class="k">with</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">deploy_tools/resnet_int8.engine</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">rb</span><span class="sh">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">serialized_engine</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">runtime</span><span class="p">.</span><span class="nf">deserialize_cuda_engine</span><span class="p">(</span><span class="n">serialized_engine</span><span class="p">)</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">engine</span><span class="p">.</span><span class="nf">create_execution_context</span><span class="p">()</span>
+
+<span class="c1"># Allocate memory for inputs and outputs
+</span><span class="n">h_input</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">pagelocked_empty</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="nf">volume</span><span class="p">(</span><span class="n">engine</span><span class="p">.</span><span class="nf">get_binding_shape</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">h_output</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">pagelocked_empty</span><span class="p">(</span><span class="n">trt</span><span class="p">.</span><span class="nf">volume</span><span class="p">(</span><span class="n">engine</span><span class="p">.</span><span class="nf">get_binding_shape</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">d_input</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="n">h_input</span><span class="p">.</span><span class="n">nbytes</span><span class="p">)</span>
+<span class="n">d_output</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="n">h_output</span><span class="p">.</span><span class="n">nbytes</span><span class="p">)</span>
+<span class="n">stream</span> <span class="o">=</span> <span class="n">cuda</span><span class="p">.</span><span class="nc">Stream</span><span class="p">()</span>
+
+<span class="c1"># Preprocess and load the input image
+</span><span class="n">host_input</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="nf">preprocess_image</span><span class="p">(</span><span class="sh">"</span><span class="s">data/hotdog.jpg</span><span class="sh">"</span><span class="p">).</span><span class="nf">numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="sh">'</span><span class="s">C</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># Warm-up the GPU
+</span><span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_htod_async</span><span class="p">(</span><span class="n">d_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">context</span><span class="p">.</span><span class="nf">execute_async_v2</span><span class="p">(</span><span class="n">bindings</span><span class="o">=</span><span class="p">[</span><span class="nf">int</span><span class="p">(</span><span class="n">d_input</span><span class="p">),</span> <span class="nf">int</span><span class="p">(</span><span class="n">d_output</span><span class="p">)],</span> <span class="n">stream_handle</span><span class="o">=</span><span class="n">stream</span><span class="p">.</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_dtoh_async</span><span class="p">(</span><span class="n">h_output</span><span class="p">,</span> <span class="n">d_output</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">stream</span><span class="p">.</span><span class="nf">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Measure latency for INT8 inference
+</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">latencies</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_htod_async</span><span class="p">(</span><span class="n">d_input</span><span class="p">,</span> <span class="n">host_input</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">context</span><span class="p">.</span><span class="nf">execute_async_v2</span><span class="p">(</span><span class="n">bindings</span><span class="o">=</span><span class="p">[</span><span class="nf">int</span><span class="p">(</span><span class="n">d_input</span><span class="p">),</span> <span class="nf">int</span><span class="p">(</span><span class="n">d_output</span><span class="p">)],</span> <span class="n">stream_handle</span><span class="o">=</span><span class="n">stream</span><span class="p">.</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">cuda</span><span class="p">.</span><span class="nf">memcpy_dtoh_async</span><span class="p">(</span><span class="n">h_output</span><span class="p">,</span> <span class="n">d_output</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">stream</span><span class="p">.</span><span class="nf">synchronize</span><span class="p">()</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+    <span class="n">latencies</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+
+<span class="c1"># Calculate average latency
+</span><span class="n">average_latency</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span> <span class="o">/</span> <span class="nf">len</span><span class="p">(</span><span class="n">latencies</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Average Latency for INT8 Inference: </span><span class="si">{</span><span class="n">average_latency</span> <span class="o">*</span> <span class="mi">1000</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> ms</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Post-process the output
+</span><span class="n">tensorrt_output</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nc">Tensor</span><span class="p">(</span><span class="n">h_output</span><span class="p">).</span><span class="nf">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="nf">postprocess</span><span class="p">(</span><span class="n">tensorrt_output</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>What’s Happening Here?</p>
+
+<ul>
+  <li>
+    <p><strong>Engine Deserialization</strong>: The INT8 engine is loaded from disk and deserialized into memory.</p>
+  </li>
+  <li>
+    <p><strong>Memory Management</strong>: We allocate memory for inputs and outputs on both the host and device, setting up everything needed to run inference.</p>
+  </li>
+  <li>
+    <p><strong>Inference Execution</strong>: After warming up the GPU, inference is run multiple times to measure latency. Using INT8 should provide a significant reduction in latency compared to FP32 inference.</p>
+  </li>
+  <li>
+    <p><strong>Output Post-processing</strong>: Finally, the output is converted back to a PyTorch tensor and processed just like we did with the FP32 model.</p>
+  </li>
+</ul>
+
+<p>This step demonstrates the power of quantization. With the INT8 engine, we can achieve faster inference times, which is crucial for deploying models in real-time applications.</p>
+
+<h5 id="d-performance-2">d. Performance</h5>
+<p>The output from INT8 quantized TensorRT engine is as follows :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average Latency for INT8 Inference: 0.39 ms
+class: hotdog, hot dog, red hot , confidence: 93.55050659179688 %, index: 934
+</code></pre></div></div>
+
+<p>As we can see, INT8 quantization achieved a whooping <code class="language-plaintext highlighter-rouge">10.25x speedup</code> as compared to pure Pytorch inference. All the struggle we went through for calibration and quantization was indeed worth it. ;)</p>
+
+<h4 id="summary">Summary</h4>
+
+<p>In this blog, we explore the practical application of quantization using TensorRT to significantly speed up inference on a ResNet-based image classification model. We begin with a baseline comparison, demonstrating inference using pure PyTorch, which provides a foundational understanding of the model’s performance. Next, we transition to using a TensorRT engine, showcasing the initial speed improvements by optimizing the model for NVIDIA GPUs. Finally, we delve into INT8 quantization, applying calibration techniques to maximize efficiency. The results are striking, with a speedup of over 10x compared to the original PyTorch inference, illustrating the power of quantization in real-world scenarios.</p>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="tensorrt" /><category term="deep-learning" /><summary type="html"><![CDATA[How to exactly quantize models and still not lose accuracy.]]></summary></entry><entry><title type="html">Down the CudaMemory lane</title><link href="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/" rel="alternate" type="text/html" title="Down the CudaMemory lane" /><published>2024-07-14T19:53:00+00:00</published><updated>2024-07-14T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/down-the-cudamemory-lane/"><![CDATA[<h4 id="in-the-fast-paced-landscape-of-deep-learning-deployment-where-performance-optimization-is-critical-understanding-the-foundational-principles-behind-memory-management-and-data-transfer-between-cpus-and-gpus-is-essential-this-blog-aims-to-demystify-these-concepts-by-starting-from-first-principles-well-explore-how-memory-allocation-operates-on-cpus-using-malloc-and-on-gpus-using-cudamalloc-shedding-light-on-their-distinct-functionalities-additionally-well-unravel-the-complexities-of-cudamemcpy-a-crucial-function-for-seamless-data-exchange-between-these-processing-units-by-clarifying-these-fundamental-concepts-we-empower-developers-to-strategically-optimize-their-applications-for-maximum-efficiency-and-speed-in-gpu-accelerated-environments">In the fast-paced landscape of deep learning deployment, where performance optimization is critical, understanding the foundational principles behind memory management and data transfer between CPUs and GPUs is essential. This blog aims to demystify these concepts by starting from first principles. We’ll explore how memory allocation operates on CPUs using <code class="language-plaintext highlighter-rouge">malloc</code> and on GPUs using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>, shedding light on their distinct functionalities. Additionally, we’ll unravel the complexities of <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>, a crucial function for seamless data exchange between these processing units. By clarifying these fundamental concepts, we empower developers to strategically optimize their applications for maximum efficiency and speed in GPU-accelerated environments.</h4>
 
 <p><br /></p>
 <div style="width: 95%;margin: 0 auto;">
@@ -415,7 +894,7 @@ Furthermore the direction of copying is from device to host so the <code class="
 
 <p>In this blog, we explored the essential concepts of memory allocation and data transfer between the CPU and GPU, which are key to optimizing performance in GPU-accelerated applications. We began by examining how memory is allocated on the CPU using malloc, which reserves a block of memory for use in programs. We then discussed GPU memory allocation with cudaMalloc, which functions similarly but is used for allocating memory on the GPU.</p>
 
-<p>Following memory allocation, we demonstrated how to transfer data between the CPU and GPU using cudaMemcpy. We highlighted the process of copying data from the CPU to the GPU, performing computations, and then copying the results back to the CPU. This seamless data transfer enables efficient use of the GPU’s processing power, allowing for faster and more powerful computations. Understanding these fundamental operations is crucial for anyone looking to leverage GPU acceleration in their applications.</p>]]></content><author><name></name></author><category term="cuda" /><category term="cuda" /><category term="nvidia" /><summary type="html"><![CDATA[Data Transfers Between CPU and GPU]]></summary></entry><entry><title type="html">Quantization explained, like you are five.</title><link href="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/" rel="alternate" type="text/html" title="Quantization explained, like you are five." /><published>2024-03-29T19:53:00+00:00</published><updated>2024-03-29T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/"><![CDATA[<h4 id="in-the-era-of-extravagence-where-models-casually-cross-100b-parameters-devouring-over-500gb-of-gpu-memory-and-costing-millions-of-dollars-for-a-single-training-session-quantization-comes-in-as-a-prudent-accountantit-ensures-that-models-refrain-from-indulging-in-excessive-memory-consumption-while-minimizing-any-loss-in-model-quality---in-this-blog-post-we-aim-to-demystify-this-potent-mathematical-framework-using-intuitive-explanations-relatable-examples-and-accessible-language-we-will-also-delve-into-the-fancy-jargons-and-the-ugly-math-that-come-along-with-quantization-just-deeply-enough-to-allow-readers-to-nagivate-research-papers-and-documentation-on-quantization-libraries-the-objective-is-to-make-these-esoteric-concepts-more-approachable-and-less-daunting-so-buckle-up-as-we-embark-on-this-journey-as-we-learn-how-to-take-mammoth-ml-models-and-prune-them-down-to-preserve-only-the-essential">In the era of extravagence, where models casually cross 100B parameters, devouring over 500GB of GPU memory and costing millions of dollars for a single training session, quantization comes in as a prudent accountant.It ensures that models refrain from indulging in excessive memory consumption while minimizing any loss in model quality.   In this blog post, we aim to demystify this potent mathematical framework using intuitive explanations, relatable examples, and accessible language. We will also delve into the fancy jargons and the ugly math that come along with quantization, just deeply enough to allow readers to nagivate research papers and documentation on quantization libraries. The objective is to make these esoteric concepts more approachable and less daunting. So buckle up as we embark on this journey, as we learn how to take mammoth ML models, and prune them down to preserve only the essential.</h4>
+<p>Following memory allocation, we demonstrated how to transfer data between the CPU and GPU using cudaMemcpy. We highlighted the process of copying data from the CPU to the GPU, performing computations, and then copying the results back to the CPU. This seamless data transfer enables efficient use of the GPU’s processing power, allowing for faster and more powerful computations. Understanding these fundamental operations is crucial for anyone looking to leverage GPU acceleration in their applications.</p>]]></content><author><name></name></author><category term="quantization" /><category term="cuda" /><category term="nvidia" /><summary type="html"><![CDATA[Data Transfers Between CPU and GPU]]></summary></entry><entry><title type="html">Quantization explained, like you are five.</title><link href="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/" rel="alternate" type="text/html" title="Quantization explained, like you are five." /><published>2024-03-29T19:53:00+00:00</published><updated>2024-03-29T19:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/quantization-explained-like-youre-five/"><![CDATA[<h4 id="in-the-era-of-extravagence-where-models-casually-cross-100b-parameters-devouring-over-500gb-of-gpu-memory-and-costing-millions-of-dollars-for-a-single-training-session-quantization-comes-in-as-a-prudent-accountantit-ensures-that-models-refrain-from-indulging-in-excessive-memory-consumption-while-minimizing-any-loss-in-model-quality---in-this-blog-post-we-aim-to-demystify-this-potent-mathematical-framework-using-intuitive-explanations-relatable-examples-and-accessible-language-we-will-also-delve-into-the-fancy-jargons-and-the-ugly-math-that-come-along-with-quantization-just-deeply-enough-to-allow-readers-to-nagivate-research-papers-and-documentation-on-quantization-libraries-the-objective-is-to-make-these-esoteric-concepts-more-approachable-and-less-daunting-so-buckle-up-as-we-embark-on-this-journey-as-we-learn-how-to-take-mammoth-ml-models-and-prune-them-down-to-preserve-only-the-essential">In the era of extravagence, where models casually cross 100B parameters, devouring over 500GB of GPU memory and costing millions of dollars for a single training session, quantization comes in as a prudent accountant.It ensures that models refrain from indulging in excessive memory consumption while minimizing any loss in model quality.   In this blog post, we aim to demystify this potent mathematical framework using intuitive explanations, relatable examples, and accessible language. We will also delve into the fancy jargons and the ugly math that come along with quantization, just deeply enough to allow readers to nagivate research papers and documentation on quantization libraries. The objective is to make these esoteric concepts more approachable and less daunting. So buckle up as we embark on this journey, as we learn how to take mammoth ML models, and prune them down to preserve only the essential.</h4>
 
 <p><br /></p>
 <div style="width: 95%;margin: 0 auto;">
