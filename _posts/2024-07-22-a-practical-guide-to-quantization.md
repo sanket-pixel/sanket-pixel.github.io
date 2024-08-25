@@ -3,7 +3,7 @@ layout: post
 title: A practical guide to Quantization
 date: 2024-07-21 10:53:00-0400
 description: How to exactly quantize models and still not lose accuracy.
-thumbnail : /assets/img/blog/blog_6/math.gif
+thumbnail : /assets/img/blog/blog_6/compare.png
 categories: cuda
 tag : [nvidia, tensorrt, deep-learning]
 giscus_comments: false
