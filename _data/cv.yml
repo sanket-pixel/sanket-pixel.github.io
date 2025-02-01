@@ -40,9 +40,32 @@
 - title: Experience
   type: time_table
   contents:
+    - title: High Perfrmance Computing Engineer
+      institution: Spleenlab GmbH, Erfurt, Germany
+      year: 2023 - Present
+      description:
+        - title : Visual Odometry for Drones and Autonomous Ground Vehicles
+          contents :
+          - Developed transformer-based keypoint matching for GPS-denied environments.
+          - Deployed on NVIDIA Jetson Orin for real-time processing.
+          - Enabled deployment on Snapdragon QRB5165.
+          - Used C++,  CUDA, Pytorch, TensorRT.
+        - title :  C++/CUDA Inference Library for Edge Devices
+          contents :
+          - Built a tool supporting ONNX Runtime, TensorRT, and SNPE backends.
+          - Applied to monocular depth estimation, keypoint matching, object detection, and segmentation.
+          - Enabled seamless deployment on edge devices like Snapdragon QRB5165.
+          - Used C++, CUDA, ONNX, TensorRT.
+        - title :  AI-Based Video Stabilization for Edge Devices
+          contents :
+          - Developed AI-powered video stabilization for Jetson, Snapdragon, and Raspberry Pi.
+          - Integrated with ROS2 for robotic system use, enhancing video feeds.
+          - Applied multi-threading for a 40% speedup while maintaining 60 FPS.
+          - Optimized using TensorRT and quantization, reducing latency by 30%.
+
     - title: Perception Engineer
       institution: MotorAI GmbH, Berlin, Germany
-      year: 2022 - Present
+      year: 2022 - 2023
       description:
         - title : Deep Learning based Camera-Lidar-Radar Fusion Model.
           contents :
