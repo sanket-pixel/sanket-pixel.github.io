@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2025-02-02T06:15:14+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">That First CUDA Blog I Needed</title><link href="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/" rel="alternate" type="text/html" title="That First CUDA Blog I Needed" /><published>2024-10-20T14:53:00+00:00</published><updated>2024-10-20T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2025-02-02T06:20:12+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">That First CUDA Blog I Needed</title><link href="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/" rel="alternate" type="text/html" title="That First CUDA Blog I Needed" /><published>2024-10-20T14:53:00+00:00</published><updated>2024-10-20T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
 <p><br /></p>
 
 <div style="width: 80%;margin: 0 auto;">
@@ -208,6 +208,664 @@ Let us print square of list of integers.</p>
   <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div></div>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="cuda" /><summary type="html"><![CDATA[The ideal first blog to start learning CUDA.]]></summary></entry><entry><title type="html">Hidden Speed in CUDA’s Shared Memory</title><link href="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory-copy/" rel="alternate" type="text/html" title="Hidden Speed in CUDA’s Shared Memory" /><published>2024-09-07T14:53:00+00:00</published><updated>2024-09-07T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory%20copy</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory-copy/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
+<p><br /></p>
+
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/shared-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/shared-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/shared-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/shared.jpg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Sharing is Caring. 
+</div>
+</div>
+
+<p>CUDA, is almost like the default framework for optimizing code on NVIDIA GPUs with parallelization. It enables us to harness the massive power of GPUs to solve complex problems at incredible speed. Whether it’s deep learning, simulations, or graphics, CUDA allows us to break down large tasks into smaller, manageable chunks and run them simultaneously on thousands of cores. It made NVIDIA, what it is today.</p>
+
+<p>In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers.</p>
+
+<p>Think of it as a private workspace that all the threads in a block can share to optimize performance. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster. Let’s jump into the magic of shared memory and see how it makes GPU computing even more efficient!</p>
+
+<p>All the code used in this blog can be found <a href="https://github.com/sanket-pixel/CUDA/blob/main/shared_memory_blog/">here</a>.</p>
+
+<p>Before we discuss the intricacies, intuition and examples of Shared Memory, let us first understand ( revisit ) the basics of CUDA and NVIDIA GPUs Memory Heirarchy.</p>
+
+<h4 id="0-basics-of-cuda">0. Basics of CUDA</h4>
+
+<p>At the core of CUDA programming is a hierarchical model that defines how code is executed in parallel. This model consists of three key components: threads, blocks, and grids.</p>
+
+<ul>
+  <li><strong>Thread</strong>: The smallest unit of execution in CUDA, a thread performs the same operation on different data elements in parallel.</li>
+  <li><strong>Block</strong>: A group of threads that work together. Threads within a block can share data and synchronize their execution through shared memory.</li>
+  <li><strong>Grid</strong>: A collection of blocks that execute the same kernel function. Each block operates independently, allowing CUDA to manage a vast number of threads efficiently.</li>
+</ul>
+
+<p>To illustrate how these components work together, let’s consider a simple example.
+Imagine we have an array of 100,000 numbers, and we want to add 1 to each element.The code can be found <a href="https://github.com/sanket-pixel/CUDA/blob/main/shared_memory_blog/basics/basics.cu">here</a>.</p>
+
+<p>In a traditional CPU-based approach, this operation would be done sequentially, but with CUDA, we can process the array elements in parallel.
+Let us first look at how the operation on CPU would look like :</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">h_array</span><span class="p">[</span><span class="n">ARRAY_SIZE</span><span class="p">];</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ARRAY_SIZE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This code runs on the CPU, processing each element one by one—an approach that’s inefficient for large datasets.
+Now, let us do the same operation, but using parallelization on GPU using CUDA.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">add_one</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">idx</span> <span class="o">&lt;</span> <span class="n">ARRAY_SIZE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">array</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// allocate memory on the device (GPU)</span>
+    <span class="kt">int</span><span class="o">*</span> <span class="n">d_array</span><span class="p">;</span>
+    <span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">ARRAY_SIZE</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+    <span class="c1">// copy data from host to device</span>
+    <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_array</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">ARRAY_SIZE</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+    <span class="c1">// compute total blocks required</span>
+    <span class="kt">unsigned</span> <span class="n">total_threads</span> <span class="o">=</span> <span class="n">ARRAY_SIZE</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">total_blocks</span> <span class="o">=</span> <span class="kt">int</span><span class="p">(</span><span class="n">total_threads</span><span class="o">/</span><span class="n">BLOCK_SIZE</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+    <span class="c1">// Launch the kernel with 1000 blocks of 128 threads each</span>
+    <span class="n">add_one</span><span class="o">&lt;&lt;&lt;</span><span class="n">total_blocks</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span>  <span class="c1">// Launching 1000 blocks with 128 threads each</span>
+    <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+    <span class="c1">// Copy the results back to the host</span>
+    <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">ARRAY_SIZE</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+    <span class="c1">// Free device memory</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The biggest takeaway from this example is how the size of the array is used to compute the required number of thread blocks and how the index of the current thread is computed within the kernel. For more details on the same, please refer to our previous blog on <a href="/blog/2023/cuda-it-be-any-faster/">CUDA it Be Any Faster?</a> where we cover the basics of CUDA.</p>
+
+<p>Here are the key points we need to remember in order to understand the conept of shared memory, explained in this blog :</p>
+<ul>
+  <li>All threads are divided amongst several thread blocks, where each block contains 1024 threads.</li>
+  <li>Each thread block executes independently of each other.</li>
+  <li>Each thread block is further divided into warps, with each warp consisting of 32 threads.</li>
+  <li>All threads within a warp execute the same intstruction at a given time.</li>
+  <li>Two threads in the same thread block but different thread warp may not execute the same instruction at the same time.</li>
+</ul>
+
+<h3 id="1-basics-of-cuda-memory-heirarchy">1. Basics of CUDA Memory Heirarchy</h3>
+<p>When data is copied from the CPU to the GPU using <code class="language-plaintext highlighter-rouge">cudaMemcpy</code>, it is transferred into the GPU’s RAM, referred to as <strong>Global Memory</strong>. However, modern NVIDIA GPUs are engineered for high performance and include additional memory components designed to accelerate processing. Beyond just global memory, GPUs feature specialized memory types like <strong>Shared Memory</strong>, <strong>Constant Memory</strong>, and <strong>Texture Memory</strong>, each with unique characteristics that can be leveraged to significantly boost performance. These memory types allow developers to optimize data access patterns, reduce latency, and maximize the computational power of the GPU, making them a critical part of achieving extreme performance in GPU-accelerated applications. Let us look at all these memory components in more detail.</p>
+
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/memory-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/memory-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/memory-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/memory.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="Memory" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Memory Heirarcy on NVIDIA GPUs
+</div>
+</div>
+
+<p>Each <em>thread block</em> in CUDA is allocated its own <strong>Shared Memory</strong> of size <em>64KB</em>, which is an on-chip memory accessible by all threads within the block. This shared memory facilitates fast, low-latency communication and data exchange between threads in the same block. Similarly, each individual <em>thread</em> is allocated its own <strong>Register</strong>, each of size <em>4 bytes (32 bits)</em>, which is an even faster, on-chip storage used for holding temporary variables and performing computations. Registers are private to each thread, ensuring quick access and minimal latency for the thread’s operations. These pieces of information is enough, for the context of learning about leveraging Shared Memory for boosting CUDA performance. We will look at details of these types of memory in a separate blog post.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Memory Type</th>
+      <th>Characteristics</th>
+      <th>Advantages</th>
+      <th>Trade-offs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Global Memory</strong></td>
+      <td>- Accessible by all threads across all blocks<br />- Largest memory space on the GPU<br />- High latency (hundreds of clock cycles)<br />- Used for storing data shared among threads or blocks</td>
+      <td>- Flexibility in accessing large amounts of data</td>
+      <td>- High latency for frequent access<br />- Requires careful management for data coalescing</td>
+    </tr>
+    <tr>
+      <td><strong>Constant Memory</strong></td>
+      <td>- Read-only and cached<br />- Accessible by all threads<br />- Limited size (typically 64KB)</td>
+      <td>- Fast access for broadcast reads<br />- Suitable for data accessed by all threads</td>
+      <td>- Small size<br />- Read-only nature limits flexibility</td>
+    </tr>
+    <tr>
+      <td><strong>Texture Memory</strong></td>
+      <td>- Read-only and cached<br />- Optimized for spatial locality and supports addressing modes and filtering<br />- Typically used for 2D data</td>
+      <td>- Efficient for 2D spatial locality<br />- Supports specialized access patterns</td>
+      <td>- Limited use cases<br />- Overhead for non-2D data access</td>
+    </tr>
+    <tr>
+      <td><strong>L1/Shared Memory</strong></td>
+      <td>- On-chip and shared among threads within the same block<br />- Low latency<br />- Limited size (typically 48KB per SM)</td>
+      <td>- Extremely fast access for intra-block communication<br />- Reduces global memory access</td>
+      <td>- Limited size<br />- Only accessible within the same block</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h3 id="2-what-is-shared-memory">2. What is Shared Memory?</h3>
+
+<p>At the most granular level in CUDA, we have <strong>Threads</strong>. These threads are organized into <strong>Thread Blocks</strong>, and multiple Thread Blocks form a <strong>Grid</strong>.  Now, each Thread Block has its own L1 cache assigned, which is common for all the threads within that block. This L1 cache possesses a unique feature: <em>it is programmable by the user</em>. When the user decides to control what data is stored in this L1 cache ( instead of the GPU driver ), this memory is termed as <strong>Shared Memory</strong>. The term “Shared” highlights the key aspect of this memory type: the data stored in Shared Memory is accessible to all threads within the same Thread Block. Unlike the traditional cache mechanism, which automatically handles data movement between global memory and L1 cache, shared memory gives programmers direct control over what data is loaded and how it is used.</p>
+
+<p>The design choice behind shared memory stems from the inherent limitations of standard caching. The GPU, while powerful, cannot always predict the best way to utilize cache for specific workloads. It merely attempts to copy contiguous data from global memory to L1 cache and hopes for optimal cache hits. However, real-world applications often require tailored data handling to maximize performance and minimize latency.</p>
+
+<p>This is where shared memory shines. By allowing programmers to explicitly manage the data that gets copied to shared memory, developers can optimize performance for their unique use cases. Shared memory serves as a “scratchpad” memory, where data that is frequently accessed by threads within the same block can be stored and manipulated. In the absence of such a feature, every thread will have to perform read and write to the global memory, which is very expensive. Having frequently accessed and shared data in fast L1 cache reduces the number of costly global memory accesses, which are significantly slower compared to shared memory operations.</p>
+
+<p>In essence, shared memory enables a more efficient collaboration among threads in a block, facilitating faster data sharing and improved performance in parallel computations. Leveraging shared memory effectively can lead to significant performance gains in applications such as image processing, matrix multiplication, and complex simulations, where data reuse and minimizing memory latency are crucial.</p>
+
+<p>Let us understand this with a simple analogy.</p>
+
+<h3 id="3-chefs-making-tomato-soup">3. Chefs making Tomato Soup</h3>
+<p>Imagine a scenario where multiple chefs are trying to make delicious tomato soup. However, the tomatoes they need are stored in a large fridge located on the ground floor (representing Global Memory). Every time a chef needs a tomato, they have to go down to the ground floor, retrieve the tomatoes, and then return to their kitchen. This process is time-consuming, especially when many chefs are all trying to make their soups simultaneously.</p>
+
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/tomato-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/tomato-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/tomato-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/tomato.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="tomato" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Threads in a Thread Block making Tomato Soup 
+</div>
+</div>
+
+<p>To streamline the cooking process, each kitchen has its own smaller fridge (representing Shared Memory) that is accessible to all the chefs working within that kitchen (Thread Block). Instead of each chef making repeated trips to the ground floor, they can first send one chef to fetch a batch of tomatoes and store them in their shared fridge. Once the tomatoes are in the smaller fridge, all the chefs in that kitchen can easily access them without having to go back and forth to the ground floor.</p>
+
+<p>This setup not only saves time but also enhances collaboration among the chefs in each kitchen. They can quickly share ingredients and coordinate their efforts to create the perfect soup. Just as the chefs benefit from having a shared fridge, threads within a Thread Block benefit from Shared Memory by reducing the time and effort needed to access frequently used data, ultimately leading to more efficient parallel computations in CUDA.</p>
+
+<p>Enough talk, now its show time. It is code time.</p>
+
+<h3 id="4-matrix-multiplication">4. Matrix Multiplication</h3>
+
+<p>Now that we have understood the basics of CUDA, and discussed the concept of Shared Memory, let us stop speaking words, and start writing some code.
+To that end, we will use Matrix Multiplication in order to understand how Shared Memory can be leveraged. This is how we will go about it.</p>
+
+<ol>
+  <li>Implement Matrix Multiplication on the CPU
+    <ul>
+      <li>Write a function to perform matrix multiplication using standard nested loops.</li>
+      <li>Test the CPU implementation for correctness and performance.</li>
+    </ul>
+  </li>
+  <li>Implement a Naive CUDA Kernel for Matrix Multiplication on the GPU
+    <ul>
+      <li>Write a basic CUDA kernel to perform matrix multiplication.</li>
+      <li>Allocate memory for matrices on the GPU and transfer data from the host to the device.</li>
+      <li>Launch the CUDA kernel and retrieve the result back to the host for verification.</li>
+    </ul>
+  </li>
+  <li>Optimize Using Shared Memory
+    <ul>
+      <li>Modify the CUDA kernel to utilize shared memory.</li>
+      <li>Test the optimized kernel for correctness and compare performance with the naive implementation.</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="41-matmul-on-cpu--slow-and-steady">4.1 Matmul on CPU : Slow and Steady</h4>
+<p>In this section we will discuss how Matmul can be performed on the CPU with 3 nested for loops.
+This is the slowest way with zero parallelization, and will hence act as the benchmark. The code can be found <a href="https://github.com/sanket-pixel/CUDA/blob/main/shared_memory_blog/matmul/matmul.cu#L11">here</a>.</p>
+
+<p>Let us take two 4x4 matrices A and B multiplied to give another 4x4 matrix C as shown in the figure below. Each element from the <code class="language-plaintext highlighter-rouge">ith row of A</code> is <strong>multiplied</strong> with each element of the <code class="language-plaintext highlighter-rouge">jth column of B</code>, and <strong>summed</strong> up to give the <code class="language-plaintext highlighter-rouge">element (i,j) of C</code>.</p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/cpu_matmul-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/cpu_matmul-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/cpu_matmul-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/cpu_matmul.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="cpu" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   For C[ i, j ], multiply all elements in ith row of A and jth column of B and then sum them up. Repeat this for each element of matrix C.
+</div>
+</div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">matmul_cpu</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">sum</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+            <span class="p">}</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>When we use this function for multiplying two square matrices of size (1024x1024), and measure the latency :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average CPU Time: 582.865ms
+</code></pre></div></div>
+
+<p>Thats more than half a second for a single matmul operation. We can definitely do better. 
+Let us now look at a simple CUDA kernel and see how fast a naive implementation can get.</p>
+
+<h4 id="42-matmul-on-gpu--the-cuda-way">4.2 Matmul on GPU : The CUDA way.</h4>
+
+<p>The <code class="language-plaintext highlighter-rouge">matmul_cuda_naive</code> CUDA kernel performs matrix multiplication for two square matrices A and B, storing the result in matrix C. Each thread computes its unique row and column indices based on its block and thread identifiers, ensuring it operates within the bounds of the matrices. For each valid thread, the kernel initializes a sum variable and performs the dot product by iterating through the elements of the respective row of A and column of B. Finally, it stores the computed sum in the corresponding position of matrix C. The code can be found <a href="https://github.com/sanket-pixel/CUDA/blob/main/shared_memory_blog/matmul/matmul.cu#L24">here</a>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matmul_cuda_naive</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span> <span class="n">A</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">B</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>On using this kernel for matrix multiplication of the same (1024x1024) matrices, we obtain :</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average CUDA Naive Time: 2.42381ms
+</code></pre></div></div>
+
+<p>The CUDA matrix multiplocation is <code class="language-plaintext highlighter-rouge">240.19x</code> times faster than the CPU version. This is already pretty mind blowing, one might argue.
+Lets put 240x times in perspective. If the matmul on GPU took a minute, the same operation on the CPU would take 4 hours to complete.</p>
+
+<p>Not fast enough? Cool. Then lets make it even faster by using (no prize for guessing) <em>SHARED MEMORY</em>.</p>
+
+<h3 id="5-matrix-multiplication-with-shared-memory">5. Matrix Multiplication with Shared Memory</h3>
+<p>In this section, we will explore how Shared Memory can enhance the efficiency of Matrix Multiplication. The approach we will adopt may seem counterintuitive and could be challenging to grasp initially. Therefore, we will begin by examining the multiplication of smaller matrices, specifically the same 4x4 matrix example, using a block size of 2x2. This simplified example will provide a solid foundation, making it easier to comprehend the implementation for larger matrices later on.</p>
+
+<h4 id="51-intuition-of-using-tiled-matmul">5.1 Intuition of using Tiled Matmul.</h4>
+<p>As shown below, matrix multiplication can be done in parts, where sub-blocks <code class="language-plaintext highlighter-rouge">(i1, i2)</code> from matrix <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">(j1, j3)</code> from matrix <code class="language-plaintext highlighter-rouge">B</code> are multiplied to compute the partial result of element <code class="language-plaintext highlighter-rouge">C(i,j)</code>. The process is repeated for <code class="language-plaintext highlighter-rouge">(i3, i4)</code> and <code class="language-plaintext highlighter-rouge">(j2, j4)</code> to complete the sum for <code class="language-plaintext highlighter-rouge">C(i,j)</code>.
+In summary, instead of computing all the multiplications and summing them at once, we split the work into two steps.</p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/matmul_by_part-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/matmul_by_part-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/matmul_by_part-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/matmul_by_part.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Matrix Multiplication split in parts.
+</div>
+</div>
+
+<p>This intuition can be extended to help understand Tiled Matrix Multiplication. Instead of computing the matrix multiplication for the entire 4x4 matrix at once, we can break it down and compute the multiplication for each 2x2 block separately.</p>
+
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/tiled_matmul-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/tiled_matmul-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/tiled_matmul-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/tiled_matmul.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Tiled Matrix Multiplication.
+</div>
+</div>
+
+<p>As shown above, when computing each <code class="language-plaintext highlighter-rouge">2x2 block</code> in matrix <code class="language-plaintext highlighter-rouge">C</code>, we can first calculate the matrix multiplication for the first 2x2 block in matrices A and B. After that, we move on to the next 2x2 block and compute its contribution. By summing these partial results, we gradually build the final result for the entire matrix.</p>
+
+<p>This tiled approach allows us to handle smaller chunks of the matrices at a time, making it more efficient by utilizing faster memory (like shared memory) to perform intermediate computations.</p>
+
+<h4 id="52-tiled-matmul-with-shared-memory-in-cuda">5.2 Tiled Matmul with Shared Memory in CUDA</h4>
+<p>In this approach, we use shared memory to speed up the multiplication by working on small parts (tiles) of the matrices at a time. We already looked at how Tiled Matmul works for the 4x4 matrix as shown in the diagram above. Lets use the same example to understand how shared memory can be leveraged with Tiled Matrix Multiplication.</p>
+
+<ul>
+  <li><strong>Assigning Threads</strong>: For a matrix of size 4x4, we use <code class="language-plaintext highlighter-rouge">16 threads</code>, one for each element in the output <code class="language-plaintext highlighter-rouge">matrix C</code>. Each thread will be responsible for calculating one element of matrix C.</li>
+</ul>
+<div style="width: 40%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/thread-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/thread-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/thread-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/thread.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Each element is assigned to one thread. 
+</div>
+</div>
+
+<ul>
+  <li>
+    <p><strong>Breaking into Tiles</strong>: Instead of multiplying the entire matrix at once, we break it down into smaller 2x2 tiles. Each tile represents a section of the matrix, and this makes the problem easier to handle in smaller chunks.</p>
+  </li>
+  <li>
+    <p><strong>Thread Block Assignment</strong>:  Each <code class="language-plaintext highlighter-rouge">2x2 tile</code> from the result <code class="language-plaintext highlighter-rouge">matrix C</code> is assigned to a thread block. The threads within that block are responsible for computing the values of this 2x2 section by multiplying corresponding 2x2 tiles from matrices <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code>.</p>
+  </li>
+</ul>
+<div style="width: 40%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/block-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/block-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/block-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/block.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Each 2x2 tile is assigned to one thread block.
+</div>
+</div>
+<ul>
+  <li><strong>Loading Data into Shared Memory</strong>: For each tile in matrix <code class="language-plaintext highlighter-rouge">C</code>, we first load the corresponding <code class="language-plaintext highlighter-rouge">2x2 tiles</code> from matrices <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code> into shared memory. <em>Shared memory</em> is fast and allows threads to access the required data quickly, avoiding the slower global memory.</li>
+</ul>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/shared_copy-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/shared_copy-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/shared_copy-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/shared_copy.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Copy relevant data to Shared Memory, and compute partial sum.
+</div>
+</div>
+
+<ul>
+  <li>
+    <p><strong>Synchronizing Threads</strong>: Once all the threads have loaded their part of <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code> into shared memory, we <em>synchronize</em> the threads so that everyone is ready to use the data at the same time.</p>
+  </li>
+  <li>
+    <p><strong>Performing the Partial Multiplication</strong>: : The threads in the block perform the matrix multiplication for this tile, using the data stored in shared memory. Each thread computes a partial result by multiplying corresponding elements from the current tile of A and B (just like we mentioned earlier: i1 * j1 + i2 * j2).</p>
+  </li>
+  <li>
+    <p><strong>Repeat for Other Threads</strong>: After computing the first set of <code class="language-plaintext highlighter-rouge">2x2 tiles</code>, we move on to the next tiles from <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code>, repeating the process until all partial results for the tile in <code class="language-plaintext highlighter-rouge">C</code> are summed up.</p>
+  </li>
+  <li>
+    <p><strong>Accumulating Results</strong>: The thread adds these partial results together. After processing all tiles, the full result for each element of <code class="language-plaintext highlighter-rouge">C</code> is accumulated.</p>
+  </li>
+  <li>
+    <p><strong>Writing Back to Global Memory</strong>: Once all threads are done with their computations, the final values for matrix C are written back to global memory.</p>
+  </li>
+</ul>
+
+<p>In summary, when performing matrix multiplication using shared memory in CUDA, we first copy the necessary data for each thread block’s 2x2 tile into shared memory and then write the results back to global memory after the computation is complete.</p>
+
+<h4 id="53-reusing-data-from-shared-memory">5.3 Reusing Data from Shared Memory</h4>
+<p>A key advantage of this approach is the efficient reuse of data. For every 2x2 tile in the result matrix C, each element from the corresponding tiles in A and B is reused twice. This reuse reduces the need for multiple accesses to global memory, as the values are already stored in shared memory after the initial copy. By reducing redundant memory accesses, we significantly improve the performance of the matrix multiplication process. The diagram you provided illustrates how the values in the blue and yellow grids are reused during each step of the multiplication.</p>
+
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_7/count-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_7/count-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_7/count-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_7/count.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="parts" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Counting the number of times the values in A and B are used for a 2x2 matrix multiplication.
+</div>
+</div>
+
+<h4 id="54-talk-is-cheap-show-me-the-code">5.4 Talk is Cheap. Show me the Code.</h4>
+<p>We’ve discussed a toy example of multiplying two 4x4 matrices using 2x2 tile using shared memory to improve performance. In this section, we’ll look at the code, and extend the same concept, where the grid is divided into 32x32 blocks, each handled by a block of threads, and the computation for each element in the output matrix is handled by the respective threads in the block. The code can be found <a href="https://github.com/sanket-pixel/CUDA/blob/main/shared_memory_blog/matmul/matmul.cu#L38">here</a>.</p>
+
+<p>Let’s dive into the code, which is essentially the same but operates on larger tiles (32x32).</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define BLOCK_SIZE 32
+</span><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">matmul_cuda_shared</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span> <span class="n">A</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">B</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// define A and B sub matrices of size 32x32 in shared memory.</span>
+    <span class="n">__shared__</span> <span class="kt">float</span> <span class="n">Asub</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+    <span class="n">__shared__</span> <span class="kt">float</span> <span class="n">Bsub</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+
+    <span class="c1">// get global x and y indices for this thread and block.</span>
+    <span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+    <span class="c1">// variable to store sum ( stored on registers )</span>
+    <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+
+    <span class="c1">// iterate over all tiles for this thread block.</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">blockIdx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">blockIdx</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">BLOCK_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCK_SIZE</span><span class="p">;</span> <span class="n">blockIdx</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Load tiles into shared memory</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">];</span>
+        <span class="k">else</span>
+            <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">Bsub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[(</span><span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
+        <span class="k">else</span>
+            <span class="n">Bsub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+        
+        <span class="c1">// Synchronize to make sure all the data is copied to shared memory.</span>
+        <span class="n">__syncthreads</span><span class="p">();</span>
+
+        <span class="c1">// Compute matrix multiplication for the tile</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">BLOCK_SIZE</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">Bsub</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="n">__syncthreads</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="c1">// Copy the data to global memory.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Now, let’s break this down step by step.</p>
+
+<ol>
+  <li>
+    <p><strong>Block Size and Shared Memory</strong>: The <code class="language-plaintext highlighter-rouge">BLOCK_SIZE</code> is set to <code class="language-plaintext highlighter-rouge">32</code>, meaning each thread block handles a <code class="language-plaintext highlighter-rouge">32x32 tile</code>. Shared memory is allocated for storing sub-matrices (tiles) from matrix <code class="language-plaintext highlighter-rouge">A</code> and matrix <code class="language-plaintext highlighter-rouge">B</code> in Asub and Bsub. The <code class="language-plaintext highlighter-rouge">__shared__</code> keyword is key here—it allocates memory for all threads within a block to share during the computation, avoiding slower global memory accesses.</p>
+
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// define A and B sub matrices of size 32x32 in shared memory.</span>
+ <span class="n">__shared__</span> <span class="kt">float</span> <span class="n">Asub</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+ <span class="n">__shared__</span> <span class="kt">float</span> <span class="n">Bsub</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Mapping Threads to Tiles</strong>: Each thread in a block is responsible for calculating <code class="language-plaintext highlighter-rouge">one element</code> in a <code class="language-plaintext highlighter-rouge">32x32</code> tile of the result matrix <code class="language-plaintext highlighter-rouge">C</code>. The thread’s position in the block corresponds to a specific <code class="language-plaintext highlighter-rouge">row</code> and <code class="language-plaintext highlighter-rouge">column</code> within the tile.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// get global x and y indices for this thread and block.</span>
+ <span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+ <span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Loading Tiles into Shared Memory</strong>: In the loop, tiles from matrices <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code> are loaded into shared memory. Each thread copies one element from the global memory (the larger matrices <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code>) into the shared memory tiles (<code class="language-plaintext highlighter-rouge">Asub</code> and <code class="language-plaintext highlighter-rouge">Bsub</code>). This process is repeated for multiple tiles as we move across the matrices.</p>
+
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Load tiles into shared memory</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span>
+     <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">];</span>
+ <span class="k">else</span>
+     <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+
+ <span class="k">if</span> <span class="p">(</span><span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span>
+     <span class="n">Bsub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[(</span><span class="n">blockIdx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
+ <span class="k">else</span>
+     <span class="n">Bsub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Synchronization</strong>: After copying data into shared memory, <code class="language-plaintext highlighter-rouge">__syncthreads()</code> is called. This ensures that all threads in the block have completed copying their respective elements before moving on to the computation. Synchronization is crucial here because shared memory is used by all threads in the block, and we don’t want any thread to start using data that hasn’t been fully copied.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Synchronize to make sure all the data is copied to shared memory.</span>
+ <span class="n">__syncthreads</span><span class="p">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Computing the Tile</strong>: After loading a tile into shared memory, each thread computes part of the matrix multiplication for that tile. For a given row in <code class="language-plaintext highlighter-rouge">A</code> and column in <code class="language-plaintext highlighter-rouge">B</code>, the corresponding thread will compute the dot product, accumulating the result in <code class="language-plaintext highlighter-rouge">sum</code>.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Compute matrix multiplication for the tile</span>
+ <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">BLOCK_SIZE</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">sum</span> <span class="o">+=</span> <span class="n">Asub</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">Bsub</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">];</span>
+ <span class="p">}</span>
+ <span class="n">__syncthreads</span><span class="p">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Writing Back to Global Memory</strong>: Once the partial product for the tile is calculated, the results are written back to global memory in the matrix <code class="language-plaintext highlighter-rouge">C</code>. This is done after all tiles have been processed and summed.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// Copy the data to global memory.</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">C</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>This code shows how to extend the concept of tiled matrix multiplication to larger blocks (32x32) using shared memory. The basic steps involve:</p>
+
+<ul>
+  <li>Copying the required sub-matrices (tiles) from global memory into shared memory for fast access.</li>
+  <li>Performing matrix multiplication within each block using the shared tiles.</li>
+  <li>Storing the final results back into global memory.</li>
+</ul>
+
+<p>By making effective use of shared memory, we minimize the number of slow global memory accesses, which results in significantly faster matrix multiplication.</p>
+
+<p>In essence, the shared memory acts as a cache for data reuse within the block. For example, each value in a tile of A and B is reused 32 times during the matrix multiplication. Without shared memory, the same value would need to be loaded from global memory repeatedly, slowing down the computation.</p>
+
+<p>Let us now compare the time improvement due to Shared Memory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average CPU Time: 568.871ms
+Average CUDA Naive Time: 2.42451ms
+Average CUDA Shared Memory Time: 1.91292ms
+</code></pre></div></div>
+
+<p>By using shared memory, this time is further reduced to <code class="language-plaintext highlighter-rouge">1.91292 ms</code>, providing about a <code class="language-plaintext highlighter-rouge">1.27x</code> speedup compared to the naive CUDA approach. This speedup comes from the efficient reuse of data within shared memory, which avoids multiple global memory accesses and significantly enhances computation speed, showcasing the advantage of shared memory in optimizing matrix multiplication.</p>
+
+<h3 id="6-summary">6. Summary</h3>
+<p>In this blog, we explored how shared memory can significantly boost the performance of CUDA programs by reducing the need for repetitive data transfers from global memory. We started by understanding the basics of thread and block organization in CUDA, and then introduced the concept of shared memory as a customizable and high-speed alternative to the default memory hierarchy. By storing frequently accessed data in shared memory, we enable threads within a block to reuse it efficiently, avoiding costly memory fetches.</p>
+
+<p>We looked at an example of matrix multiplication using the Tiled Matmul technique, where we saw how shared memory allows us to load, compute, and reuse data efficiently. With shared memory, each thread in a block can access the data needed for computations directly from a faster, local cache rather than repeatedly querying global memory.</p>
+
+<p>Ultimately, shared memory gives programmers more control over what data gets cached, leading to a dramatic reduction in memory latency and an overall performance boost, as seen in the 2x speedup in our example. With these concepts in mind, you’re now equipped to start leveraging shared memory in your own CUDA programs for optimized performance!</p>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="cuda" /><summary type="html"><![CDATA[How to exactly quantize models and still not lose accuracy.]]></summary></entry><entry><title type="html">Hidden Speed in CUDA’s Shared Memory</title><link href="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/" rel="alternate" type="text/html" title="Hidden Speed in CUDA’s Shared Memory" /><published>2024-09-07T14:53:00+00:00</published><updated>2024-09-07T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
 <p><br /></p>
 
 <div style="width: 80%;margin: 0 auto;">
