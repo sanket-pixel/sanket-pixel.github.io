@@ -12,7 +12,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Hidden Speed in CUDA's Shared Memory | Sanket Shah</title>
     <meta name="author" content="Sanket R. Shah">
-    <meta name="description" content="How to exactly quantize models and still not lose accuracy.">
+    <meta name="description" content="How to leverage shared memory using CUDA">
     <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website">
 
 
@@ -434,7 +434,7 @@ This is the slowest way with zero parallelization, and will hence act as the ben
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">matmul_cpu</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&amp;</span> <span class="n">C</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-            <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
             <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
                 <span class="n">sum</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
             <span class="p">}</span>
@@ -460,7 +460,7 @@ Let us now look at a simple CUDA kernel and see how fast a naive implementation 
     <span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+        <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
         <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">sum</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
         <span class="p">}</span>
@@ -702,7 +702,7 @@ In summary, instead of computing all the multiplications and summing them at onc
     <span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
     <span class="c1">// variable to store sum ( stored on registers )</span>
-    <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
 
     <span class="c1">// iterate over all tiles for this thread block.</span>
     <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">blockIdx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">blockIdx</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">BLOCK_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCK_SIZE</span><span class="p">;</span> <span class="n">blockIdx</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
@@ -850,12 +850,6 @@ Average CUDA Shared Memory Time: 1.91292ms
   
 
   <li class="my-2">
-    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2024/hidden-speed-in-shared-memory-copy/">Hidden Speed in CUDA's Shared Memory</a>
-  </li>
-
-  
-
-  <li class="my-2">
     <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2024/a-practical-guide-to-quantization/">A practical guide to Quantization</a>
   </li>
 
@@ -869,6 +863,12 @@ Average CUDA Shared Memory Time: 1.91292ms
 
   <li class="my-2">
     <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2024/quantization-explained-like-youre-five/">Quantization explained, like you are five.</a>
+  </li>
+
+  
+
+  <li class="my-2">
+    <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2023/tensorrt-meets-cpp/">TensorRT meets C++</a>
   </li>
 
 </div>
