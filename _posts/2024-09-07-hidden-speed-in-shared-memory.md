@@ -1,8 +1,8 @@
 ---
 layout: post
 title: Hidden Speed in CUDA's Shared Memory
-date: 2024-09--7 10:53:00-0400
-description: How to exactly quantize models and still not lose accuracy.
+date: 2024-09-07 10:53:00-0400
+description: How to leverage shared memory using CUDA
 thumbnail : /assets/img/blog/blog_7/shared.jpg
 categories: cuda
 tag : [nvidia, cuda]
