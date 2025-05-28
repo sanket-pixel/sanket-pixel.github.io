@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2025-05-16T21:15:53+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">That First CUDA Blog I Needed</title><link href="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/" rel="alternate" type="text/html" title="That First CUDA Blog I Needed" /><published>2024-10-20T14:53:00+00:00</published><updated>2024-10-20T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
-<p><br /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://sanket-pixel.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://sanket-pixel.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2025-05-28T19:36:48+00:00</updated><id>https://sanket-pixel.github.io//feed.xml</id><title type="html">Sanket Shah</title><subtitle></subtitle><entry><title type="html">That First CUDA Blog I Needed</title><link href="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/" rel="alternate" type="text/html" title="That First CUDA Blog I Needed" /><published>2024-10-20T14:53:00+00:00</published><updated>2024-10-20T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/that-first-cuda-blog/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
 
+<p><br /></p>
 <div style="width: 80%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
@@ -27,46 +27,194 @@
 </div>
 </div>
 
-<!-- ``` ### 0. Prerequisites to learn CUDA``` -->
+<h4 id="1-the-paradigm-shift-from-cpu-to-gpu-world">1. The paradigm shift from CPU to GPU World</h4>
 
-<h3 id="1-hello-world">1. Hello World</h3>
+<p>A GPU is not just a faster CPU. It is rather, a hardware designed specifically for doing <strong><em>similar things, a lot of times, all at once</em></strong>. 
+When one goes from programming on the CPU to the GPU, the mindset shifts from <code class="language-plaintext highlighter-rouge">"How do I do this?"</code> to <code class="language-plaintext highlighter-rouge">"How do I do this with a 1000 workers?"</code>.
+The most challenging part in the beginnning is not the CUDA syntax or the intricacies of the GPU memory. But it is the shift from thinking serially or sequentially 
+to thinking in parallel.</p>
+
+<p>This shift requires you to stop thinking like a single worker doing one task after another, and start thinking like a supervisor assigning the same task to a massive team—each working on a different part of the problem at the same time. You no longer write instructions for the whole job; instead, you write instructions for one worker and trust the system to repeat it across thousands. The challenge is learning to break down problems into small, identical tasks that can run side by side—without depending on each other or getting in each other’s way.</p>
+
+<p><br /></p>
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/cpu_vs_gpu-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/cpu_vs_gpu-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/cpu_vs_gpu-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/cpu_vs_gpu.jpeg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="cpugpu" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   CPU: The lone chef. GPU: The parallel kitchen team.
+</div>
+</div>
+
+<p>Let’s say we want to multiply each number in an array by 2.</p>
+
+<p>On the CPU, you would think sequentially as shown below :</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="k">from</span> <span class="mi">0</span> <span class="n">to</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+    <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+</code></pre></div></div>
+
+<p>Here, you think like a <code class="language-plaintext highlighter-rouge">single worker</code> walking through the entire list, <code class="language-plaintext highlighter-rouge">one element at a time</code>.<br />
+While on the GPU you must think of processing in parallel as shown below :</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">function</span> <span class="nf">worker</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="n">launch</span> <span class="n">N</span> <span class="n">workers</span><span class="p">:</span>
+    <span class="n">each</span> <span class="n">runs</span> <span class="nf">worker</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">with</span> <span class="n">its</span> <span class="n">own</span> <span class="n">i</span>
+</code></pre></div></div>
+<p>Instead of one worker doing the whole loop, you write code for just <code class="language-plaintext highlighter-rouge">one worker</code>, and let <code class="language-plaintext highlighter-rouge">thousands of them</code> each handle their own <code class="language-plaintext highlighter-rouge">i</code> independently.
+You’re no longer in control of the whole process—you’re only describing what one tiny part of the system should do. This mental shift—from controlling a loop to writing instructions for an army of workers—is what makes parallel thinking hard at first.</p>
+
+<h4 id="2-groundwork-what-cuda-assumes-you-know">2. Groundwork: What CUDA Assumes You Know</h4>
+<p>If you’ve spent most of your time in languages like Python, JavaScript, or even high-level C++ without touching low-level memory concepts, CUDA will feel different. That’s because CUDA code is almost always written in C or C++, and runs in an environment where you’re much closer to the hardware. Let us understand some core low level programming concepts you should know, before finally writing our first CUDA kernel in the next section.</p>
+
+<h5 id="pointers--variables-that-point-to-other-variables"><em>Pointers : Variables that point to other Variables</em></h5>
+<p>A pointer is a variable that stores the memory address of another variable. In Python, you deal with lists and objects without thinking about where they live in memory. But in CUDA (and C/C++), you often work with memory addresses directly.
+<br /></p>
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/pointer-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/pointer-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/pointer-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/pointer.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="cpugpu" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Illustration of a *pointer* in C++ — `ptr` stores the memory address of variable `x`, allowing indirect access to its value.
+</div>
+</div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// ptr now holds the memory address of x (e.g., 0x1234)</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">x</code> is a regular integer variable stored at address <code class="language-plaintext highlighter-rouge">0x1234</code> and holds the value <code class="language-plaintext highlighter-rouge">10</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">ptr</code> is a pointer to an integer, which stores the address of <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">0x1234</code>) — it “points” to <code class="language-plaintext highlighter-rouge">x</code>.</li>
+  <li>So, the value inside <code class="language-plaintext highlighter-rouge">ptr</code> is an address (<code class="language-plaintext highlighter-rouge">0x1234</code>), not a regular integer.</li>
+  <li>The pointer itself also lives somewhere in memory, say at <code class="language-plaintext highlighter-rouge">0x1550</code>, and <code class="language-plaintext highlighter-rouge">&amp;ptr</code> would give that address.</li>
+</ul>
+
+<p>For <code class="language-plaintext highlighter-rouge">arrays</code>, a pointer usually represents the <code class="language-plaintext highlighter-rouge">starting address</code> of the array in memory. The data type <code class="language-plaintext highlighter-rouge">(int*)</code> tells the program how far to move when accessing the <code class="language-plaintext highlighter-rouge">next</code> element — so <code class="language-plaintext highlighter-rouge">ptr + 1</code> means “go to the next int,” not the next byte. You don’t need to be a pointer expert yet, but understanding that they are how CUDA kernels receive and manipulate data is key.</p>
+
+<h5 id="functions--parameter-passing-by-value-vs-reference"><em>Functions : Parameter Passing by Value vs. Reference</em></h5>
+<p>A function is a reusable block of code that performs a specific task and can take inputs (parameters) and return outputs — just like how functions work in Python.
+In C, when you <code class="language-plaintext highlighter-rouge">pass by value</code>, the function gets a <code class="language-plaintext highlighter-rouge">copy of the data</code>. When you <code class="language-plaintext highlighter-rouge">pass by reference</code> (using a pointer), the function gets access to the <code class="language-plaintext highlighter-rouge">original</code>, so it can modify it.</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">modify</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">);</span>     <span class="c1">// gets a copy of x</span>
+<span class="kt">void</span> <span class="nf">modify</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">x</span><span class="p">);</span>    <span class="c1">// gets the original x via address</span>
+</code></pre></div></div>
+
+<p>Passing by value is like giving someone a photocopy of a document, while passing by reference is like giving them the original paper to make changes on.</p>
+
+<h5 id="arrays-and-memory-layout"><em>Arrays and Memory Layout</em></h5>
+<p>In high-level languages, arrays feel like magical lists, but under the hood, an array is just a block of memory where all elements sit <code class="language-plaintext highlighter-rouge">side by side</code>.</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>  <span class="c1">// Stored in one chunk of memory</span>
+</code></pre></div></div>
+<p>Because the elements are stored contiguously, knowing the <code class="language-plaintext highlighter-rouge">starting address</code> (pointer) means you can find any element by jumping ahead a certain number of steps. The size of each element (like <code class="language-plaintext highlighter-rouge">int</code>) tells you how far to jump — this is exactly what pointer arithmetic does.<br />
+If <code class="language-plaintext highlighter-rouge">ptr</code> points to the start of the array, and you want to increment the element at position 3 by 1 :</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Multidimensional arrays like a 2D array are actually stored as one flat, continuous block of memory — row by row.
+For example, consider a 2D array with 3 rows and 4 columns:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">},</span>       <span class="c1">// row 0</span>
+  <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">},</span>       <span class="c1">// row 1</span>
+  <span class="p">{</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">}</span>     <span class="c1">// row 2</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>In memory, this is stored as a single sequence:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span>
+</code></pre></div></div>
+<p>To access an element at row <code class="language-plaintext highlighter-rouge">r</code> and column <code class="language-plaintext highlighter-rouge">c</code> using a flattened 1D pointer, you calculate its position as:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">num_columns</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
+</code></pre></div></div>
+<p>So, to access matrix[2][1] (which is 10), the flattened index is:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>index = 2 * 4 + 1 = 9
+</code></pre></div></div>
+<p>And if <code class="language-plaintext highlighter-rouge">ptr</code> points to the start of this block, then:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ptr[index] == 10
+</code></pre></div></div>
+
+<h5 id="stack-vs-heap-memory"><em>Stack vs Heap Memory</em></h5>
+<p>This is often overlooked but important. In C/C++, small, fixed-size variables (like integers or small structs) are stored on the <code class="language-plaintext highlighter-rouge">stack</code> — a <code class="language-plaintext highlighter-rouge">fast</code>, temporary memory area that <code class="language-plaintext highlighter-rouge">automatically manages variable lifetime</code>.</p>
+
+<p>In contrast, <code class="language-plaintext highlighter-rouge">dynamically allocated</code> memory (such as arrays created with <code class="language-plaintext highlighter-rouge">malloc</code> or <code class="language-plaintext highlighter-rouge">new</code>) lives on the <code class="language-plaintext highlighter-rouge">heap</code>, which is larger but slower and must be <code class="language-plaintext highlighter-rouge">manually managed</code> (allocated and freed).</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>                 <span class="c1">// Stored on the stack</span>
+<span class="kt">int</span><span class="o">*</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>  <span class="c1">// Allocated on the heap</span>
+</code></pre></div></div>
+
+<p>We have now laid the essential groundwork of concepts—pointers, functions, memory layout, stack, and heap—on which CUDA programming is built.
+Understanding these basics will make your journey into parallel programming much smoother.</p>
+
+<h4 id="3-your-first-cuda-kernel--hello-world">3. Your First CUDA Kernel : Hello World!</h4>
+
+<p>Now that we have a solid understanding of the foundational concepts, let’s dive into writing our very first CUDA kernel. The goal here isn’t complex computation, but to bridge the gap between CPU-style sequential thinking and GPU-style parallel execution, and to see your GPU actually <em>do something</em>.</p>
+
 <p>A good way to learn something new, is to begin from something you already know and then connect the dots. Let us first look at a simple <code class="language-plaintext highlighter-rouge">Hello World</code> program in C++.</p>
-
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 </span><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello World!"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
-
 <p>To execute this program on your machine, follow the following steps :</p>
 
 <ol>
-  <li>Open a terminal and navigate to the directory containing this <code class="language-plaintext highlighter-rouge">.cpp</code> file.
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> cd that_first_cuda_blog/1_hello_world
+  <li>Clone the <a href="https://github.com/sanket-pixel/blog_code">repository</a> that stores the code associated with my blogs :
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/sanket-pixel/blog_code
+<span class="nb">cd </span>blog_code
+</code></pre></div>    </div>
+  </li>
+  <li>Navigate to the directory <code class="language-plaintext highlighter-rouge">8_that_first_cuda_blog/1_hello_world</code>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/1_hello_world
 </code></pre></div>    </div>
   </li>
   <li>Compile the program using the following command
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> g++ hello_world.cpp <span class="nt">-o</span> hello_world
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ hello_world_cpu.cpp <span class="nt">-o</span> hello_world_cpu
 </code></pre></div>    </div>
   </li>
-  <li>This will create an executable <code class="language-plaintext highlighter-rouge">hello_world</code> in this directory. Execute it using
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ./hello_world
+  <li>This will create an executable hello_world in this directory. Execute it using
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./hello_world_cpu
 </code></pre></div>    </div>
   </li>
 </ol>
 
-<p>This should print <code class="language-plaintext highlighter-rouge">Hello World!</code> in the terminal, as expected. Here, the <strong>g++ compiler</strong> compiles the source code <code class="language-plaintext highlighter-rouge">hello_world.cpp</code> and translates it to machine code, in form of an executable file. 
-The CPU then executes this machine code, to print <code class="language-plaintext highlighter-rouge">Hello World!</code> onto the temrinal.</p>
+<p>This should print <code class="language-plaintext highlighter-rouge">Hello World from CPU!</code> in the terminal, as expected. Here, the g++ compiler translates your C++ code into instructions that the CPU can execute directly.</p>
 
-<p>If one intends to execute the same on an NVIDIA GPU, <strong>CUDA</strong> can be used.<br />
-CUDA is a programming framework, that allows programmers to talk to NVIDIA GPUs via the CPU.</p>
-
-<p><strong>TODO : TALK HERE ABOUT HOW CUDA HAS PARALLILAZATION USING THREADS</strong></p>
-
-<p>Let us look at simple Hello World example in CUDA.</p>
+<p>Finally, let’s write our first CUDA kernel that performs the same task — printing “Hello World” — but this time the message will come from the GPU.</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="c1">  // This include statement allows us to use cuda library in our code</span><span class="cp">
 </span>
 <span class="n">__global__</span> <span class="kt">void</span> <span class="nf">gpu_hello_world</span><span class="p">(){</span>
   <span class="n">printf</span><span class="p">(</span><span class="s">"Hello World from GPU! </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -82,21 +230,21 @@ CUDA is a programming framework, that allows programmers to talk to NVIDIA GPUs 
 <p>To execute this program on your machine, follow the following steps :</p>
 
 <ol>
-  <li>Open a terminal and navigate to the <code class="language-plaintext highlighter-rouge">1_hello_world</code> directory
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> cd that_first_cuda_blog/1_hello_world
+  <li>Navigate to the directory <code class="language-plaintext highlighter-rouge">8_that_first_cuda_blog/1_hello_world</code>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/1_hello_world
 </code></pre></div>    </div>
   </li>
   <li>Compile the program using the following command
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> nvcc hello_world_gpu.cu <span class="nt">-o</span> hello_world_gpu
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvcc hello_world_gpu.cu <span class="nt">-o</span> hello_world_gpu
 </code></pre></div>    </div>
   </li>
-  <li>This will create an executable <code class="language-plaintext highlighter-rouge">hello_world_gpu</code> in this directory. Execute it using
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ./hello_world_gpu
+  <li>This will create an executable hello_world in this directory. Execute it using
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./hello_world_gpu
 </code></pre></div>    </div>
   </li>
   <li>The output should be the following
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Hello World from CPU!
- Hello World from GPU! 
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello World from CPU!
+Hello World from GPU! 
 </code></pre></div>    </div>
   </li>
 </ol>
@@ -118,20 +266,7 @@ The <code class="language-plaintext highlighter-rouge">__global__</code> keyword
 <p><code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,1&gt;&gt;&gt;();</code> is a CUDA-specific syntax. We will discuss what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,1&gt;&gt;&gt;</code> means later in this blog. 
 For now it is sufficient to understand that <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,1&gt;&gt;&gt;</code>, allocates 1 thread for executing this kernel.</p>
 
-<p>Let us first understand how this kernel launch works from first principles.</p>
-
-<ol>
-  <li>The <code class="language-plaintext highlighter-rouge">host</code> (CPU) executes instructions ( compiled lines of code ), one at a time, sequentially.</li>
-  <li>When it reaches the kernel launch instruction (<code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,1&gt;&gt;&gt;();</code>), the host launches the kernel.
-Under the hood, the <strong>CUDA Runtime Library</strong> on the host, places the launch command onto a <strong>CUDA Stream</strong> which a queue mantained 
-on the host.  This queue is designed to hold kernel launches, memory transfer requests and other CUDA tasks, to ensure they execute sequentially for the same <strong>CUDA Stream</strong>.
-We will dissect  <strong>CUDA Streams</strong> later in this blog.</li>
-  <li>The CUDA Runtime, now hands over the launch commands to the <strong>NVIDIA Driver</strong> on the <code class="language-plaintext highlighter-rouge">host</code>, which is responsible for talking to the <code class="language-plaintext highlighter-rouge">device</code> (GPU).</li>
-  <li>The <strong>NVIDIA Driver</strong> pushes this launch command to the <strong>command buffer</strong> which is managed by the GPU hardware. This buffer resides on the <code class="language-plaintext highlighter-rouge">device</code> and 
-holds the commands to be executed, once sufficient GPU resources are available.</li>
-  <li>The GPU, once resources are available, pulls commands from the <strong>command buffer</strong> and starts executing them.</li>
-  <li>The <strong>host does not wait for the kernel execution to finish</strong>, and moves on with the next instruction. This execution approach is known as <strong>asynchronous</strong>. In particular, the <code class="language-plaintext highlighter-rouge">host</code> and <code class="language-plaintext highlighter-rouge">device</code> executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the <code class="language-plaintext highlighter-rouge">device</code>, but simply moves on to the next instruction, while the <code class="language-plaintext highlighter-rouge">device</code> handles the requested operation in parallel.</li>
-</ol>
+<p>One important concept regarding host-device communication is that the <strong>host does not wait for the kernel execution to finish</strong>, and moves on with the next instruction. This execution approach is known as <strong>asynchronous</strong>. In particular, the <code class="language-plaintext highlighter-rouge">host</code> and <code class="language-plaintext highlighter-rouge">device</code> executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the <code class="language-plaintext highlighter-rouge">device</code>, but simply moves on to the next instruction, while the <code class="language-plaintext highlighter-rouge">device</code> handles the requested operation in parallel.</p>
 
 <p>To unerstand this better, we can change the earlier <code class="language-plaintext highlighter-rouge">hello_world.cu</code> source code, by commenting out <code class="language-plaintext highlighter-rouge">cudaDeviceSynchronize();</code>.</p>
 
@@ -156,9 +291,9 @@ holds the commands to be executed, once sufficient GPU resources are available.<
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello World from CPU!
 </code></pre></div></div>
 
-<p>Note, that since we removed <code class="language-plaintext highlighter-rouge">cudaDeviceSynchronize();</code>, the host launches the <code class="language-plaintext highlighter-rouge">gpu_hello_world</code> kernel and moves on to the next instruction. The exection of the host code finishes, even before the <code class="language-plaintext highlighter-rouge">device</code> completes, hence it does not print <code class="language-plaintext highlighter-rouge">Hello World from GPU!</code> onto the output buffer.</p>
+<p>Note, that since we removed <code class="language-plaintext highlighter-rouge">cudaDeviceSynchronize();</code>, the host launches the <code class="language-plaintext highlighter-rouge">gpu_hello_world</code> kernel and moves on to the next instruction. The exection of the host code finishes, even before the <code class="language-plaintext highlighter-rouge">device</code> completes, hence it does not print <code class="language-plaintext highlighter-rouge">Hello World from GPU!</code> onto the output buffer. This simple example highlights the separation between CPU and GPU execution — each runs independently unless explicitly synchronized.</p>
 
-<p>Let us now extend our single thread CUDA Hello World, to run it with 8 threads. We would like the GPU to repeat this same “Hello World from GPU” operation 8 times. Just one small change in our original code will make this happen.</p>
+<p>Let us now extend our single thread CUDA Hello World, to run it with 8 threads. We would like the GPU to repeat this same <code class="language-plaintext highlighter-rouge">Hello World from GPU</code> operation 8 times. Just one small change in our original code will make this happen.</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
@@ -185,29 +320,582 @@ launches one thread and <code class="language-plaintext highlighter-rouge">&lt;&
 <p>In summary, in this <strong>Hello World</strong> section, we first looked at how to print Hello World using the CPU, followed by the same using the GPU.
 The major takeaway from this section is to understand what are kernels in general, and how <em>exactly</em> is a kernel launched from the <code class="language-plaintext highlighter-rouge">host</code>, to run the same operations in parallel on the <code class="language-plaintext highlighter-rouge">device</code>.</p>
 
-<!-- TODO : ADD OS Concepts here -->
+<h4 id="4-thread-organization-in-cuda">4. Thread Organization in CUDA</h4>
 
-<h3 id="2-print-square-of-numbers">2. Print Square of Numbers</h3>
-<p>The basic foundation is now laid and we will now lay some more foundation on top.
-Let us print square of list of integers.</p>
+<p>In the previous section, we briefly saw this line , <code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,8&gt;&gt;&gt;();</code>. We used it without explaining what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,8&gt;&gt;&gt;</code> means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA. When you launch a CUDA kernel, you typically launch many threads, not just one. These threads are organized in a hierarchical structure:</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">Threads</code> live inside a <code class="language-plaintext highlighter-rouge">Block</code><br />
+<code class="language-plaintext highlighter-rouge">Blocks</code> live inside a <code class="language-plaintext highlighter-rouge">Grid</code></p>
+</blockquote>
+
+<p>Each kernel launch, creates one <em>Grid</em>, which contains many <em>Blocks</em>, which in turn contains many <em>Threads</em>. <br />
+To understand how the threads, blocks and grids are organized, let us use the analogy of a building with <em>3 floors</em>, and with <em>4 apartments</em> on each floor.</p>
+<ul>
+  <li>Each <em>thread</em> is like an <em>apartment</em> (flat) on the floor.</li>
+  <li>Each <em>block</em> is like a <em>floor</em> in the building.</li>
+  <li>The <em>grid</em> is the entire <em>building</em>.</li>
+</ul>
+
+<p>Our building in the example has 3 floors and each floor has 4 apartments, we can index them as follows :</p>
+
+<ul>
+  <li><strong>Floor 0</strong>: rooms 0, 1, 2, 3</li>
+  <li><strong>Floor 1</strong>: rooms 0, 1, 2, 3</li>
+  <li><strong>Floor 2</strong>: rooms 0, 1, 2, 3</li>
+</ul>
+
+<p>Thus we have 12 apartments in total. This maps to <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;3, 4&gt;&gt;&gt;</code> in CUDA, meaning 3 blocks with 4 threads each, i.e. 12 threads total.</p>
+<blockquote>
+  <p>If you launch a kernel with <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;3,4&gt;&gt;&gt;</code>, you are saying <em>Launch <code class="language-plaintext highlighter-rouge">3 blocks</code> with <code class="language-plaintext highlighter-rouge">4 threads</code></em>.</p>
+</blockquote>
+
+<p>Now if every room needs a <strong>unique ID</strong> across the entire building, we do this:<br />
+I’m on floor <code class="language-plaintext highlighter-rouge">floorIdx</code>, in room <code class="language-plaintext highlighter-rouge">roomIdx</code>. Multiply the floor number by the number of rooms per floor (<code class="language-plaintext highlighter-rouge">floorDim</code>) and add my room number:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_room_id</span> <span class="o">=</span> <span class="n">floorIdx</span> <span class="o">*</span> <span class="n">floorDim</span> <span class="o">+</span> <span class="n">roomIdx</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In that case,</p>
+
+<ul>
+  <li>Room 2 on Floor 1: <code class="language-plaintext highlighter-rouge">1 * 4 + 2 = 6</code></li>
+  <li>Room 3 on Floor 2: <code class="language-plaintext highlighter-rouge">2 * 4 + 3 = 11</code></li>
+</ul>
+
+<p>Each apartment now has a unique ID from 0 to 11.</p>
+
+<p>Along similar lines, to get the <em>global thread index</em>, we can use the <code class="language-plaintext highlighter-rouge">blockIdx</code>, <code class="language-plaintext highlighter-rouge">blockDim</code> and <code class="language-plaintext highlighter-rouge">threadIdx</code>. CUDA gives us built-in variables 
+to retrieve this information:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">blockIdx.x</code> → which block (floor) you’re in</li>
+  <li><code class="language-plaintext highlighter-rouge">threadIdx.x</code> → which thread (room) inside the block</li>
+  <li><code class="language-plaintext highlighter-rouge">blockDim.x</code> → how many threads per block (rooms per floor)</li>
+</ul>
+
+<p>Using these, every thread can compute its global ID using:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_thread_id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Each thread typically works on one element of data. The global ID helps each thread know which element it should process.</p>
+
+<p>Example: doubling an array</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">double_elements</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">arr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+    <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>In this kernel, each thread calculates its global index using the formula we just discussed, and then uses that index to double the corresponding element in the array. This way, each thread is responsible for processing one element independently.</p>
+
+<p>Let us now walk through a concrete example to reinforce what we’ve learned about thread organization in CUDA. This example not only demonstrates how threads are structured using blocks and grids but also highlights some important subtleties that apply to most CUDA kernels you will write.<br />
+In this example, we will square numbers from 0 to 49, <em>in parallel</em>. Each thread computes its global ID and prints the square of its assigned number.</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
 </span>
-<span class="cp">#define N 5
-</span><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">print_square</span><span class="p">(){</span>
-  <span class="kt">unsigned</span> <span class="n">id</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">id</span> <span class="o">*</span> <span class="n">id</span><span class="p">);</span>
+<span class="cp">#define THREADS_PER_BLOCK 8
+#define DATA_SIZE 50
+</span>
+<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">print_square</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">DATA_SIZE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: %d squared = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">id</span> <span class="o">*</span> <span class="n">id</span><span class="p">);</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
-  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="p">}</span>
-  <span class="n">print_square</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// compute how many blocks we need</span>
+  <span class="kt">int</span> <span class="n">blocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">DATA_SIZE</span> <span class="o">+</span> <span class="n">THREADS_PER_BLOCK</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_PER_BLOCK</span><span class="p">;</span>
+  <span class="n">print_square</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">THREADS_PER_BLOCK</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
   <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
 <span class="p">}</span>
-</code></pre></div></div>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="cuda" /><summary type="html"><![CDATA[The ideal first blog to start learning CUDA.]]></summary></entry><entry><title type="html">Hidden Speed in CUDA’s Shared Memory</title><link href="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/" rel="alternate" type="text/html" title="Hidden Speed in CUDA’s Shared Memory" /><published>2024-09-07T14:53:00+00:00</published><updated>2024-09-07T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
+</code></pre></div></div>
+
+<p>To execute this program on your machine, follow the following steps :</p>
+
+<ol>
+  <li>Navigate to the directory <em>8_that_first_cuda_blog/2_squared_numbers</em>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/2_squared_numbers
+</code></pre></div>    </div>
+  </li>
+  <li>Compile the program using the following command
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvcc squared_numbers.cu <span class="nt">-o</span> squared_numbers
+</code></pre></div>    </div>
+  </li>
+  <li>This will create an executable <code class="language-plaintext highlighter-rouge">squared_numbers</code> in this directory. Execute it using
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./squared_numbers
+</code></pre></div>    </div>
+  </li>
+  <li>The output will start with something like :
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread 48: 48 squared = 2304
+Thread 49: 49 squared = 2401
+Thread 0: 0 squared = 0
+Thread 1: 1 squared = 1
+Thread 2: 2 squared = 4
+Thread 3: 3 squared = 9
+// and so on..
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>We define two constants at the top:
+<code class="language-plaintext highlighter-rouge">THREADS_PER_BLOCK</code> is set to 8, meaning each block will contain 8 threads.
+<code class="language-plaintext highlighter-rouge">DATA_SIZE</code> is 50, which is the total number of numbers we want to square.</p>
+
+<p>In <code class="language-plaintext highlighter-rouge">main</code>, we compute the number of blocks required using:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">blocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">DATA_SIZE</span> <span class="o">+</span> <span class="n">THREADS_PER_BLOCK</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_PER_BLOCK</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>This ensures we have just enough blocks to cover all 50 data points, even if 50 isn’t perfectly divisible by 8.
+Finally, we launch the kernel with the calculated number of blocks and a fixed number of threads per block:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">print_square</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">THREADS_PER_BLOCK</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</code></pre></div></div>
+<blockquote>
+  <p>CUDA allows a maximum of 1024 threads per block.</p>
+</blockquote>
+
+<p>If you have more data than that, you’ll need multiple blocks, as we do here. This strategy of dividing work among blocks and threads is foundational for scalable CUDA programs.</p>
+
+<p>In the kernel function <code class="language-plaintext highlighter-rouge">print_square</code>, each thread calculates its global ID using the formula we discussed above :</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</code></pre></div></div>
+<p>This gives a unique ID to each thread across the grid.</p>
+
+<p>We then check:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">DATA_SIZE</span><span class="p">)</span>
+</code></pre></div></div>
+<p>This condition ensures that threads whose IDs exceed 49 (i.e., beyond the data range) don’t attempt to access out-of-bounds values. This is crucial whenever your thread count might exceed your actual data size.</p>
+
+<p>Another important point to notice is that the output may appear <strong>jumbled and non-sequential</strong>. This happens because threads execute <strong>in parallel</strong>, and there’s no guarantee on the order in which they print their results. The GPU does not enforce any ordering between threads unless explicitly synchronized (which we haven’t done here). So even though each thread has a well-defined global ID and works independently, the final output on the screen might look shuffled. This is completely normal in parallel programs.</p>
+
+<p>So far, we’ve been using variables like <code class="language-plaintext highlighter-rouge">threadIdx.x</code>,<code class="language-plaintext highlighter-rouge"> blockIdx.x</code>, and <code class="language-plaintext highlighter-rouge">blockDim.x</code> in our kernels — but we haven’t really explained <strong>what this .x means</strong>.</p>
+
+<p>In CUDA, threads and blocks are actually arranged in 3 dimensions — X, Y, and Z. This means:</p>
+<ul>
+  <li>Each block can have threads arranged in a 1D, 2D, or 3D grid.</li>
+  <li>Similarly, the grid of blocks itself can be organized in 1D, 2D, or 3D.</li>
+</ul>
+
+<p>The .x, .y, and .z fields help identify each thread and block’s position in this virtual space. You can think of them as coordinates in a 3D grid:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">threadIdx.x</code>, <code class="language-plaintext highlighter-rouge">threadIdx.y</code>, <code class="language-plaintext highlighter-rouge">threadIdx.z</code> tell you the thread’s position <strong>within its block</strong>.</li>
+  <li><code class="language-plaintext highlighter-rouge">blockIdx.x</code>, <code class="language-plaintext highlighter-rouge">blockIdx.y</code>, <code class="language-plaintext highlighter-rouge">blockIdx.z</code> tell you the block’s position <strong>within the grid</strong></li>
+  <li><code class="language-plaintext highlighter-rouge">blockDim.x</code>, <code class="language-plaintext highlighter-rouge">blockDim.y</code>, <code class="language-plaintext highlighter-rouge">blockDim.z</code> tell you how many threads are there <strong>per block</strong> in each direction</li>
+</ul>
+
+<blockquote>
+  <p>You don’t always have to use all three dimensions — depending on how your data is laid out, you can work with just 1D or 2D layouts. This is purely a logical mapping that helps you organize work in a way that matches your problem. It doesn’t affect performance by itself.</p>
+</blockquote>
+
+<p>Let’s Understand This with a Concrete 2D Example</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define WIDTH 10      // width of simulated 2D data (columns)
+#define HEIGHT 5      // height of simulated 2D data (rows)
+</span>
+<span class="cp">#define THREADS_X 4   // threads per block in X
+#define THREADS_Y 2   // threads per block in Y
+</span>
+<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">print_2d_coordinates</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Get global 2D index</span>
+  <span class="kt">int</span> <span class="n">global_x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span>  <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">global_y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="c1">// Compute linear ID (row-major order)</span>
+  <span class="kt">int</span> <span class="n">global_id</span> <span class="o">=</span> <span class="n">global_y</span> <span class="o">*</span> <span class="n">WIDTH</span> <span class="o">+</span> <span class="n">global_x</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">global_x</span> <span class="o">&lt;</span> <span class="n">WIDTH</span> <span class="o">&amp;&amp;</span> <span class="n">global_y</span> <span class="o">&lt;</span> <span class="n">HEIGHT</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Block (%d,%d) Thread (%d,%d) → Global ID: %2d → Pixel (%d,%d)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+           <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">global_id</span><span class="p">,</span> <span class="n">global_y</span><span class="p">,</span> <span class="n">global_x</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">dim3</span> <span class="n">threads_per_block</span><span class="p">(</span><span class="n">THREADS_X</span><span class="p">,</span> <span class="n">THREADS_Y</span><span class="p">);</span>
+
+  <span class="kt">int</span> <span class="n">blocks_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">WIDTH</span> <span class="o">+</span> <span class="n">THREADS_X</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_X</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">blocks_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">HEIGHT</span> <span class="o">+</span> <span class="n">THREADS_Y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_Y</span><span class="p">;</span>
+  <span class="n">dim3</span> <span class="n">num_blocks</span><span class="p">(</span><span class="n">blocks_x</span><span class="p">,</span> <span class="n">blocks_y</span><span class="p">);</span>
+
+  <span class="n">print_2d_coordinates</span><span class="o">&lt;&lt;&lt;</span><span class="n">num_blocks</span><span class="p">,</span> <span class="n">threads_per_block</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+  <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To execute this program on your machine, follow the following steps :</p>
+
+<ol>
+  <li>Navigate to the directory <em>8_that_first_cuda_blog/3_print_2d_coordinates</em>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/3_print_2d_coordinates
+</code></pre></div>    </div>
+  </li>
+  <li>Compile the program using the following command
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvcc print_2d_coordinates.cu <span class="nt">-o</span> print_2d_coordinates
+</code></pre></div>    </div>
+  </li>
+  <li>This will create an executable <code class="language-plaintext highlighter-rouge">print_2d_coordinates</code> in this directory. Execute it using
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./print_2d_coordinates
+</code></pre></div>    </div>
+  </li>
+  <li>The output will start with something like :
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Block (2,2) Thread (0,0) → Global ID: 48 → Pixel (4,8)
+Block (2,2) Thread (0,1) → Global ID: 49 → Pixel (4,9)
+Block (2,1) Thread (0,0) → Global ID: 44 → Pixel (4,4)
+Block (2,1) Thread (0,1) → Global ID: 45 → Pixel (4,5)
+Block (2,1) Thread (0,2) → Global ID: 46 → Pixel (4,6)
+Block (2,1) Thread (0,3) → Global ID: 47 → Pixel (4,7)
+// and so on..
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>In this code :</p>
+<ul>
+  <li>We’re simulating a <strong>2D image</strong> of size <code class="language-plaintext highlighter-rouge">10 x 5</code> (10 columns × 5 rows).</li>
+  <li>Each block is configured to launch 4 x 2 threads. ( blockDim.x=4, blockDim.y=2)\</li>
+  <li>Based on the data dimensions and thread layout, we calculate how many blocks we need in X and Y directions:
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">blocks_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">WIDTH</span> <span class="o">+</span> <span class="n">THREADS_X</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_X</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">blocks_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">HEIGHT</span> <span class="o">+</span> <span class="n">THREADS_Y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_Y</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Inside the kernel, each thread computes:
+    <ul>
+      <li>Its global X and Y position using its thread and block indices</li>
+      <li>A linear global ID, assuming row-major layout</li>
+    </ul>
+
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// Get global 2D index</span>
+  <span class="kt">int</span> <span class="n">global_x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span>  <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">global_y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="c1">// Compute linear ID (row-major order)</span>
+  <span class="kt">int</span> <span class="n">global_id</span> <span class="o">=</span> <span class="n">global_y</span> <span class="o">*</span> <span class="n">WIDTH</span> <span class="o">+</span> <span class="n">global_x</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">if</code> condition:</p>
+
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">if</span> <span class="p">(</span><span class="n">global_x</span> <span class="o">&lt;</span> <span class="n">WIDTH</span> <span class="o">&amp;&amp;</span> <span class="n">global_y</span> <span class="o">&lt;</span> <span class="n">HEIGHT</span><span class="p">)</span>
+</code></pre></div>    </div>
+    <p>ensures that only threads within bounds print output. Without this, some threads (especially in the last block row/column) might run out-of-bounds and access invalid pixels.</p>
+  </li>
+  <li>In the earlier 1D example, we used plain integers like <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;</code>. In this 2D case, we use <code class="language-plaintext highlighter-rouge">dim3</code> to pass 2D configurations — a CUDA struct that lets us naturally map threads to 1D, 2D, or 3D data layouts.</li>
+</ul>
+
+<p>That wraps up our section on thread organization — we now understand how threads and blocks are structured and how they map to data. Whether 1D or 2D, it’s all about aligning the thread layout to your problem.</p>
+
+<p>Next, we’ll explore how memory works in CUDA — including how to allocate memory on the GPU and transfer data between the CPU and GPU.</p>
+
+<h4 id="5-managing-data-from-cpu-to-gpu-and-back">5. Managing Data: From CPU to GPU and Back</h4>
+<p>In this section, we’ll understand how data moves between the CPU and GPU, and why explicit memory management is crucial in CUDA programming.</p>
+
+<p>Here, we only see the essentials, but you can check out my previous blog post <a href="/blog/2024/down-the-cudamemory-lane">Down the CUDA Memory Lane</a> for a deep dive into CUDA Memory.</p>
+
+<p>Before diving deeper, it’s important to understand a key idea —<strong>the CPU (host) and GPU (device) have separate memory spaces</strong>. They do not share memory by default and cannot directly access each other’s data. If you want the GPU to work on data from the CPU (or send results back), <strong>you must explicitly transfer that data between the two.</strong></p>
+
+<p>There are a few subtle but essential things to keep in mind:</p>
+<ul>
+  <li>Simply defining an array on the CPU doesn’t make it visible to the GPU.</li>
+  <li>The GPU cannot allocate or manage host memory directly.</li>
+  <li>Data must be copied from host to device before the kernel runs, and back afterward if needed.</li>
+  <li>Memory transfers are relatively expensive compared to computation, so minimizing them is often important for performance.</li>
+</ul>
+
+<p>In this section, we’ll <strong>briefly summarize how to allocate memory using <code class="language-plaintext highlighter-rouge">cudaMalloc</code> and copy data with <code class="language-plaintext highlighter-rouge">cudaMemcpy</code></strong>, just enough to get us started with real examples.</p>
+
+<p>As always, lets first directly look at a working example and then understand these memory management thought that.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Step 1: Allocate Memory on the CPU for an Integer Array of Size 10</span>
+    <span class="kt">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+    <span class="c1">// Allocate memory on the CPU (host)</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">h_array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">h_array</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate CPU memory"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 2: Allocate Memory on the GPU for an Integer Array of Size 10</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">d_array</span><span class="p">;</span>
+    <span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to allocate GPU memory: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span> <span class="c1">// Free CPU memory if GPU allocation fails</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 3: Initialize the CPU Array with Squares of Integers from 1 to 10</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// Squares of integers from 1 to 10</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 4: Copy Data from the CPU to the GPU</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_array</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from CPU to GPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 5: Copy the Data Back from the GPU to the CPU</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">h_array</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">!=</span> <span class="n">cudaSuccess</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Failed to copy data from GPU to CPU: "</span> <span class="o">&lt;&lt;</span> <span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span> <span class="c1">// Free GPU memory if copy fails</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>     <span class="c1">// Free CPU memory</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Step 6: Print Values to Verify It All Works</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="c1">// Free the allocated memory</span>
+    <span class="n">cudaFree</span><span class="p">(</span><span class="n">d_array</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">h_array</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<p>In this example, we prepare a list of 10 numbers on the CPU, send it to the GPU, bring it back, and check that everything transferred correctly.
+To achieve this, we perform the following operations :
+In this example, we will perform the following operations:</p>
+
+<ol>
+  <li>Allocate memory on the CPU for an integer array of size 10
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">h_array</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p><code class="language-plaintext highlighter-rouge">malloc</code>, short for “memory allocation,” is a standard C/C++ function that reserves a block of memory on the CPU.</p>
+  </li>
+  <li>Allocate memory on the GPU for an integer array of size 10
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cudaError_t</span> <span class="n">err</span> <span class="o">=</span> <span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p><code class="language-plaintext highlighter-rouge">cudaMalloc</code> is the CUDA equivalent of <code class="language-plaintext highlighter-rouge">malloc</code>, used to allocate memory on the GPU.Even though d_array is created in CPU code, it doesn’t store a regular number — it stores the address of memory that lives on the GPU. It’s like a note on the CPU that says, <em>“Hey, the actual data is over there on the GPU.”</em> The function takes a pointer to the pointer (&amp;d_array) and the size in bytes.<br /> <br />
+Since <code class="language-plaintext highlighter-rouge">cudaMalloc</code> expects a <code class="language-plaintext highlighter-rouge">void**</code>, we pass the address of the pointer (<code class="language-plaintext highlighter-rouge">&amp;d_array</code>) so it can fill it with the location of the allocated GPU memory. Think of it like this: we’re giving CUDA a place to <em>write down the GPU address</em>, and after the call, <code class="language-plaintext highlighter-rouge">d_array</code> will hold the actual memory location on the GPU. It’s a bit of a tongue twister — passing the address of an address — but that’s how the pointer gets set correctly.</p>
+  </li>
+  <li>Initialize the CPU array with squares of integers from 1 to 10
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">h_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// Squares of integers from 1 to 10</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Copy the data from the CPU to the GPU
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_array</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p><code class="language-plaintext highlighter-rouge">cudaMemcpy</code> is used to transfer data between the CPU and GPU. Here, we’re copying data from the CPU array <code class="language-plaintext highlighter-rouge">h_array</code> to the GPU array <code class="language-plaintext highlighter-rouge">d_array</code>. The last argument, <code class="language-plaintext highlighter-rouge">cudaMemcpyHostToDevice</code>, tells CUDA the direction of the copy. This step is crucial — the GPU can’t access CPU memory directly, so we have to send it over manually.</p>
+  </li>
+  <li>Copy the data back from the GPU to the CPU
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">err</span> <span class="o">=</span> <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">h_array</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>This line copies the results from GPU memory (<code class="language-plaintext highlighter-rouge">d_array</code>) back to CPU memory (<code class="language-plaintext highlighter-rouge">h_array</code>). The direction flag <code class="language-plaintext highlighter-rouge">cudaMemcpyDeviceToHost</code> tells CUDA we’re transferring data from the GPU to the CPU.</p>
+  </li>
+</ol>
+
+<p>With this, we’ve covered the basics of how to manage memory between the CPU and GPU — a crucial foundation for any CUDA program.</p>
+
+<h4 id="6-your-first-real-cuda-example-grayscale-conversion">6. Your First Real CUDA Example: Grayscale Conversion</h4>
+<p>We’ve now covered key CUDA concepts like thread organization, memory management, and kernel launches, and written several simple toy kernels to make them stick. It’s time to take off the training wheels and write a full CUDA kernel to solve a real-world problem.</p>
+
+<p>In this next section, we’ll convert a color image to grayscale — not one pixel at a time like we would on the CPU, but all at once by leveraging CUDA’s parallel threads. It’s a practical use case that brings everything we’ve learned together. Let us first look at the code and run it locally to convert a sample color image to grayscale.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;cuda.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;opencv2/opencv.hpp&gt;</span><span class="cp">
+#define BLOCKSIZE_X 32
+#define BLOCKSIZE_Y 32
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">convert_rgb_to_grayscale</span><span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="n">dsample_image</span><span class="p">,</span>
+                                         <span class="kt">float</span> <span class="o">*</span><span class="n">dgrayscale_sample_image</span><span class="p">,</span>
+                                         <span class="kt">int</span> <span class="n">rows</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cols</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// compute the (x, y) coordinates of the thread in the image</span>
+  <span class="kt">int</span> <span class="n">global_x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">global_y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="c1">// check that we are within image bounds</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">global_x</span> <span class="o">&lt;</span> <span class="n">cols</span> <span class="o">&amp;&amp;</span> <span class="n">global_y</span> <span class="o">&lt;</span> <span class="n">rows</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// flatten 2D coordinates into a 1D index</span>
+    <span class="kt">int</span> <span class="n">global_id</span> <span class="o">=</span> <span class="n">global_y</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">+</span> <span class="n">global_x</span><span class="p">;</span>
+
+    <span class="c1">// fetch the RGB values for the current pixel</span>
+    <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span><span class="p">];</span>
+    <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+    <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span> <span class="o">+</span> <span class="mi">2</span><span class="p">];</span>
+
+    <span class="c1">// compute grayscale using weighted sum (perceptual luminance)</span>
+    <span class="n">dgrayscale_sample_image</span><span class="p">[</span><span class="n">global_id</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.144</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.299</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// read image from filepath</span>
+  <span class="n">string</span> <span class="n">sample_image_path</span> <span class="o">=</span> <span class="s">"../sample.png"</span><span class="p">;</span>
+  <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">sample_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">imread</span><span class="p">(</span><span class="n">sample_image_path</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">cols</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">rows</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">channels</span><span class="p">();</span>
+  <span class="n">sample_image</span><span class="p">.</span><span class="n">convertTo</span><span class="p">(</span><span class="n">sample_image</span><span class="p">,</span> <span class="n">CV_32F</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">);</span>
+
+  <span class="c1">// allocate memory on GPU</span>
+  <span class="kt">int</span> <span class="n">sample_image_size_in_bytes</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="n">channels</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">dsample_image</span><span class="p">;</span>
+  <span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsample_image</span><span class="p">,</span> <span class="n">sample_image_size_in_bytes</span><span class="p">);</span>
+  <span class="c1">// allocate memory on GPU to store the grayscale image</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">dgrayscale_sample_image</span><span class="p">;</span>
+  <span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dgrayscale_sample_image</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+  <span class="c1">// copy image from CPU to GPU</span>
+  <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">dsample_image</span><span class="p">,</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_image_size_in_bytes</span><span class="p">,</span>
+             <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+
+  <span class="c1">// compute number of blocks in x and y dimensions</span>
+  <span class="kt">int</span> <span class="n">number_of_blocks_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">BLOCKSIZE_X</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCKSIZE_X</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">number_of_blocks_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">BLOCKSIZE_Y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCKSIZE_Y</span><span class="p">;</span>
+  <span class="c1">// define grid dimension and block dimension for kernel launch</span>
+  <span class="n">dim3</span> <span class="n">grid_dim</span><span class="p">(</span><span class="n">number_of_blocks_x</span><span class="p">,</span> <span class="n">number_of_blocks_y</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">dim3</span> <span class="n">block_dim</span><span class="p">(</span><span class="n">BLOCKSIZE_X</span><span class="p">,</span> <span class="n">BLOCKSIZE_Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="c1">// launch the kernel</span>
+  <span class="n">convert_rgb_to_grayscale</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_dim</span><span class="p">,</span> <span class="n">block_dim</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
+      <span class="n">dsample_image</span><span class="p">,</span> <span class="n">dgrayscale_sample_image</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">);</span>
+
+
+  <span class="c1">// copy the grayscale image back from GPU to CPU</span>
+  <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">himage_grayscale</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">CV_32FC1</span><span class="p">);</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">himage_grayscale_data</span> <span class="o">=</span>
+      <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">float</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">himage_grayscale</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+  <span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">himage_grayscale_data</span><span class="p">,</span> <span class="n">dgrayscale_sample_image</span><span class="p">,</span>
+             <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+  <span class="n">himage_grayscale</span><span class="p">.</span><span class="n">convertTo</span><span class="p">(</span><span class="n">himage_grayscale</span><span class="p">,</span> <span class="n">CV_8U</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">);</span>
+  <span class="n">cv</span><span class="o">::</span><span class="n">imwrite</span><span class="p">(</span><span class="s">"../grayscale_sample.png"</span><span class="p">,</span> <span class="n">himage_grayscale</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To execute this program on your machine, follow the following steps :</p>
+
+<ol>
+  <li>Navigate to the directory <em>8_that_first_cuda_blog/3_print_2d_coordinates</em>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/4_grayscale_2d
+</code></pre></div>    </div>
+  </li>
+  <li>Make a <code class="language-plaintext highlighter-rouge">build</code> directory and navigate into it
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>build <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build
+</code></pre></div>    </div>
+  </li>
+  <li>Generate the Makefile. Specify the appropriate CUDA path
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cmake .. <span class="nt">-DCMAKE_CUDA_COMPILER</span><span class="o">=</span>/usr/local/cuda-12.1/bin/nvcc
+</code></pre></div>    </div>
+  </li>
+  <li>Compile the program using the following command
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make
+</code></pre></div>    </div>
+  </li>
+  <li>This will create an executable <code class="language-plaintext highlighter-rouge">grayscale_2d</code> in the <code class="language-plaintext highlighter-rouge">build</code> directory. Execute it using
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./grayscale_2d
+</code></pre></div>    </div>
+  </li>
+  <li>The grayscale image will be stored in the <em>8_that_first_cuda_blog/4_grayscale_2d</em> folder as <code class="language-plaintext highlighter-rouge">grayscale_sample.png</code></li>
+</ol>
+
+<p>If all went well, you just wrote your first real and useful CUDA kernel. In essence, the code above does the following:</p>
+<ol>
+  <li>We loaded a color image using OpenCV and converted its pixel values to floats.</li>
+  <li>We allocated memory on the GPU for both the input image and the grayscale output.</li>
+  <li>We copied the image data from the CPU to the GPU.</li>
+  <li>We calculated how many blocks and threads we need to cover all pixels—each block handles a small tile of the image, and each thread processes one pixel.</li>
+  <li>The CUDA kernel ran in parallel, where each thread took one pixel and computed the grayscale value as a weighted sum of its R, G, B components.</li>
+  <li>Finally, we copied the grayscale result back to the CPU and saved it as an image file.</li>
+</ol>
+
+<p>Let us look at the above code, one crucial part at a time.</p>
+
+<ul>
+  <li>Firstly, we read the image using <code class="language-plaintext highlighter-rouge">OpenCV</code>, extract the <code class="language-plaintext highlighter-rouge">width</code>,<code class="language-plaintext highlighter-rouge">height</code> and <code class="language-plaintext highlighter-rouge">channels</code>.</li>
+  <li>By default, OpenCV loads the image in <code class="language-plaintext highlighter-rouge">int8</code> format. We convert it to <code class="language-plaintext highlighter-rouge">float32</code> for ease of processing. <br />
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// read image from filepath</span>
+<span class="n">string</span> <span class="n">sample_image_path</span> <span class="o">=</span> <span class="s">"../sample.png"</span><span class="p">;</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">sample_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">imread</span><span class="p">(</span><span class="n">sample_image_path</span><span class="p">);</span> <span class="c1">// read the image</span>
+<span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">cols</span><span class="p">;</span> <span class="c1">// extract height, width, channels</span>
+<span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">rows</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">channels</span><span class="p">();</span>
+<span class="n">sample_image</span><span class="p">.</span><span class="n">convertTo</span><span class="p">(</span><span class="n">sample_image</span><span class="p">,</span> <span class="n">CV_32F</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">);</span> <span class="c1">// convert the image from int8 to float32</span>
+</code></pre></div>    </div>
+    <p>The details of OpenCV and its interfaces are beyond the scope of this blog post. 
+For our purposes, it is enough to understand that the code above simply loads the image into CPU memory in a row-major, contiguous format.</p>
+  </li>
+  <li>We then calculate how much memory the image will occupy in bytes <code class="language-plaintext highlighter-rouge">(width × height × channels × sizeof(float))</code>.</li>
+  <li>Then we allocate that much space on the GPU using <code class="language-plaintext highlighter-rouge">cudaMalloc</code>.</li>
+  <li>We copy the image data from the CPU (<code class="language-plaintext highlighter-rouge">sample_image.data</code>) to the allocated GPU memory (<code class="language-plaintext highlighter-rouge">dsample_image</code>) using cudaMemcpy.
+This ensures that the image is now available on the GPU for parallel processing.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">sample_image_size_in_bytes</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="n">channels</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">dsample_image</span><span class="p">;</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsample_image</span><span class="p">,</span> <span class="n">sample_image_size_in_bytes</span><span class="p">);</span>
+<span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">dsample_image</span><span class="p">,</span> <span class="n">sample_image</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_image_size_in_bytes</span><span class="p">,</span>
+        <span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">dsample_image</code> is the pointer to the input RGB image, and <code class="language-plaintext highlighter-rouge">dgrayscale_sample_image</code> is the pointer to the output grayscale image.
+We pass pointers because CUDA kernels operate on data already present on the GPU — they don’t copy data themselves.</li>
+  <li>We also pass the image dimensions (<code class="language-plaintext highlighter-rouge">rows</code> and <code class="language-plaintext highlighter-rouge">cols</code>) so that each thread can figure out which pixel it is responsible for.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="n">convert_rgb_to_grayscale</span><span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="n">dsample_image</span><span class="p">,</span>
+                                       <span class="kt">float</span> <span class="o">*</span><span class="n">dgrayscale_sample_image</span><span class="p">,</span>
+                                       <span class="kt">int</span> <span class="n">rows</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cols</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Each GPU thread is assigned a unique (x, y) coordinate using its block and thread indices.</li>
+  <li>It checks whether this coordinate lies within the bounds of the image to avoid illegal memory access.</li>
+  <li>Using the 2D coordinate, it calculates a flat 1D index to access the RGB values of that pixel.</li>
+  <li>Finally, it computes the grayscale value using a weighted sum and writes it to the output array on the GPU.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">global_y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">global_x</span> <span class="o">&lt;</span> <span class="n">cols</span> <span class="o">&amp;&amp;</span> <span class="n">global_y</span> <span class="o">&lt;</span> <span class="n">rows</span><span class="p">)</span> <span class="p">{</span>
+<span class="kt">int</span> <span class="n">global_id</span> <span class="o">=</span> <span class="n">global_y</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">+</span> <span class="n">global_x</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span><span class="p">];</span>
+<span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+<span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="n">dsample_image</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">global_id</span> <span class="o">+</span> <span class="mi">2</span><span class="p">];</span>
+<span class="n">dgrayscale_sample_image</span><span class="p">[</span><span class="n">global_id</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.144</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.299</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>We calculate how many blocks are needed in the X and Y directions to cover the entire image, rounding up to handle any leftover pixels.</li>
+  <li>Each block contains a fixed number of threads defined by <code class="language-plaintext highlighter-rouge">BLOCKSIZE_X</code> and <code class="language-plaintext highlighter-rouge">BLOCKSIZE_Y</code>.</li>
+  <li>These values are used to create the grid and block dimensions (<code class="language-plaintext highlighter-rouge">grid_dim</code> and <code class="language-plaintext highlighter-rouge">block_dim</code>), which tell CUDA how to organize threads for parallel execution.</li>
+  <li>Finally, we launch the kernel with this configuration, passing the GPU pointers and image dimensions so each thread can process its assigned pixel.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// compute number of blocks in x and y dimensions</span>
+<span class="kt">int</span> <span class="n">number_of_blocks_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">BLOCKSIZE_X</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCKSIZE_X</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">number_of_blocks_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">BLOCKSIZE_Y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCKSIZE_Y</span><span class="p">;</span>
+<span class="c1">// define grid dimension and block dimension for kernel launch</span>
+<span class="n">dim3</span> <span class="nf">grid_dim</span><span class="p">(</span><span class="n">number_of_blocks_x</span><span class="p">,</span> <span class="n">number_of_blocks_y</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">dim3</span> <span class="nf">block_dim</span><span class="p">(</span><span class="n">BLOCKSIZE_X</span><span class="p">,</span> <span class="n">BLOCKSIZE_Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="c1">// launch the kernel</span>
+<span class="n">convert_rgb_to_grayscale</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_dim</span><span class="p">,</span> <span class="n">block_dim</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
+  <span class="n">dsample_image</span><span class="p">,</span> <span class="n">dgrayscale_sample_image</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>We create an empty OpenCV matrix <code class="language-plaintext highlighter-rouge">himage_grayscale</code> on the CPU to hold the grayscale image data and get a raw pointer to its data.</li>
+  <li>Then, we copy the grayscale image from GPU memory back to the CPU, convert it to an 8-bit format, and save it as a PNG file using OpenCV’s <code class="language-plaintext highlighter-rouge">imwrite</code>.
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// copy the grayscale image back from GPU to CPU</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="nf">himage_grayscale</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">CV_32FC1</span><span class="p">);</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">himage_grayscale_data</span> <span class="o">=</span>
+  <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">float</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">himage_grayscale</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+<span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">himage_grayscale_data</span><span class="p">,</span> <span class="n">dgrayscale_sample_image</span><span class="p">,</span>
+          <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="nf">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+<span class="n">himage_grayscale</span><span class="p">.</span><span class="n">convertTo</span><span class="p">(</span><span class="n">himage_grayscale</span><span class="p">,</span> <span class="n">CV_8U</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">);</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">imwrite</span><span class="p">(</span><span class="s">"../grayscale_sample.png"</span><span class="p">,</span> <span class="n">himage_grayscale</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+</ul>]]></content><author><name></name></author><category term="cuda" /><category term="nvidia" /><category term="cuda" /><summary type="html"><![CDATA[The ideal first blog to start learning CUDA.]]></summary></entry><entry><title type="html">Hidden Speed in CUDA’s Shared Memory</title><link href="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/" rel="alternate" type="text/html" title="Hidden Speed in CUDA’s Shared Memory" /><published>2024-09-07T14:53:00+00:00</published><updated>2024-09-07T14:53:00+00:00</updated><id>https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory</id><content type="html" xml:base="https://sanket-pixel.github.io//blog/2024/hidden-speed-in-shared-memory/"><![CDATA[<h4 id="in-this-blog-were-going-to-dive-into-one-of-the-most-critical-concepts-in-cuda-programming-shared-memory-shared-memory-is-like-the-secret-ingredient-that-can-supercharge-your-gpu-code-while-cudas-global-memory-serves-as-the-main-storage-its-often-slow-to-access-repeatedly-thats-where-shared-memory-comes-in-it-acts-as-a-customizable-fast-access-scratchpad-where-you-can-store-data-that-is-frequently-reused-by-threads-within-the-same-block-helping-you-avoid-costly-memory-transfers-well-explore-how-this-works-why-it-matters-and-how-you-can-use-it-to-make-your-cuda-programs-much-faster">In this blog, we’re going to dive into one of the most critical concepts in CUDA programming: shared memory. Shared memory is like the secret ingredient that can supercharge your GPU code. While CUDA’s global memory serves as the main storage, it’s often slow to access repeatedly. That’s where shared memory comes in. It acts as a customizable, fast-access scratchpad where you can store data that is frequently reused by threads within the same block, helping you avoid costly memory transfers. We’ll explore how this works, why it matters, and how you can use it to make your CUDA programs much faster.</h4>
 <p><br /></p>
 
 <div style="width: 80%;margin: 0 auto;">
