@@ -162,13 +162,13 @@
 
   <picture>
     
-    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/cuda-480.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/cuda-800.webp"></source>
-    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/cuda-1400.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/kindergarten-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/kindergarten-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/kindergarten-1400.webp"></source>
     
 
     <!-- Fallback to the original file -->
-    <img src="/assets/img/blog/blog_8/cuda.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+    <img src="/assets/img/blog/blog_8/kindergarten.jpeg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
 
   </picture>
 
@@ -181,7 +181,7 @@
 </div>
 </div>
 
-<h4 id="1-the-paradigm-shift-from-cpu-to-gpu-world">1. The paradigm shift from CPU to GPU World</h4>
+<h4 id="1-the-paradigm-shift-from-cpu-to-gpu-world"><strong>1. The paradigm shift from CPU to GPU World</strong></h4>
 
 <p>A GPU is not just a faster CPU. It is rather, a hardware designed specifically for doing <strong><em>similar things, a lot of times, all at once</em></strong>. 
 When one goes from programming on the CPU to the GPU, the mindset shifts from <code class="language-plaintext highlighter-rouge">"How do I do this?"</code> to <code class="language-plaintext highlighter-rouge">"How do I do this with a 1000 workers?"</code>.
@@ -236,13 +236,13 @@ While on the GPU you must think of processing in parallel as shown below :</p>
 <p>Instead of one worker doing the whole loop, you write code for just <code class="language-plaintext highlighter-rouge">one worker</code>, and let <code class="language-plaintext highlighter-rouge">thousands of them</code> each handle their own <code class="language-plaintext highlighter-rouge">i</code> independently.
 You’re no longer in control of the whole process—you’re only describing what one tiny part of the system should do. This mental shift—from controlling a loop to writing instructions for an army of workers—is what makes parallel thinking hard at first.</p>
 
-<h4 id="2-groundwork-what-cuda-assumes-you-know">2. Groundwork: What CUDA Assumes You Know</h4>
+<h4 id="2-groundwork-what-cuda-assumes-you-know"><strong>2. Groundwork: What CUDA Assumes You Know</strong></h4>
 <p>If you’ve spent most of your time in languages like Python, JavaScript, or even high-level C++ without touching low-level memory concepts, CUDA will feel different. That’s because CUDA code is almost always written in C or C++, and runs in an environment where you’re much closer to the hardware. Let us understand some core low level programming concepts you should know, before finally writing our first CUDA kernel in the next section.</p>
 
-<h5 id="pointers--variables-that-point-to-other-variables"><em>Pointers : Variables that point to other Variables</em></h5>
-<p>A pointer is a variable that stores the memory address of another variable. In Python, you deal with lists and objects without thinking about where they live in memory. But in CUDA (and C/C++), you often work with memory addresses directly.
+<h5 id="21-pointers--variables-that-point-to-other-variable"><strong>2.1 Pointers : Variables that point to other Variable</strong></h5>
+<p>A pointer is a variable that stores the memory address of another variable. In Python, you deal with lists and objects without thinking about where they live in memory. But in CUDA (and C/C++), you often work with memory addresses directly. In this fighure below, <code class="language-plaintext highlighter-rouge">x</code> is an integer variable that holds the value <code class="language-plaintext highlighter-rouge">10</code>, and it lives at memory address <code class="language-plaintext highlighter-rouge">0x1234</code>.
 <br></p>
-<div style="width: 60%;margin: 0 auto;">
+<div style="width: 50%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
         <figure>
@@ -255,7 +255,7 @@ You’re no longer in control of the whole process—you’re only describing wh
     
 
     <!-- Fallback to the original file -->
-    <img src="/assets/img/blog/blog_8/pointer.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="cpugpu" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+    <img src="/assets/img/blog/blog_8/pointer.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="pointer" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
 
   </picture>
 
@@ -264,25 +264,17 @@ You’re no longer in control of the whole process—you’re only describing wh
     </div>
 </div>
 <div class="caption">
-   Illustration of a *pointer* in C++ — `ptr` stores the memory address of variable `x`, allowing indirect access to its value.
+   Illustration of a pointer in C++ — ptr stores the memory address of variable x, allowing indirect access to its value.
 </div>
 </div>
 
+<p>The pointer <code class="language-plaintext highlighter-rouge">ptr</code> is declared to hold the address of an integer. When we assign it <code class="language-plaintext highlighter-rouge">&amp;x</code>, we’re storing the address of <code class="language-plaintext highlighter-rouge">x</code> in <code class="language-plaintext highlighter-rouge">ptr</code>. So now <code class="language-plaintext highlighter-rouge">ptr</code> contains <code class="language-plaintext highlighter-rouge">0x1234</code> — it points to <code class="language-plaintext highlighter-rouge">x</code>.</p>
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
 <span class="kt">int</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// ptr now holds the memory address of x (e.g., 0x1234)</span>
 </code></pre></div></div>
-<ul>
-  <li>
-<code class="language-plaintext highlighter-rouge">x</code> is a regular integer variable stored at address <code class="language-plaintext highlighter-rouge">0x1234</code> and holds the value <code class="language-plaintext highlighter-rouge">10</code>.</li>
-  <li>
-<code class="language-plaintext highlighter-rouge">ptr</code> is a pointer to an integer, which stores the address of <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">0x1234</code>) — it “points” to <code class="language-plaintext highlighter-rouge">x</code>.</li>
-  <li>So, the value inside <code class="language-plaintext highlighter-rouge">ptr</code> is an address (<code class="language-plaintext highlighter-rouge">0x1234</code>), not a regular integer.</li>
-  <li>The pointer itself also lives somewhere in memory, say at <code class="language-plaintext highlighter-rouge">0x1550</code>, and <code class="language-plaintext highlighter-rouge">&amp;ptr</code> would give that address.</li>
-</ul>
+<p>The pointer itself lives at a different memory location, say <code class="language-plaintext highlighter-rouge">0x1550</code>. If we access <code class="language-plaintext highlighter-rouge">*ptr</code>, we get the value stored at the address it points to — in this case, <code class="language-plaintext highlighter-rouge">10</code>. And if we use <code class="language-plaintext highlighter-rouge">&amp;ptr</code>, we get the address where the pointer itself is stored — <code class="language-plaintext highlighter-rouge">0x1550</code>.</p>
 
-<p>For <code class="language-plaintext highlighter-rouge">arrays</code>, a pointer usually represents the <code class="language-plaintext highlighter-rouge">starting address</code> of the array in memory. The data type <code class="language-plaintext highlighter-rouge">(int*)</code> tells the program how far to move when accessing the <code class="language-plaintext highlighter-rouge">next</code> element — so <code class="language-plaintext highlighter-rouge">ptr + 1</code> means “go to the next int,” not the next byte. You don’t need to be a pointer expert yet, but understanding that they are how CUDA kernels receive and manipulate data is key.</p>
-
-<h5 id="functions--parameter-passing-by-value-vs-reference"><em>Functions : Parameter Passing by Value vs. Reference</em></h5>
+<h5 id="22-functions--parameter-passing-by-value-vs-reference"><strong>2.2 Functions : Parameter Passing by Value vs. Reference</strong></h5>
 <p>A function is a reusable block of code that performs a specific task and can take inputs (parameters) and return outputs — just like how functions work in Python.
 In C, when you <code class="language-plaintext highlighter-rouge">pass by value</code>, the function gets a <code class="language-plaintext highlighter-rouge">copy of the data</code>. When you <code class="language-plaintext highlighter-rouge">pass by reference</code> (using a pointer), the function gets access to the <code class="language-plaintext highlighter-rouge">original</code>, so it can modify it.</p>
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">modify</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">);</span>     <span class="c1">// gets a copy of x</span>
@@ -291,37 +283,91 @@ In C, when you <code class="language-plaintext highlighter-rouge">pass by value<
 
 <p>Passing by value is like giving someone a photocopy of a document, while passing by reference is like giving them the original paper to make changes on.</p>
 
-<h5 id="arrays-and-memory-layout"><em>Arrays and Memory Layout</em></h5>
-<p>In high-level languages, arrays feel like magical lists, but under the hood, an array is just a block of memory where all elements sit <code class="language-plaintext highlighter-rouge">side by side</code>.</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>  <span class="c1">// Stored in one chunk of memory</span>
-</code></pre></div></div>
-<p>Because the elements are stored contiguously, knowing the <code class="language-plaintext highlighter-rouge">starting address</code> (pointer) means you can find any element by jumping ahead a certain number of steps. The size of each element (like <code class="language-plaintext highlighter-rouge">int</code>) tells you how far to jump — this is exactly what pointer arithmetic does.<br>
-If <code class="language-plaintext highlighter-rouge">ptr</code> points to the start of the array, and you want to increment the element at position 3 by 1 :</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-</code></pre></div></div>
+<h5 id="23-arrays-and-memory-layout"><strong>2.3 Arrays and Memory Layout</strong></h5>
+<p>In high-level languages, arrays feel like magical lists, but under the hood, an array is just a block of memory where all elements sit <code class="language-plaintext highlighter-rouge">side by side</code>.
+This figure below illustrates how array elements, like integers, are stored contiguously in memory. Each element occupies a specific block of memory, and for <code class="language-plaintext highlighter-rouge">int</code> types, these blocks are typically separated by <code class="language-plaintext highlighter-rouge">4 bytes</code>, allowing precise calculation of each element’s address from the array’s start.</p>
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
 
-<p>Multidimensional arrays like a 2D array are actually stored as one flat, continuous block of memory — row by row.
-For example, consider a 2D array with 3 rows and 4 columns:</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">},</span>       <span class="c1">// row 0</span>
-  <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">},</span>       <span class="c1">// row 1</span>
-  <span class="p">{</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">}</span>     <span class="c1">// row 2</span>
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/array.svg-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/array.svg-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/array.svg-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/array.svg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="array" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+Memory layout of a 4-element integer array with 4-byte spacing.
+</div>
+</div>
+
+<p>Because array elements are stored contiguously in memory, a pointer to the first element can be used to access any other element using pointer arithmetic. If <code class="language-plaintext highlighter-rouge">ptr</code> points to the start of the array, <code class="language-plaintext highlighter-rouge">ptr + i</code> moves the pointer <code class="language-plaintext highlighter-rouge">i</code> elements forward (not bytes — it accounts for the size of each element).
+For example, to increment the third element (index 2):</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">arr</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">arr</span><span class="p">;</span>
+
+<span class="n">ptr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>  <span class="c1">// arr[2] becomes 4</span>
+</code></pre></div></div>
+<p>Here, <code class="language-plaintext highlighter-rouge">ptr[2]</code> accesses the third element of the array, just like <code class="language-plaintext highlighter-rouge">arr[2]</code> would. This highlights the deep connection between arrays and pointers in C.</p>
+
+<h4 id="24-2d-arrays-and-memory-layout"><strong>2.4 2D Arrays and Memory Layout</strong></h4>
+<p>In C/C++, 2D arrays are stored in row-major order — meaning all elements of the first row come first in memory, followed by the second row, and so on. So even though we access elements using two indices (row and column), in memory it’s just a flat, contiguous block. This is illustrated in the figure below.</p>
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/matrix.svg-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/matrix.svg-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/matrix.svg-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/matrix.svg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="matrix" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
+
+<p>You can calculate the memory index of any element using:</p>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">index = row * num_columns + col</code></p>
+</blockquote>
+
+<p>In the code below, <code class="language-plaintext highlighter-rouge">ptr[9]</code> accesses the same memory location as<code class="language-plaintext highlighter-rouge">matrix[2][1]</code>, because it is the 10th element in the row-major flattened memory layout (starting from index 0).</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="p">{</span><span class="mi">11</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="p">{</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">}</span>
 <span class="p">};</span>
-</code></pre></div></div>
-<p>In memory, this is stored as a single sequence:</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span>
-</code></pre></div></div>
-<p>To access an element at row <code class="language-plaintext highlighter-rouge">r</code> and column <code class="language-plaintext highlighter-rouge">c</code> using a flattened 1D pointer, you calculate its position as:</p>
-<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">num_columns</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
-</code></pre></div></div>
-<p>So, to access matrix[2][1] (which is 10), the flattened index is:</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>index = 2 * 4 + 1 = 9
-</code></pre></div></div>
-<p>And if <code class="language-plaintext highlighter-rouge">ptr</code> points to the start of this block, then:</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ptr[index] == 10
+<span class="kt">int</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">num_columns</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">num_columns</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ptr</span><span class="p">[</span><span class="n">index</span><span class="p">]);</span>  <span class="c1">// Output: 3</span>
 </code></pre></div></div>
 
-<h5 id="stack-vs-heap-memory"><em>Stack vs Heap Memory</em></h5>
+<h5 id="25-stack-vs-heap-memory"><strong>2.5 Stack vs Heap Memory</strong></h5>
 <p>This is often overlooked but important. In C/C++, small, fixed-size variables (like integers or small structs) are stored on the <code class="language-plaintext highlighter-rouge">stack</code> — a <code class="language-plaintext highlighter-rouge">fast</code>, temporary memory area that <code class="language-plaintext highlighter-rouge">automatically manages variable lifetime</code>.</p>
 
 <p>In contrast, <code class="language-plaintext highlighter-rouge">dynamically allocated</code> memory (such as arrays created with <code class="language-plaintext highlighter-rouge">malloc</code> or <code class="language-plaintext highlighter-rouge">new</code>) lives on the <code class="language-plaintext highlighter-rouge">heap</code>, which is larger but slower and must be <code class="language-plaintext highlighter-rouge">manually managed</code> (allocated and freed).</p>
@@ -333,7 +379,7 @@ For example, consider a 2D array with 3 rows and 4 columns:</p>
 <p>We have now laid the essential groundwork of concepts—pointers, functions, memory layout, stack, and heap—on which CUDA programming is built.
 Understanding these basics will make your journey into parallel programming much smoother.</p>
 
-<h4 id="3-your-first-cuda-kernel--hello-world">3. Your First CUDA Kernel : Hello World!</h4>
+<h4 id="3-your-first-cuda-kernel--hello-world"><strong>3. Your First CUDA Kernel : Hello World!</strong></h4>
 
 <p>Now that we have a solid understanding of the foundational concepts, let’s dive into writing our very first CUDA kernel. The goal here isn’t complex computation, but to bridge the gap between CPU-style sequential thinking and GPU-style parallel execution, and to see your GPU actually <em>do something</em>.</p>
 
@@ -430,33 +476,6 @@ The <code class="language-plaintext highlighter-rouge">__global__</code> keyword
 <p><code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,1&gt;&gt;&gt;();</code> is a CUDA-specific syntax. We will discuss what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,1&gt;&gt;&gt;</code> means later in this blog. 
 For now it is sufficient to understand that <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,1&gt;&gt;&gt;</code>, allocates 1 thread for executing this kernel.</p>
 
-<p>One important concept regarding host-device communication is that the <strong>host does not wait for the kernel execution to finish</strong>, and moves on with the next instruction. This execution approach is known as <strong>asynchronous</strong>. In particular, the <code class="language-plaintext highlighter-rouge">host</code> and <code class="language-plaintext highlighter-rouge">device</code> executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the <code class="language-plaintext highlighter-rouge">device</code>, but simply moves on to the next instruction, while the <code class="language-plaintext highlighter-rouge">device</code> handles the requested operation in parallel.</p>
-
-<p>To unerstand this better, we can change the earlier <code class="language-plaintext highlighter-rouge">hello_world.cu</code> source code, by commenting out <code class="language-plaintext highlighter-rouge">cudaDeviceSynchronize();</code>.</p>
-
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
-#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
-</span>
-<span class="n">__global__</span> <span class="kt">void</span> <span class="nf">gpu_hello_world</span><span class="p">(){</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"Hello World from GPU! </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello World from CPU!"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="n">gpu_hello_world</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
-  <span class="c1">// comment out this line. </span>
-  <span class="c1">// Now the host does not wait for the device and moves on.</span>
-  <span class="c1">// cudaDeviceSynchronize();</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The output of this program will be just as follows :</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello World from CPU!
-</code></pre></div></div>
-
-<p>Note, that since we removed <code class="language-plaintext highlighter-rouge">cudaDeviceSynchronize();</code>, the host launches the <code class="language-plaintext highlighter-rouge">gpu_hello_world</code> kernel and moves on to the next instruction. The exection of the host code finishes, even before the <code class="language-plaintext highlighter-rouge">device</code> completes, hence it does not print <code class="language-plaintext highlighter-rouge">Hello World from GPU!</code> onto the output buffer. This simple example highlights the separation between CPU and GPU execution — each runs independently unless explicitly synchronized.</p>
-
 <p>Let us now extend our single thread CUDA Hello World, to run it with 8 threads. We would like the GPU to repeat this same <code class="language-plaintext highlighter-rouge">Hello World from GPU</code> operation 8 times. Just one small change in our original code will make this happen.</p>
 
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
@@ -484,89 +503,119 @@ launches one thread and <code class="language-plaintext highlighter-rouge">&lt;&
 <p>In summary, in this <strong>Hello World</strong> section, we first looked at how to print Hello World using the CPU, followed by the same using the GPU.
 The major takeaway from this section is to understand what are kernels in general, and how <em>exactly</em> is a kernel launched from the <code class="language-plaintext highlighter-rouge">host</code>, to run the same operations in parallel on the <code class="language-plaintext highlighter-rouge">device</code>.</p>
 
-<h4 id="4-thread-organization-in-cuda">4. Thread Organization in CUDA</h4>
+<h4 id="4-thread-organization-in-cuda"><strong>4. Thread Organization in CUDA</strong></h4>
 
-<p>In the previous section, we briefly saw this line , <code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,8&gt;&gt;&gt;();</code>. We used it without explaining what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,8&gt;&gt;&gt;</code> means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA. When you launch a CUDA kernel, you typically launch many threads, not just one. These threads are organized in a hierarchical structure:</p>
+<p>In the previous section, we briefly saw this line , <code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,8&gt;&gt;&gt;();</code>. We used it without explaining what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,8&gt;&gt;&gt;</code> means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA.</p>
 
-<blockquote>
-  <p><code class="language-plaintext highlighter-rouge">Threads</code> live inside a <code class="language-plaintext highlighter-rouge">Block</code><br>
-<code class="language-plaintext highlighter-rouge">Blocks</code> live inside a <code class="language-plaintext highlighter-rouge">Grid</code></p>
-</blockquote>
+<h5 id="41-heirarchy-in-cuda"><strong>4.1 Heirarchy in CUDA</strong></h5>
+<p>When you launch a CUDA kernel, you typically launch many threads, not just one. These threads are organized in a hierarchical structure as shown in the figure below.</p>
+
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/heir.svg-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/heir.svg-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/heir.svg-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/heir.svg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="heirarchy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+CUDA hierarchy: A grid contains blocks, and each block contains threads.
+</div>
+</div>
 
 <p>Each kernel launch, creates one <em>Grid</em>, which contains many <em>Blocks</em>, which in turn contains many <em>Threads</em>. <br>
-To understand how the threads, blocks and grids are organized, let us use the analogy of a building with <em>3 floors</em>, and with <em>4 apartments</em> on each floor.</p>
-<ul>
-  <li>Each <em>thread</em> is like an <em>apartment</em> (flat) on the floor.</li>
-  <li>Each <em>block</em> is like a <em>floor</em> in the building.</li>
-  <li>The <em>grid</em> is the entire <em>building</em>.</li>
-</ul>
-
-<p>Our building in the example has 3 floors and each floor has 4 apartments, we can index them as follows :</p>
-
-<ul>
-  <li>
-<strong>Floor 0</strong>: rooms 0, 1, 2, 3</li>
-  <li>
-<strong>Floor 1</strong>: rooms 0, 1, 2, 3</li>
-  <li>
-<strong>Floor 2</strong>: rooms 0, 1, 2, 3</li>
-</ul>
-
-<p>Thus we have 12 apartments in total. This maps to <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;3, 4&gt;&gt;&gt;</code> in CUDA, meaning 3 blocks with 4 threads each, i.e. 12 threads total.</p>
+To understand how the threads, blocks and grids are organized, let us use the analogy of a building with <em>3 floors</em>, and with <em>4 apartments</em> on each floor. Thus we have 12 apartments in total.</p>
 <blockquote>
-  <p>If you launch a kernel with <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;3,4&gt;&gt;&gt;</code>, you are saying <em>Launch <code class="language-plaintext highlighter-rouge">3 blocks</code> with <code class="language-plaintext highlighter-rouge">4 threads</code></em>.</p>
+  <p>Each <em>thread</em> is like an <em>apartment</em> (flat) on the floor.<br>
+Each <em>block</em> is like a <em>floor</em> in the building.<br>
+The <em>grid</em> is the entire <em>building</em>.</p>
 </blockquote>
 
-<p>Now if every room needs a <strong>unique ID</strong> across the entire building, we do this:<br>
-I’m on floor <code class="language-plaintext highlighter-rouge">floorIdx</code>, in room <code class="language-plaintext highlighter-rouge">roomIdx</code>. Multiply the floor number by the number of rooms per floor (<code class="language-plaintext highlighter-rouge">floorDim</code>) and add my room number:</p>
+<p>This maps to <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;3, 4&gt;&gt;&gt;</code> in CUDA, which means launching 3 blocks, each containing 4 threads — totaling 12 threads. The two parameters inside the kernel launch syntax <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;gridDim, blockDim&gt;&gt;&gt;</code> represent the number of blocks in the grid (<code class="language-plaintext highlighter-rouge">gridDim</code>) and the number of threads in each block(<code class="language-plaintext highlighter-rouge">blockDim</code>).</p>
 
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_room_id</span> <span class="o">=</span> <span class="n">floorIdx</span> <span class="o">*</span> <span class="n">floorDim</span> <span class="o">+</span> <span class="n">roomIdx</span><span class="p">;</span>
+<h5 id="42-finding-global-index-of-a-thread"><strong>4.2 Finding global index of a thread</strong></h5>
+<p>In CUDA, thousands of threads may run in parallel, and each thread typically processes a different portion of data—like one element in an array. To do this correctly, each thread must know <em>exactly which piece of data it’s responsible for</em>. That’s where the <em>global thread index</em> comes in: it gives every thread a unique ID across the entire grid so it can access the correct memory location.</p>
+
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/building.svg-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/building.svg-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/building.svg-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/building.svg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="matrix" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
+
+<p>Extending our analogy as shown above, if every flat needs a unique global ID across the entire building, we do this:<br>
+I’m on floor <code class="language-plaintext highlighter-rouge">floorIdx</code>, in flat <code class="language-plaintext highlighter-rouge">flatIdx</code>. Multiply the floor number by the number of flats per floor (<code class="language-plaintext highlighter-rouge">floorDim</code>) and add the flat index <code class="language-plaintext highlighter-rouge">flatIdx</code>.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_flat_id</span> <span class="o">=</span> <span class="n">floorIdx</span> <span class="o">*</span> <span class="n">floorDim</span> <span class="o">+</span> <span class="n">flatIdx</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p>In that case,</p>
-
-<ul>
-  <li>Room 2 on Floor 1: <code class="language-plaintext highlighter-rouge">1 * 4 + 2 = 6</code>
-</li>
-  <li>Room 3 on Floor 2: <code class="language-plaintext highlighter-rouge">2 * 4 + 3 = 11</code>
-</li>
-</ul>
-
-<p>Each apartment now has a unique ID from 0 to 11.</p>
+<p>For example :</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Flat 2 on Floor 1: 1 * 4 + 2 = 6
+Flat 3 on Floor 2: 2 * 4 + 3 = 11
+</code></pre></div></div>
+<p>In the figure above, <code class="language-plaintext highlighter-rouge">GID</code> refers to the <code class="language-plaintext highlighter-rouge">global_flat_id</code> . As shown on the left, every flat has a unique ID ranging from 0 to 11.</p>
 
 <p>Along similar lines, to get the <em>global thread index</em>, we can use the <code class="language-plaintext highlighter-rouge">blockIdx</code>, <code class="language-plaintext highlighter-rouge">blockDim</code> and <code class="language-plaintext highlighter-rouge">threadIdx</code>. CUDA gives us built-in variables 
 to retrieve this information:</p>
-<ul>
-  <li>
-<code class="language-plaintext highlighter-rouge">blockIdx.x</code> → which block (floor) you’re in</li>
-  <li>
-<code class="language-plaintext highlighter-rouge">threadIdx.x</code> → which thread (room) inside the block</li>
-  <li>
-<code class="language-plaintext highlighter-rouge">blockDim.x</code> → how many threads per block (rooms per floor)</li>
-</ul>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">blockIdx.x</code> → which block (floor) you’re in<br>
+<code class="language-plaintext highlighter-rouge">threadIdx.x</code> → which thread (room) inside the block<br>
+<code class="language-plaintext highlighter-rouge">blockDim.x</code> → how many threads per block (rooms per floor)</p>
+</blockquote>
 
 <p>Using these, every thread can compute its global ID using:</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">global_thread_id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 </code></pre></div></div>
-
-<p>Each thread typically works on one element of data. The global ID helps each thread know which element it should process.</p>
-
-<p>Example: doubling an array</p>
+<p>This index lets the thread determine exactly which data element to work on.<br>
+Let’s look at a simple example where each thread doubles one element in an array:</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">double_elements</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">arr</span><span class="p">)</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
     <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div></div>
-<p>In this kernel, each thread calculates its global index using the formula we just discussed, and then uses that index to double the corresponding element in the array. This way, each thread is responsible for processing one element independently.</p>
+<p>In this kernel, every thread calculates its global index and uses it to access the correct element in <code class="language-plaintext highlighter-rouge">arr</code>. Thanks to this indexing, all threads operate independently, and no two threads overwrite each other’s work.</p>
 
-<p>Let us now walk through a concrete example to reinforce what we’ve learned about thread organization in CUDA. This example not only demonstrates how threads are structured using blocks and grids but also highlights some important subtleties that apply to most CUDA kernels you will write.<br>
-In this example, we will square numbers from 0 to 49, <em>in parallel</em>. Each thread computes its global ID and prints the square of its assigned number.</p>
+<h5 id="43-a-hands-on-example-squaring-numbers-in-parallel"><strong>4.3 A Hands-on Example: Squaring Numbers in Parallel</strong></h5>
+<p>Let us now walk through a concrete example to reinforce what we’ve learned about thread organization in CUDA. This example not only demonstrates how threads are structured using blocks and grids but also highlights some important subtleties that apply to most CUDA kernels you will write.</p>
 
+<p>We’ll square numbers from 0 to 9 in parallel. Each thread computes its global ID and prints the square of its assigned number.</p>
 <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp">
 </span>
-<span class="cp">#define THREADS_PER_BLOCK 8
-#define DATA_SIZE 50
+<span class="cp">#define THREADS_PER_BLOCK 4
+#define DATA_SIZE 10
 </span>
 <span class="n">__global__</span> <span class="kt">void</span> <span class="nf">print_square</span><span class="p">()</span> <span class="p">{</span>
   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
@@ -582,77 +631,103 @@ In this example, we will square numbers from 0 to 49, <em>in parallel</em>. Each
   <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div></div>
-
-<p>To execute this program on your machine, follow the following steps :</p>
-
+<p>How to run it:</p>
 <ol>
-  <li>Navigate to the directory <em>8_that_first_cuda_blog/2_squared_numbers</em>
+  <li>Navigate to the directory:
     <div class="language-bash highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>8_that_first_cuda_blog/2_squared_numbers
 </code></pre></div>    </div>
   </li>
-  <li>Compile the program using the following command
+  <li>Compile the program:
     <div class="language-bash highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code>nvcc squared_numbers.cu <span class="nt">-o</span> squared_numbers
 </code></pre></div>    </div>
   </li>
-  <li>This will create an executable <code class="language-plaintext highlighter-rouge">squared_numbers</code> in this directory. Execute it using
+  <li>Run the executable:
     <div class="language-bash highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code>./squared_numbers
 </code></pre></div>    </div>
   </li>
-  <li>The output will start with something like :
+  <li>You’ll see output like:
     <div class="language-plaintext highlighter-rouge">
-<div class="highlight"><pre class="highlight"><code>Thread 48: 48 squared = 2304
-Thread 49: 49 squared = 2401
-Thread 0: 0 squared = 0
+<div class="highlight"><pre class="highlight"><code>Thread 0: 0 squared = 0
 Thread 1: 1 squared = 1
 Thread 2: 2 squared = 4
-Thread 3: 3 squared = 9
-// and so on..
+// and so on...
 </code></pre></div>    </div>
   </li>
 </ol>
 
-<p>We define two constants at the top:
-<code class="language-plaintext highlighter-rouge">THREADS_PER_BLOCK</code> is set to 8, meaning each block will contain 8 threads.
-<code class="language-plaintext highlighter-rouge">DATA_SIZE</code> is 50, which is the total number of numbers we want to square.</p>
+<p>This diagram below visually explains how CUDA computes each thread’s global ID using <code class="language-plaintext highlighter-rouge">blockIdx.x</code>, <code class="language-plaintext highlighter-rouge">threadIdx.x</code>, and <code class="language-plaintext highlighter-rouge">blockDim.x</code>.  It also shows which threads execute the computation based on the condition <code class="language-plaintext highlighter-rouge">if (id &lt; DATA_SIZE)</code>.</p>
 
-<p>In <code class="language-plaintext highlighter-rouge">main</code>, we compute the number of blocks required using:</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">blocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">DATA_SIZE</span> <span class="o">+</span> <span class="n">THREADS_PER_BLOCK</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_PER_BLOCK</span><span class="p">;</span>
-</code></pre></div></div>
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
 
-<p>This ensures we have just enough blocks to cover all 50 data points, even if 50 isn’t perfectly divisible by 8.
-Finally, we launch the kernel with the calculated number of blocks and a fixed number of threads per block:</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">print_square</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">THREADS_PER_BLOCK</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
-</code></pre></div></div>
-<blockquote>
-  <p>CUDA allows a maximum of 1024 threads per block.</p>
-</blockquote>
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/blog/blog_8/square.svg-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/blog/blog_8/square.svg-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/blog/blog_8/square.svg-1400.webp"></source>
+    
 
-<p>If you have more data than that, you’ll need multiple blocks, as we do here. This strategy of dividing work among blocks and threads is foundational for scalable CUDA programs.</p>
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/blog/blog_8/square.svg" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="square" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
 
-<p>In the kernel function <code class="language-plaintext highlighter-rouge">print_square</code>, each thread calculates its global ID using the formula we discussed above :</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-</code></pre></div></div>
-<p>This gives a unique ID to each thread across the grid.</p>
+  </picture>
 
-<p>We then check:</p>
-<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">DATA_SIZE</span><span class="p">)</span>
-</code></pre></div></div>
-<p>This condition ensures that threads whose IDs exceed 49 (i.e., beyond the data range) don’t attempt to access out-of-bounds values. This is crucial whenever your thread count might exceed your actual data size.</p>
+</figure>
 
-<p>Another important point to notice is that the output may appear <strong>jumbled and non-sequential</strong>. This happens because threads execute <strong>in parallel</strong>, and there’s no guarantee on the order in which they print their results. The GPU does not enforce any ordering between threads unless explicitly synchronized (which we haven’t done here). So even though each thread has a well-defined global ID and works independently, the final output on the screen might look shuffled. This is completely normal in parallel programs.</p>
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
 
-<p>So far, we’ve been using variables like <code class="language-plaintext highlighter-rouge">threadIdx.x</code>,<code class="language-plaintext highlighter-rouge"> blockIdx.x</code>, and <code class="language-plaintext highlighter-rouge">blockDim.x</code> in our kernels — but we haven’t really explained <strong>what this .x means</strong>.</p>
-
-<p>In CUDA, threads and blocks are actually arranged in 3 dimensions — X, Y, and Z. This means:</p>
+<p>Let’s break down the key ideas:</p>
 <ul>
-  <li>Each block can have threads arranged in a 1D, 2D, or 3D grid.</li>
-  <li>Similarly, the grid of blocks itself can be organized in 1D, 2D, or 3D.</li>
+  <li>We define two constants at the top:
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">THREADS_PER_BLOCK = 4</code> → Each block contains 4 threads.</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">DATA_SIZE = 10</code> → We want to square numbers from 0 to 9.<br>
+<br>
+</li>
+    </ul>
+  </li>
+  <li>In <code class="language-plaintext highlighter-rouge">main()</code>, we compute how many blocks we need. As shown in the figure above, <code class="language-plaintext highlighter-rouge">int blocks =3</code>:
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">blocks</span> <span class="o">=</span> <span class="p">(</span><span class="n">DATA_SIZE</span> <span class="o">+</span> <span class="n">THREADS_PER_BLOCK</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">THREADS_PER_BLOCK</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>We launch the kernel:
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="n">print_square</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">THREADS_PER_BLOCK</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Inside the kernel, each thread calculates its global ID:
+    <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>The check <code class="language-plaintext highlighter-rouge">if (id &lt; DATA_SIZE)</code> ensures that no thread attempts to process an index beyond the data size — an essential safeguard when the total number of threads exceeds the amount of data.</li>
 </ul>
 
-<p>The .x, .y, and .z fields help identify each thread and block’s position in this virtual space. You can think of them as coordinates in a 3D grid:</p>
+<h5 id="44-thread-and-block-ids-in-2d-and-3d"><strong>4.4 Thread and Block IDs in 2D and 3D</strong></h5>
+<p>So far, we’ve been using variables like <code class="language-plaintext highlighter-rouge">threadIdx.x</code>, <code class="language-plaintext highlighter-rouge">blockIdx.x</code>, and <code class="language-plaintext highlighter-rouge">blockDim.x</code> in our CUDA kernels — but we haven’t really explored what the <code class="language-plaintext highlighter-rouge">.x</code> means, or what happens when we go beyond 1D.</p>
+
+<p>Understanding how threads and blocks are structured in <em>multiple dimensions (2D and 3D)</em> is essential because many real-world problems are naturally multi-dimensional — like image processing (2D pixels), volumetric data (3D grids), or matrix operations. CUDA’s thread hierarchy lets us mirror this structure directly, so we can write cleaner, more intuitive code.</p>
+
+<p>In CUDA, both threads and blocks can be organized in 1D, 2D, or 3D layouts. That means:</p>
+<ul>
+  <li>Each <em>block</em> can have threads arranged like a line (1D), a grid (2D), or a cube (3D).</li>
+  <li>Similarly, the <em>grid of blocks</em> itself can follow any of these layouts.</li>
+</ul>
+
+<p>Each thread and block has 3 coordinate components:</p>
 <ul>
   <li>
 <code class="language-plaintext highlighter-rouge">threadIdx.x</code>, <code class="language-plaintext highlighter-rouge">threadIdx.y</code>, <code class="language-plaintext highlighter-rouge">threadIdx.z</code> tell you the thread’s position <strong>within its block</strong>.</li>
@@ -663,8 +738,30 @@ Finally, we launch the kernel with the calculated number of blocks and a fixed n
 <code class="language-plaintext highlighter-rouge">blockDim.x</code>, <code class="language-plaintext highlighter-rouge">blockDim.y</code>, <code class="language-plaintext highlighter-rouge">blockDim.z</code> tell you how many threads are there <strong>per block</strong> in each direction</li>
 </ul>
 
+<p>This gives every thread a unique multi-dimensional ID — but to index into flat memory like an array, we typically compute a flattened 1D global index from these coordinates.</p>
+
+<p><strong>2D grid and blocks</strong><br>
+Let’s say each block is a 2D grid of threads and the entire grid has a 2D arrangement of blocks. Then, we compute a <em>flattened global thread ID</em> like this:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</code></pre></div></div>
+<p>You now have coordinates <code class="language-plaintext highlighter-rouge">(x, y)</code> representing the thread’s unique position in the global 2D grid. If you want to flatten this into a 1D index (e.g. for array access), you can do:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">total_width</span> <span class="o">+</span> <span class="n">x</span><span class="p">;</span>  <span class="c1">// where total_width is the width of the full grid</span>
+</code></pre></div></div>
+
+<p><strong>3D grid and blocks</strong><br>
+In case the grid has blocks in 3D, and the blocks have threads in 3D,</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+</code></pre></div></div>
+<p>And to get a linear index:</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">width</span> <span class="o">+</span> <span class="n">x</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>These computations let each thread know <em>exactly what data to work on</em>, even in multi-dimensional problems. CUDA doesn’t care if you use 1D, 2D, or 3D — it just provides the structure so you can map the problem domain naturally and write code that’s easier to reason about.</p>
 <blockquote>
-  <p>You don’t always have to use all three dimensions — depending on how your data is laid out, you can work with just 1D or 2D layouts. This is purely a logical mapping that helps you organize work in a way that matches your problem. It doesn’t affect performance by itself.</p>
+  <p>TL;DR: Think of .x, .y, and .z as the coordinates in a virtual 3D thread universe. You use them to uniquely identify and assign work to each thread, especially in problems where your data naturally lives in 2D or 3D.</p>
 </blockquote>
 
 <p>Let’s Understand This with a Concrete 2D Example</p>
@@ -1102,6 +1199,34 @@ We pass pointers because CUDA kernels operate on data already present on the GPU
   </li>
 </ul>
 
+<!-- One important concept regarding host-device communication is that the **host does not wait for the kernel execution to finish**, and moves on with the next instruction. This execution approach is known as **asynchronous**. In particular, the `host` and `device` executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the `device`, but simply moves on to the next instruction, while the `device` handles the requested operation in parallel.
+
+To unerstand this better, we can change the earlier `hello_world.cu` source code, by commenting out `cudaDeviceSynchronize();`.
+
+```cpp
+#include <iostream>
+#include <cuda_runtime.h>
+
+__global__ void gpu_hello_world(){
+  printf("Hello World from GPU! \n");
+}
+
+int main(){
+  std::cout << "Hello World from CPU!" << std::endl;
+  gpu_hello_world<<<1,1>>>();
+  // comment out this line. 
+  // Now the host does not wait for the device and moves on.
+  // cudaDeviceSynchronize();
+}
+```
+
+The output of this program will be just as follows :
+
+```
+Hello World from CPU!
+```
+
+Note, that since we removed `cudaDeviceSynchronize();`, the host launches the `gpu_hello_world` kernel and moves on to the next instruction. The exection of the host code finishes, even before the `device` completes, hence it does not print `Hello World from GPU!` onto the output buffer. This simple example highlights the separation between CPU and GPU execution — each runs independently unless explicitly synchronized. -->
 
     </div>
   </article>
