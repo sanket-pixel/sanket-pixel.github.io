@@ -3,7 +3,7 @@ layout: post
 title: That First CUDA Blog I Needed
 date: 2024-10-20 10:53:00-0400
 description: The ideal first blog to start learning CUDA.
-thumbnail : /assets/img/blog/blog_8/cuda.png
+thumbnail : /assets/img/blog/blog_8/kindergarten.jpeg
 categories: cuda
 tag : [nvidia, cuda]
 giscus_comments: false
@@ -16,7 +16,7 @@ related_posts: true
 <div style="width: 80%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
-        {% include figure.html path="/assets/img/blog/blog_8/cuda.png" title="latency compare" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_8/kindergarten.jpeg" title="latency compare" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -25,7 +25,7 @@ related_posts: true
 </div>
 
 
-#### 1. The paradigm shift from CPU to GPU World
+#### **1. The paradigm shift from CPU to GPU World**
 
 A GPU is not just a faster CPU. It is rather, a hardware designed specifically for doing ***similar things, a lot of times, all at once***. 
 When one goes from programming on the CPU to the GPU, the mindset shifts from `"How do I do this?"` to `"How do I do this with a 1000 workers?"`.
@@ -69,36 +69,31 @@ Instead of one worker doing the whole loop, you write code for just `one worker`
 You’re no longer in control of the whole process—you’re only describing what one tiny part of the system should do. This mental shift—from controlling a loop to writing instructions for an army of workers—is what makes parallel thinking hard at first.
 
 
-#### 2. Groundwork: What CUDA Assumes You Know
+#### **2. Groundwork: What CUDA Assumes You Know**
 If you’ve spent most of your time in languages like Python, JavaScript, or even high-level C++ without touching low-level memory concepts, CUDA will feel different. That's because CUDA code is almost always written in C or C++, and runs in an environment where you’re much closer to the hardware. Let us understand some core low level programming concepts you should know, before finally writing our first CUDA kernel in the next section.
 
-##### *Pointers : Variables that point to other Variables*
-A pointer is a variable that stores the memory address of another variable. In Python, you deal with lists and objects without thinking about where they live in memory. But in CUDA (and C/C++), you often work with memory addresses directly.
+##### **2.1 Pointers : Variables that point to other Variable**
+A pointer is a variable that stores the memory address of another variable. In Python, you deal with lists and objects without thinking about where they live in memory. But in CUDA (and C/C++), you often work with memory addresses directly. In this fighure below, `x` is an integer variable that holds the value `10`, and it lives at memory address `0x1234`.
 <br>
-<div style="width: 60%;margin: 0 auto;">
+<div style="width: 50%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
-        {% include figure.html path="/assets/img/blog/blog_8/pointer.png" title="cpugpu" class="img-fluid rounded z-depth-1" %}
+        {% include figure.html path="/assets/img/blog/blog_8/pointer.png" title="pointer" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
-   Illustration of a *pointer* in C++ — `ptr` stores the memory address of variable `x`, allowing indirect access to its value.
+   Illustration of a pointer in C++ — ptr stores the memory address of variable x, allowing indirect access to its value.
 </div>
 </div>
 
+The pointer `ptr` is declared to hold the address of an integer. When we assign it `&x`, we're storing the address of `x` in `ptr`. So now `ptr` contains `0x1234` — it points to `x`.
 ```c
 int x = 10;
 int* ptr = &x;  // ptr now holds the memory address of x (e.g., 0x1234)
 ```
-- `x` is a regular integer variable stored at address `0x1234` and holds the value `10`.
-- `ptr` is a pointer to an integer, which stores the address of `x` (`0x1234`) — it "points" to `x`.
-- So, the value inside `ptr` is an address (`0x1234`), not a regular integer.
-- The pointer itself also lives somewhere in memory, say at `0x1550`, and `&ptr` would give that address.
+The pointer itself lives at a different memory location, say `0x1550`. If we access `*ptr`, we get the value stored at the address it points to — in this case, `10`. And if we use `&ptr`, we get the address where the pointer itself is stored — `0x1550`.
 
-For `arrays`, a pointer usually represents the `starting address` of the array in memory. The data type `(int*)` tells the program how far to move when accessing the `next` element — so `ptr + 1` means “go to the next int,” not the next byte. You don’t need to be a pointer expert yet, but understanding that they are how CUDA kernels receive and manipulate data is key.
-
-
-##### *Functions : Parameter Passing by Value vs. Reference* 
+##### **2.2 Functions : Parameter Passing by Value vs. Reference**
 A function is a reusable block of code that performs a specific task and can take inputs (parameters) and return outputs — just like how functions work in Python.
 In C, when you `pass by value`, the function gets a `copy of the data`. When you `pass by reference` (using a pointer), the function gets access to the `original`, so it can modify it.
 ```c
@@ -108,44 +103,61 @@ void modify(int* x);    // gets the original x via address
 
 Passing by value is like giving someone a photocopy of a document, while passing by reference is like giving them the original paper to make changes on.
 
-##### *Arrays and Memory Layout*
+##### **2.3 Arrays and Memory Layout**
 In high-level languages, arrays feel like magical lists, but under the hood, an array is just a block of memory where all elements sit `side by side`.
-```c
-int arr[4] = {1, 2, 3, 4};  // Stored in one chunk of memory
-```
-Because the elements are stored contiguously, knowing the `starting address` (pointer) means you can find any element by jumping ahead a certain number of steps. The size of each element (like `int`) tells you how far to jump — this is exactly what pointer arithmetic does.  
-If `ptr` points to the start of the array, and you want to increment the element at position 3 by 1 :
-```c
-ptr[3] = ptr[3] + 1;
-```
+This figure below illustrates how array elements, like integers, are stored contiguously in memory. Each element occupies a specific block of memory, and for `int` types, these blocks are typically separated by `4 bytes`, allowing precise calculation of each element's address from the array's start. 
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/array.svg" title="array" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Memory layout of a 4-element integer array with 4-byte spacing.
+</div>
+</div>
 
-Multidimensional arrays like a 2D array are actually stored as one flat, continuous block of memory — row by row.
-For example, consider a 2D array with 3 rows and 4 columns:
-```c
+Because array elements are stored contiguously in memory, a pointer to the first element can be used to access any other element using pointer arithmetic. If `ptr` points to the start of the array, `ptr + i` moves the pointer `i` elements forward (not bytes — it accounts for the size of each element).
+For example, to increment the third element (index 2):
+```cpp
+int arr[] = {1, 2, 3, 4};
+int *ptr = arr;
+
+ptr[2] = ptr[2] + 1;  // arr[2] becomes 4
+```
+Here, `ptr[2]` accesses the third element of the array, just like `arr[2]` would. This highlights the deep connection between arrays and pointers in C.
+
+#### **2.4 2D Arrays and Memory Layout**
+In C/C++, 2D arrays are stored in row-major order — meaning all elements of the first row come first in memory, followed by the second row, and so on. So even though we access elements using two indices (row and column), in memory it's just a flat, contiguous block. This is illustrated in the figure below.
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/matrix.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
+
+You can calculate the memory index of any element using:
+> ```index = row * num_columns + col```
+
+In the code below, `ptr[9]` accesses the same memory location as`matrix[2][1]`, because it is the 10th element in the row-major flattened memory layout (starting from index 0).
+```cpp
 int matrix[3][4] = {
-  {1, 2, 3, 4},       // row 0
-  {5, 6, 7, 8},       // row 1
-  {9, 10, 11, 12}     // row 2
+    {5, 8, 9, 3},
+    {11, 16, 1, 6},
+    {6, 3, 8, 2}
 };
-```
-In memory, this is stored as a single sequence:
-```c
-1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
-```
-To access an element at row `r` and column `c` using a flattened 1D pointer, you calculate its position as:
-```c
+int *ptr = &matrix[0][0];
+int r = 2, c = 1;
+int num_columns = 4;
 int index = r * num_columns + c;
-```
-So, to access matrix[2][1] (which is 10), the flattened index is:
-```
-index = 2 * 4 + 1 = 9
-```
-And if `ptr` points to the start of this block, then:
-```
-ptr[index] == 10
+printf("%d\n", ptr[index]);  // Output: 3
 ```
 
-#####  *Stack vs Heap Memory*
+##### **2.5 Stack vs Heap Memory**
 This is often overlooked but important. In C/C++, small, fixed-size variables (like integers or small structs) are stored on the `stack` — a `fast`, temporary memory area that `automatically manages variable lifetime`.
 
 In contrast, `dynamically allocated` memory (such as arrays created with `malloc` or `new`) lives on the `heap`, which is larger but slower and must be `manually managed` (allocated and freed).
@@ -158,7 +170,7 @@ int* arr = (int*)malloc(10 * sizeof(int));  // Allocated on the heap
 We have now laid the essential groundwork of concepts—pointers, functions, memory layout, stack, and heap—on which CUDA programming is built.
 Understanding these basics will make your journey into parallel programming much smoother.
 
-#### 3. Your First CUDA Kernel : Hello World!
+#### **3. Your First CUDA Kernel : Hello World!**
 
 Now that we have a solid understanding of the foundational concepts, let’s dive into writing our very first CUDA kernel. The goal here isn't complex computation, but to bridge the gap between CPU-style sequential thinking and GPU-style parallel execution, and to see your GPU actually *do something*.
 
@@ -254,36 +266,6 @@ The `__global__` keyword is used to specify that this function is a **kernel**, 
 `gpu_hello_world<<<1,1>>>();` is a CUDA-specific syntax. We will discuss what `<<<1,1>>>` means later in this blog. 
 For now it is sufficient to understand that `<<<1,1>>>`, allocates 1 thread for executing this kernel. 
 
-
-One important concept regarding host-device communication is that the **host does not wait for the kernel execution to finish**, and moves on with the next instruction. This execution approach is known as **asynchronous**. In particular, the `host` and `device` executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the `device`, but simply moves on to the next instruction, while the `device` handles the requested operation in parallel.
-
-To unerstand this better, we can change the earlier `hello_world.cu` source code, by commenting out `cudaDeviceSynchronize();`.
-
-```cpp
-#include <iostream>
-#include <cuda_runtime.h>
-
-__global__ void gpu_hello_world(){
-  printf("Hello World from GPU! \n");
-}
-
-int main(){
-  std::cout << "Hello World from CPU!" << std::endl;
-  gpu_hello_world<<<1,1>>>();
-  // comment out this line. 
-  // Now the host does not wait for the device and moves on.
-  // cudaDeviceSynchronize();
-}
-```
-
-The output of this program will be just as follows :
-
-```
-Hello World from CPU!
-```
-
-Note, that since we removed `cudaDeviceSynchronize();`, the host launches the `gpu_hello_world` kernel and moves on to the next instruction. The exection of the host code finishes, even before the `device` completes, hence it does not print `Hello World from GPU!` onto the output buffer. This simple example highlights the separation between CPU and GPU execution — each runs independently unless explicitly synchronized.
-
 Let us now extend our single thread CUDA Hello World, to run it with 8 threads. We would like the GPU to repeat this same `Hello World from GPU` operation 8 times. Just one small change in our original code will make this happen.
 
 
@@ -314,75 +296,94 @@ In summary, in this **Hello World** section, we first looked at how to print Hel
 The major takeaway from this section is to understand what are kernels in general, and how *exactly* is a kernel launched from the `host`, to run the same operations in parallel on the `device`.
 
 
-#### 4. Thread Organization in CUDA
+#### **4. Thread Organization in CUDA**
 
-In the previous section, we briefly saw this line , ```gpu_hello_world<<<1,8>>>();```. We used it without explaining what ```<<<1,8>>>``` means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA. When you launch a CUDA kernel, you typically launch many threads, not just one. These threads are organized in a hierarchical structure:
+In the previous section, we briefly saw this line , ```gpu_hello_world<<<1,8>>>();```. We used it without explaining what ```<<<1,8>>>``` means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA. 
 
-> `Threads` live inside a `Block`  
-> `Blocks` live inside a `Grid`
+##### **4.1 Heirarchy in CUDA**
+When you launch a CUDA kernel, you typically launch many threads, not just one. These threads are organized in a hierarchical structure as shown in the figure below.
+
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/heir.svg" title="heirarchy" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+CUDA hierarchy: A grid contains blocks, and each block contains threads.
+</div>
+</div>
 
 Each kernel launch, creates one *Grid*, which contains many *Blocks*, which in turn contains many *Threads*.   
-To understand how the threads, blocks and grids are organized, let us use the analogy of a building with *3 floors*, and with *4 apartments* on each floor. 
-- Each *thread* is like an *apartment* (flat) on the floor.
-- Each *block* is like a *floor* in the building.
-- The *grid* is the entire *building*.  
+To understand how the threads, blocks and grids are organized, let us use the analogy of a building with *3 floors*, and with *4 apartments* on each floor. Thus we have 12 apartments in total.   
+>Each *thread* is like an *apartment* (flat) on the floor.  
+Each *block* is like a *floor* in the building.  
+The *grid* is the entire *building*.  
 
-Our building in the example has 3 floors and each floor has 4 apartments, we can index them as follows :
-
-- **Floor 0**: rooms 0, 1, 2, 3  
-- **Floor 1**: rooms 0, 1, 2, 3  
-- **Floor 2**: rooms 0, 1, 2, 3  
+This maps to `<<<3, 4>>>` in CUDA, which means launching 3 blocks, each containing 4 threads — totaling 12 threads. The two parameters inside the kernel launch syntax `<<<gridDim, blockDim>>>` represent the number of blocks in the grid (`gridDim`) and the number of threads in each block(`blockDim`).
 
 
-Thus we have 12 apartments in total. This maps to ```<<<3, 4>>>``` in CUDA, meaning 3 blocks with 4 threads each, i.e. 12 threads total. 
->If you launch a kernel with ```<<<3,4>>>```, you are saying *Launch `3 blocks` with `4 threads`*. 
+##### **4.2 Finding global index of a thread**
+In CUDA, thousands of threads may run in parallel, and each thread typically processes a different portion of data—like one element in an array. To do this correctly, each thread must know *exactly which piece of data it's responsible for*. That’s where the *global thread index* comes in: it gives every thread a unique ID across the entire grid so it can access the correct memory location.
 
 
-Now if every room needs a **unique ID** across the entire building, we do this:  
-I’m on floor `floorIdx`, in room `roomIdx`. Multiply the floor number by the number of rooms per floor (`floorDim`) and add my room number:
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/building.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
+
+Extending our analogy as shown above, if every flat needs a unique global ID across the entire building, we do this:  
+I’m on floor `floorIdx`, in flat `flatIdx`. Multiply the floor number by the number of flats per floor (`floorDim`) and add the flat index `flatIdx`.
 
 ```cpp
-int global_room_id = floorIdx * floorDim + roomIdx;
+int global_flat_id = floorIdx * floorDim + flatIdx;
 ```
 
-In that case,
+For example : 
+```
+Flat 2 on Floor 1: 1 * 4 + 2 = 6
+Flat 3 on Floor 2: 2 * 4 + 3 = 11
+```
+In the figure above, `GID` refers to the `global_flat_id` . As shown on the left, every flat has a unique ID ranging from 0 to 11.  
 
-- Room 2 on Floor 1: `1 * 4 + 2 = 6`
-- Room 3 on Floor 2: `2 * 4 + 3 = 11`
-
-Each apartment now has a unique ID from 0 to 11.  
 
 Along similar lines, to get the *global thread index*, we can use the `blockIdx`, `blockDim` and `threadIdx`. CUDA gives us built-in variables 
 to retrieve this information:
-- `blockIdx.x` → which block (floor) you’re in
-- `threadIdx.x` → which thread (room) inside the block
-- `blockDim.x` → how many threads per block (rooms per floor)
+> `blockIdx.x` → which block (floor) you’re in  
+`threadIdx.x` → which thread (room) inside the block  
+`blockDim.x` → how many threads per block (rooms per floor)
 
 Using these, every thread can compute its global ID using:
 ```cpp
 int global_thread_id = blockIdx.x * blockDim.x + threadIdx.x;
 ```
-
-Each thread typically works on one element of data. The global ID helps each thread know which element it should process.
-
-Example: doubling an array
+This index lets the thread determine exactly which data element to work on.  
+Let’s look at a simple example where each thread doubles one element in an array:
 ```cpp
 __global__ void double_elements(int* arr) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     arr[idx] = arr[idx] * 2;
 }
 ```
-In this kernel, each thread calculates its global index using the formula we just discussed, and then uses that index to double the corresponding element in the array. This way, each thread is responsible for processing one element independently.
+In this kernel, every thread calculates its global index and uses it to access the correct element in `arr`. Thanks to this indexing, all threads operate independently, and no two threads overwrite each other's work.
 
+
+##### **4.3 A Hands-on Example: Squaring Numbers in Parallel**
 Let us now walk through a concrete example to reinforce what we’ve learned about thread organization in CUDA. This example not only demonstrates how threads are structured using blocks and grids but also highlights some important subtleties that apply to most CUDA kernels you will write.  
-In this example, we will square numbers from 0 to 49, *in parallel*. Each thread computes its global ID and prints the square of its assigned number.
 
+We’ll square numbers from 0 to 9 in parallel. Each thread computes its global ID and prints the square of its assigned number.
 ```cpp
 #include <iostream>
 #include <cuda_runtime.h>
 
-#define THREADS_PER_BLOCK 8
-#define DATA_SIZE 50
+#define THREADS_PER_BLOCK 4
+#define DATA_SIZE 10
 
 __global__ void print_square() {
   unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -398,81 +399,105 @@ int main() {
   cudaDeviceSynchronize();
 }
 ```
-
-
-To execute this program on your machine, follow the following steps :
-
-1. Navigate to the directory *8_that_first_cuda_blog/2_squared_numbers*
+How to run it:
+1. Navigate to the directory:
 ```bash
 cd 8_that_first_cuda_blog/2_squared_numbers
  ```
 
- 2. Compile the program using the following command 
+ 2. Compile the program:
  ```bash
 nvcc squared_numbers.cu -o squared_numbers
  ```
 
- 3. This will create an executable `squared_numbers` in this directory. Execute it using 
+ 3. Run the executable:
  ```bash
 ./squared_numbers
  ```
 
- 4. The output will start with something like :
+ 4. You’ll see output like:
  ```
-Thread 48: 48 squared = 2304
-Thread 49: 49 squared = 2401
 Thread 0: 0 squared = 0
 Thread 1: 1 squared = 1
 Thread 2: 2 squared = 4
-Thread 3: 3 squared = 9
-// and so on..
+// and so on...
  ```
 
-We define two constants at the top:
-`THREADS_PER_BLOCK` is set to 8, meaning each block will contain 8 threads.
-`DATA_SIZE` is 50, which is the total number of numbers we want to square.
+This diagram below visually explains how CUDA computes each thread’s global ID using `blockIdx.x`, `threadIdx.x`, and `blockDim.x`.  It also shows which threads execute the computation based on the condition `if (id < DATA_SIZE)`. 
 
-In `main`, we compute the number of blocks required using:
+<div style="width: 80%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/square.svg" title="square" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+2D matrices, like this (3,4) example, are arranged row-major and stored contiguously in memory.
+</div>
+</div>
+
+
+Let's break down the key ideas:
+- We define two constants at the top:
+  - `THREADS_PER_BLOCK = 4` → Each block contains 4 threads.
+  - `DATA_SIZE = 10` → We want to square numbers from 0 to 9.  
+<br>
+- In `main()`, we compute how many blocks we need. As shown in the figure above, `int blocks =3`:
 ```cpp
 int blocks = (DATA_SIZE + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 ```
-
-This ensures we have just enough blocks to cover all 50 data points, even if 50 isn’t perfectly divisible by 8.
-Finally, we launch the kernel with the calculated number of blocks and a fixed number of threads per block:
+- We launch the kernel:
 ```cpp
 print_square<<<blocks, THREADS_PER_BLOCK>>>();
 ```
->CUDA allows a maximum of 1024 threads per block. 
-
-If you have more data than that, you’ll need multiple blocks, as we do here. This strategy of dividing work among blocks and threads is foundational for scalable CUDA programs.
-
-In the kernel function `print_square`, each thread calculates its global ID using the formula we discussed above : 
+- Inside the kernel, each thread calculates its global ID:
 ```cpp
 unsigned int id = blockIdx.x * blockDim.x + threadIdx.x;
 ```
-This gives a unique ID to each thread across the grid.
-
-We then check:
-```cpp
-if (id < DATA_SIZE)
-```
-This condition ensures that threads whose IDs exceed 49 (i.e., beyond the data range) don’t attempt to access out-of-bounds values. This is crucial whenever your thread count might exceed your actual data size.  
-
-Another important point to notice is that the output may appear **jumbled and non-sequential**. This happens because threads execute **in parallel**, and there’s no guarantee on the order in which they print their results. The GPU does not enforce any ordering between threads unless explicitly synchronized (which we haven’t done here). So even though each thread has a well-defined global ID and works independently, the final output on the screen might look shuffled. This is completely normal in parallel programs.
-
-So far, we’ve been using variables like `threadIdx.x`,` blockIdx.x`, and `blockDim.x` in our kernels — but we haven’t really explained **what this .x means**.
+- The check `if (id < DATA_SIZE)` ensures that no thread attempts to process an index beyond the data size — an essential safeguard when the total number of threads exceeds the amount of data.
 
 
-In CUDA, threads and blocks are actually arranged in 3 dimensions — X, Y, and Z. This means:
-- Each block can have threads arranged in a 1D, 2D, or 3D grid.
-- Similarly, the grid of blocks itself can be organized in 1D, 2D, or 3D.
+##### **4.4 Thread and Block IDs in 2D and 3D**
+So far, we’ve been using variables like `threadIdx.x`, `blockIdx.x`, and `blockDim.x` in our CUDA kernels — but we haven’t really explored what the `.x` means, or what happens when we go beyond 1D.
 
-The .x, .y, and .z fields help identify each thread and block’s position in this virtual space. You can think of them as coordinates in a 3D grid:
+Understanding how threads and blocks are structured in *multiple dimensions (2D and 3D)* is essential because many real-world problems are naturally multi-dimensional — like image processing (2D pixels), volumetric data (3D grids), or matrix operations. CUDA’s thread hierarchy lets us mirror this structure directly, so we can write cleaner, more intuitive code.
+
+In CUDA, both threads and blocks can be organized in 1D, 2D, or 3D layouts. That means:
+- Each *block* can have threads arranged like a line (1D), a grid (2D), or a cube (3D).
+- Similarly, the *grid of blocks* itself can follow any of these layouts.
+
+Each thread and block has 3 coordinate components:
 - `threadIdx.x`, `threadIdx.y`, `threadIdx.z` tell you the thread’s position **within its block**.
 - `blockIdx.x`, `blockIdx.y`, `blockIdx.z` tell you the block’s position **within the grid**
 - `blockDim.x`, `blockDim.y`, `blockDim.z` tell you how many threads are there **per block** in each direction
 
->You don’t always have to use all three dimensions — depending on how your data is laid out, you can work with just 1D or 2D layouts. This is purely a logical mapping that helps you organize work in a way that matches your problem. It doesn’t affect performance by itself.
+This gives every thread a unique multi-dimensional ID — but to index into flat memory like an array, we typically compute a flattened 1D global index from these coordinates.
+
+**2D grid and blocks**  
+Let's say each block is a 2D grid of threads and the entire grid has a 2D arrangement of blocks. Then, we compute a *flattened global thread ID* like this:
+```cpp
+int x = blockIdx.x * blockDim.x + threadIdx.x;
+int y = blockIdx.y * blockDim.y + threadIdx.y;
+```
+You now have coordinates `(x, y)` representing the thread’s unique position in the global 2D grid. If you want to flatten this into a 1D index (e.g. for array access), you can do:
+```cpp
+int idx = y * total_width + x;  // where total_width is the width of the full grid
+```
+
+**3D grid and blocks**  
+In case the grid has blocks in 3D, and the blocks have threads in 3D,
+```cpp
+int x = blockIdx.x * blockDim.x + threadIdx.x;
+int y = blockIdx.y * blockDim.y + threadIdx.y;
+int z = blockIdx.z * blockDim.z + threadIdx.z;
+```
+And to get a linear index:
+```cpp
+int idx = z * (height * width) + y * width + x;
+```
+
+These computations let each thread know *exactly what data to work on*, even in multi-dimensional problems. CUDA doesn't care if you use 1D, 2D, or 3D — it just provides the structure so you can map the problem domain naturally and write code that’s easier to reason about.
+>TL;DR: Think of .x, .y, and .z as the coordinates in a virtual 3D thread universe. You use them to uniquely identify and assign work to each thread, especially in problems where your data naturally lives in 2D or 3D.
 
 Let's Understand This with a Concrete 2D Example  
 
@@ -890,3 +915,31 @@ cv::imwrite("../grayscale_sample.png", himage_grayscale);
 
 
 
+<!-- One important concept regarding host-device communication is that the **host does not wait for the kernel execution to finish**, and moves on with the next instruction. This execution approach is known as **asynchronous**. In particular, the `host` and `device` executes independently and simulatenously. When a command is like kernel launch is issued by the host, it does not wait for the command to complete on the `device`, but simply moves on to the next instruction, while the `device` handles the requested operation in parallel.
+
+To unerstand this better, we can change the earlier `hello_world.cu` source code, by commenting out `cudaDeviceSynchronize();`.
+
+```cpp
+#include <iostream>
+#include <cuda_runtime.h>
+
+__global__ void gpu_hello_world(){
+  printf("Hello World from GPU! \n");
+}
+
+int main(){
+  std::cout << "Hello World from CPU!" << std::endl;
+  gpu_hello_world<<<1,1>>>();
+  // comment out this line. 
+  // Now the host does not wait for the device and moves on.
+  // cudaDeviceSynchronize();
+}
+```
+
+The output of this program will be just as follows :
+
+```
+Hello World from CPU!
+```
+
+Note, that since we removed `cudaDeviceSynchronize();`, the host launches the `gpu_hello_world` kernel and moves on to the next instruction. The exection of the host code finishes, even before the `device` completes, hence it does not print `Hello World from GPU!` onto the output buffer. This simple example highlights the separation between CPU and GPU execution — each runs independently unless explicitly synchronized. -->
