@@ -565,6 +565,7 @@ Block (2,1) Thread (0,3) → Global ID: 47 → Pixel (4,7)
 // and so on..
  ```
 
+
 In this code :
 - We're simulating a **2D image** of size `10 x 5` (10 columns × 5 rows).
 - Each block is configured to launch 4 x 2 threads. ( blockDim.x=4, blockDim.y=2)\
@@ -578,27 +579,54 @@ int blocks_y = (HEIGHT + THREADS_Y - 1) / THREADS_Y;
   - A linear global ID, assuming row-major layout  
 
   ```cpp
-    // Get global 2D index
-    int global_x = blockIdx.x * blockDim.x +  threadIdx.x;
-    int global_y = blockIdx.y * blockDim.y + threadIdx.y;
+  // Get global 2D index
+  int global_x = blockIdx.x * blockDim.x +  threadIdx.x;
+  int global_y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    // Compute linear ID (row-major order)
-    int global_id = global_y * WIDTH + global_x;
+  // Compute linear ID (row-major order)
+  int global_id = global_y * WIDTH + global_x;
   ```
 - The `if` condition:
 
-    ```cpp
-    if (global_x < WIDTH && global_y < HEIGHT)
-    ```
+  ```cpp
+  if (global_x < WIDTH && global_y < HEIGHT)
+  ```
 ensures that only threads within bounds print output. Without this, some threads (especially in the last block row/column) might run out-of-bounds and access invalid pixels.
 - In the earlier 1D example, we used plain integers like `<<<blocks, threads>>>`. In this 2D case, we use `dim3` to pass 2D configurations — a CUDA struct that lets us naturally map threads to 1D, 2D, or 3D data layouts.
 
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/2d.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Computing the global thread ID from the block index and thread index in a 2D grid configuration.
+</div>
+</div>
+
+As shown above, for an image of `10x5` with and `blockDim` of `(4,2)`, the `gridDim` is `(3,3)`. To compute the global thread ID of 
+the thread marked in red :
+
+  ```
+blockIdx = (1, 0) → 2nd block in X, 1st in Y ( highlited in yellow )
+threadIdx = (1, 2) → row 1, column 2 within the block ( highlited in red)
+global_x ​= blockIdx.x × blockDim.x + threadIdx.x
+        = 1 x 4 + 2 = 6
+
+global_y ​= blockIdx.y × blockDim.y + threadIdx.y
+        = 0 x 2 + 1 = 1
+
+global_id = global_y x WIDTH + global_x
+          = 1 x 10 + 6 = 16
+
+  ```
 
 That wraps up our section on thread organization — we now understand how threads and blocks are structured and how they map to data. Whether 1D or 2D, it's all about aligning the thread layout to your problem.
 
 Next, we’ll explore how memory works in CUDA — including how to allocate memory on the GPU and transfer data between the CPU and GPU.
 
-#### 5. Managing Data: From CPU to GPU and Back
+#### **5. Managing Data: From CPU to GPU and Back**
 In this section, we’ll understand how data moves between the CPU and GPU, and why explicit memory management is crucial in CUDA programming.
 
 Here, we only see the essentials, but you can check out my previous blog post [Down the CUDA Memory Lane](/blog/2024/down-the-cudamemory-lane) for a deep dive into CUDA Memory.
@@ -682,19 +710,29 @@ In this example, we prepare a list of 10 numbers on the CPU, send it to the GPU,
 To achieve this, we perform the following operations :
 In this example, we will perform the following operations:
 
-1. Allocate memory on the CPU for an integer array of size 10   
+- Allocate memory on the CPU for an integer array of size 10   
 ```cpp 
 int *h_array = (int*) malloc(size);
 ```
 `malloc`, short for “memory allocation,” is a standard C/C++ function that reserves a block of memory on the CPU. 
-2. Allocate memory on the GPU for an integer array of size 10
+- Allocate memory on the GPU for an integer array of size 10
 ```cpp
 cudaError_t err = cudaMalloc((void**)&d_array, size);
 ```
 `cudaMalloc` is the CUDA equivalent of `malloc`, used to allocate memory on the GPU.Even though d_array is created in CPU code, it doesn’t store a regular number — it stores the address of memory that lives on the GPU. It’s like a note on the CPU that says, *“Hey, the actual data is over there on the GPU.”* The function takes a pointer to the pointer (&d_array) and the size in bytes.<br> <br>
 Since `cudaMalloc` expects a `void**`, we pass the address of the pointer (`&d_array`) so it can fill it with the location of the allocated GPU memory. Think of it like this: we’re giving CUDA a place to *write down the GPU address*, and after the call, `d_array` will hold the actual memory location on the GPU. It’s a bit of a tongue twister — passing the address of an address — but that’s how the pointer gets set correctly.
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/cudamalloc.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Computing the global thread ID from the block index and thread index in a 2D grid configuration.
+</div>
+</div>
 
-3. Initialize the CPU array with squares of integers from 1 to 10
+- Initialize the CPU array with squares of integers from 1 to 10
 ```cpp
   for (int i = 0; i < 10; ++i) {
         h_array[i] = (i + 1) * (i + 1); // Squares of integers from 1 to 10
@@ -702,23 +740,114 @@ Since `cudaMalloc` expects a `void**`, we pass the address of the pointer (`&d_a
 ```
 
 
-4. Copy the data from the CPU to the GPU
+- Copy the data from the CPU to the GPU
 ```cpp
 err = cudaMemcpy(d_array, h_array, size, cudaMemcpyHostToDevice);
 ```
 `cudaMemcpy` is used to transfer data between the CPU and GPU. Here, we’re copying data from the CPU array `h_array` to the GPU array `d_array`. The last argument, `cudaMemcpyHostToDevice`, tells CUDA the direction of the copy. This step is crucial — the GPU can't access CPU memory directly, so we have to send it over manually.
-5. Copy the data back from the GPU to the CPU 
+- Copy the data back from the GPU to the CPU 
 ```cpp
 err = cudaMemcpy(h_array, d_array, size, cudaMemcpyDeviceToHost);
 ```  
 This line copies the results from GPU memory (`d_array`) back to CPU memory (`h_array`). The direction flag `cudaMemcpyDeviceToHost` tells CUDA we’re transferring data from the GPU to the CPU.
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/cudamemcpy.png" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Computing the global thread ID from the block index and thread index in a 2D grid configuration.
+</div>
+</div>
 
 With this, we’ve covered the basics of how to manage memory between the CPU and GPU — a crucial foundation for any CUDA program.
 
 
-#### 6. Your First Real CUDA Example: Grayscale Conversion
+#### **6. Your First Real CUDA Example: Grayscale Conversion**
 We’ve now covered key CUDA concepts like thread organization, memory management, and kernel launches, and written several simple toy kernels to make them stick. It’s time to take off the training wheels and write a full CUDA kernel to solve a real-world problem.
 
+In this next section, we’ll convert a color image to grayscale — not one pixel at a time like we would on the CPU, but all at once by leveraging CUDA’s parallel threads. It’s a practical use case that brings everything we’ve learned together. Let us first look at the code and run it locally to convert a sample color image to grayscale.
+
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/gray.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Computing the global thread ID from the block index and thread index in a 2D grid configuration.
+</div>
+</div>
+
+
+##### **6.1 Understanding Image Data: RGB, Grayscale, and Memory Layout**
+Before we dive into writing a CUDA kernel for image processing, we need to understand how image data is actually stored in memory. This section provides a foundational overview for readers who are comfortable with programming but new to image manipulation.
+
+Most color images use the RGB format, where each pixel consists of three values: *red intensity, green intensity, and blue intensity*. Each of these values typically occupies `1 byte (0–255)`, meaning a single RGB pixel takes up 3 bytes in memory. In the image below, the pixels marked A, B, and C each represent such RGB triplets, with their respective red, green, and blue components visualized. This structure forms the foundation of how color is encoded and stored in digital images — each pixel is just a tiny combination of three color intensities.
+
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/rgb.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+Each pixel (A, B, C) stores color using three values — red, green, and blue — forming an RGB triplet.
+</div>
+</div>
+
+If the image has a width of `W` and a height of `H`, then the RGB image is stored in memory as a 1D array of size `H x W x 3`. The storage is typically *row-major*, meaning we store pixels row by row. For example, the first row’s pixels come first, then the second row’s, and so on.
+
+For a `3×2` image`(3 columns, 2 rows)`, the RGB memory layout looks like this:
+
+<div style="width: 70%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/pixels.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+</div>
+
+This is flattened into a 1D array as:
+```
+[R00, G00, B00, R01, G01, B01, R02, G02, B02, R10, G10, B10, R11, G11, B11, R12, G12, B12]
+```
+To locate the RGB triplet for a pixel at `(row, col)`:
+```cpp
+int index = (row * width + col) * 3;
+unsigned char r = input[index];
+unsigned char g = input[index + 1];
+unsigned char b = input[index + 2];
+```
+
+A grayscale image stores only one intensity value per pixel — no color, just brightness. This simplifies both the memory and computation.
+For the same `3×2 image`, a grayscale layout would be:
+<div style="width: 60%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        {% include figure.html path="/assets/img/blog/blog_8/graypixel.svg" title="matrix" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+</div>
+Flattened memory:
+```
+[P00, P01, P02, P10, P11, P12]
+```
+Only one byte per pixel is stored, and the total memory size is `HxW` bytes. To access the grayscale value for a pixel at `(row, col)`:
+
+```cpp
+int index = row * width + col;
+unsigned char intensity = output[index];
+```
+The grayscale intensity `P` for an RGB pixel is typically calculated using the following weighted average:
+```python
+L = 0.299 * R + 0.587 * G + 0.114 * B
+```
+This formula accounts for human visual sensitivity to different colors and is widely used in image processing.  
+This basic understanding of how pixel data is organized in memory sets the stage for the CUDA implementation in the next section, where each GPU thread will process one pixel at a time — reading its RGB triplet, converting it to grayscale, and writing the result into the output buffer.
+
+##### **6.2 Converting RGB to Grayscale in CUDA**
 In this next section, we’ll convert a color image to grayscale — not one pixel at a time like we would on the CPU, but all at once by leveraging CUDA’s parallel threads. It’s a practical use case that brings everything we’ve learned together. Let us first look at the code and run it locally to convert a sample color image to grayscale.
 
 ```cpp
