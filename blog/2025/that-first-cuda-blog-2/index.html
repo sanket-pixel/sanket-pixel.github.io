@@ -186,6 +186,10 @@ Now, in Part 2, we dive deeper into how CUDA organizes and runs thousands of thr
 <p><a href="/blog/2025/that-first-cuda-blog-2#4-thread-organization-in-cuda">4. Thread Organization in CUDA</a><br>
 <a href="/blog/2025/that-first-cuda-blog-2#5-managing-data-from-cpu-to-gpu-and-back">5. Managing Data: From CPU to GPU and Back</a></p>
 
+<blockquote>
+  <p>All the code related to this blog series, accompanying each step of your CUDA learning journey, can be found on GitHub at: <a href="https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog" rel="external nofollow noopener" target="_blank">https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog</a>.</p>
+</blockquote>
+
 <h3 id="4-thread-organization-in-cuda"><strong>4. Thread Organization in CUDA</strong></h3>
 
 <p>In the previous section, we briefly saw this line , <code class="language-plaintext highlighter-rouge">gpu_hello_world&lt;&lt;&lt;1,8&gt;&gt;&gt;();</code>. We used it without explaining what <code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;1,8&gt;&gt;&gt;</code> means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA.</p>
