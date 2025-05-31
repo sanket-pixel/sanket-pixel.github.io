@@ -13,7 +13,7 @@ related_posts: true
 In the previous part of this blog, [Part 2: Building Blocks of Parallelism](/blog/2025/that-first-cuda-blog-2), we explored how CUDA organizes threads into blocks and grids, and how memory is managed between the CPU and GPU. That gave us the tools. Now, in Part 3, we bring it all together in a real CUDA project — processing an image on the GPU, handling real-world memory issues, and learning from common beginner mistakes.
 
 <br>
-<div style="width: 80%;margin: 0 auto;">
+<div style="width: 90%;margin: 0 auto;">
 <div class="row">
     <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
         {% include figure.html path="/assets/img/blog/blog_8/uni.jpeg" title="latency compare" class="img-fluid rounded z-depth-1" %}
@@ -31,7 +31,7 @@ In the previous part of this blog, [Part 2: Building Blocks of Parallelism](/blo
 [8. That’s a Wrap — Now You’re CUDA-Capable](/blog/2025/that-first-cuda-blog-3#8-thats-a-wrap-now-youre-cuda-capable)
 
  > All the code related to this blog series, accompanying each step of your CUDA learning journey, can be found on GitHub at: [https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog](https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog).
- 
+
 ### **6. Your First Real CUDA Example: Grayscale Conversion**
 We’ve now covered key CUDA concepts like thread organization, memory management, and kernel launches, and written several simple toy kernels to make them stick. It’s time to take off the training wheels and write a full CUDA kernel to solve a real-world problem.
 
