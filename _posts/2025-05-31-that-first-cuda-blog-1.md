@@ -47,7 +47,7 @@ This series is broken into three parts:
 
 By the end of this journey, I hope you’ll feel as excited (and a little humbled) as I did when my first GPU code ran without crashing. You won’t just have written some kernels—you’ll have joined a community of people who are building the future, one parallel thread at a time. Welcome, and let’s get started on what really matters.
 
-
+ > All the code related to this blog series, accompanying each step of your CUDA learning journey, can be found on GitHub at: [https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog](https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog).
 
 
 ### **1. The paradigm shift from CPU to GPU World**

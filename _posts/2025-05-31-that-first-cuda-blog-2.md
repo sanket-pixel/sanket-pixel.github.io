@@ -30,6 +30,8 @@ Now, in Part 2, we dive deeper into how CUDA organizes and runs thousands of thr
 [4. Thread Organization in CUDA](/blog/2025/that-first-cuda-blog-2#4-thread-organization-in-cuda)  
 [5. Managing Data: From CPU to GPU and Back](/blog/2025/that-first-cuda-blog-2#5-managing-data-from-cpu-to-gpu-and-back)  
 
+ > All the code related to this blog series, accompanying each step of your CUDA learning journey, can be found on GitHub at: [https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog](https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog).
+ 
 ### **4. Thread Organization in CUDA**
 
 In the previous section, we briefly saw this line , ```gpu_hello_world<<<1,8>>>();```. We used it without explaining what ```<<<1,8>>>``` means. To truly understand CUDA programming, it’s important to unpack this syntax. This leads us to understanding how threads are organized in CUDA. 

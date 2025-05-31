@@ -30,7 +30,8 @@ In the previous part of this blog, [Part 2: Building Blocks of Parallelism](/blo
 [7. Common Pitfalls When Getting Started](/blog/2025/that-first-cuda-blog-3#7-common-pitfalls-when-getting-started)  
 [8. That’s a Wrap — Now You’re CUDA-Capable](/blog/2025/that-first-cuda-blog-3#8-thats-a-wrap-now-youre-cuda-capable)
 
-
+ > All the code related to this blog series, accompanying each step of your CUDA learning journey, can be found on GitHub at: [https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog](https://github.com/sanket-pixel/blog_code/tree/main/8_that_first_cuda_blog).
+ 
 ### **6. Your First Real CUDA Example: Grayscale Conversion**
 We’ve now covered key CUDA concepts like thread organization, memory management, and kernel launches, and written several simple toy kernels to make them stick. It’s time to take off the training wheels and write a full CUDA kernel to solve a real-world problem.
 
