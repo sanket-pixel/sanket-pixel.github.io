@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: High Performance Computing | Robotics | Computer Vision
+subtitle: High Performance Computing | Robotics | Computer Vision | LLM
 
 profile:
   align: right
