@@ -18,7 +18,7 @@ selected_papers: false # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-I’m Sanket Shah, a passionate perception engineer based in Erfurt, Germany, driven by a deep-rooted enthusiasm for GPU acceleration in AI, particularly in edge devices like NVIDIA Orin. I specialize in High-Performance Computing (HPC) for robotics and computer vision, dedicated to pushing the boundaries of autonomous driving technology.
+I’m Sanket Shah, a passionate perception engineer based in Erfurt, Germany, driven by a deep-rooted enthusiasm for GPU acceleration in AI. I specialize in High-Performance Computing (HPC) for robotics and computer vision and LLms, dedicated to pushing the boundaries of autonomous driving technology.
 
 Having completed my bachelor’s in Computer Engineering from Mumbai University and a master’s in Computer Science with a specialization in Computer Vision and Robotics from the University of Bonn, I’ve built a strong foundation in cutting-edge technologies. Currently, I contribute my expertise to Spleenlab GmbH, where I focus on GNSS-denied localization, sensor fusion, and efficient inference libraries for edge devices such as NVIDIA Jetson and Snapdragon platforms.
 
