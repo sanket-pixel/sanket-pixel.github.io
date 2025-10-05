@@ -23,7 +23,7 @@ Live Demo
     </div>
 </div>
 <div class="caption">
-   Part 3 : Graduating in CUDA 
+   Part 3 : WebcamGPT
 </div>
 </div>
 
