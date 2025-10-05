@@ -137,9 +137,167 @@
           <article>
             <p><strong>GitHub Link:</strong> <a href="https://github.com/sanket-pixel/YOLO-World-TensorRT-CPP" rel="external nofollow noopener" target="_blank">https://github.com/sanket-pixel/YOLO-World-TensorRT-CPP</a></p>
 
-<p>This project is a high-performance C++ implementation of the <strong>YOLO-World</strong> model for real-time, open-vocabulary object detection. The entire inference pipeline is accelerated using <strong>NVIDIA TensorRT</strong> and <strong>CUDA</strong>, allowing the system to detect any object in an image based on a natural language text prompt.</p>
+<p>This project is a complete from-scratch implementation of open-vocabulary object detection using <strong>YOLO-World</strong>, written entirely in <strong>C++</strong> with <strong>TensorRT</strong> for inference and <strong>ONNX Runtime</strong> for postprocessing. It demonstrates how to run text-guided object detection without relying on Python, and includes a lightweight web interface to visualize detections in real time.</p>
 
-<p>The application bypasses Python dependencies for a pure C++ backend, making it suitable for production and edge deployment scenarios where speed and efficiency are critical.</p>
+<h2 id="demo">Demo</h2>
+
+<p>A simple web interface is provided for demonstration. It allows users to select an image and enter a text prompt, then runs detection via the backend server.</p>
+
+<p><br></p>
+<div style="width: 90%;margin: 0 auto;">
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0 text-center"> <!-- Add 'text-center' class here -->
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/project/project_3/demo.gif-480.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/project/project_3/demo.gif-800.webp"></source>
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/project/project_3/demo.gif-1400.webp"></source>
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/project/project_3/demo.gif" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="latency compare" onerror="this.onerror=null; $('.responsive-img-srcset').remove();">
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+   Part 3 : Prompt In, Detections Out.
+</div>
+</div>
+
+<hr>
+
+<hr>
+
+<h2 id="project-overview">Project Overview</h2>
+
+<p>The system takes an image and a text prompt (for example, “dog” or “person with a backpack”) and detects the corresponding objects, even if those categories were not part of the original YOLO training set.
+The entire inference pipeline runs natively in C++ and uses TensorRT for high-performance execution on NVIDIA GPUs.</p>
+
+<hr>
+
+<h2 id="core-components">Core Components</h2>
+
+<ol>
+  <li>
+    <p><strong>Text Encoder (TensorRT Engine)</strong>
+The text prompt is tokenized and preprocessed entirely in C++. A custom tokenizer and <code class="language-plaintext highlighter-rouge">TextPreprocessor</code> handle vocabulary loading, token ID creation, and attention mask generation. The processed text is passed through a TensorRT engine for the YOLO-World text encoder to produce an embedding.</p>
+  </li>
+  <li>
+    <p><strong>Image Preprocessor</strong>
+The input image is resized, normalized, and converted to CHW layout using OpenCV. This matches YOLO-World’s preprocessing pipeline but implemented from scratch in C++.</p>
+  </li>
+  <li>
+    <p><strong>Detector (TensorRT Engine)</strong>
+The image tensor and the text embedding are fed to the YOLO-World detector engine, which outputs candidate bounding boxes and confidence scores.</p>
+  </li>
+  <li>
+    <p><strong>Postprocessor (ONNX Runtime)</strong>
+The raw detector outputs are passed through an ONNX-based postprocessing model. This handles NMS (non-maximum suppression) and filtering. The results are converted into structured detections with bounding boxes, labels, and confidence scores.</p>
+  </li>
+  <li>
+    <p><strong>Web Interface</strong>
+A simple web server and front-end interface allow users to upload an image and enter a text prompt. The C++ backend runs the entire inference pipeline and returns results to the browser for visualization.</p>
+  </li>
+</ol>
+
+<hr>
+
+<h2 id="end-to-end-flow">End-to-End Flow</h2>
+
+<p>Below is a simplified flowchart of the detection pipeline:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       +-------------------+
+       |   Text Prompt     |
+       +-------------------+
+                  |
+                  v
+       +-------------------+
+       |  C++ Tokenizer &amp;  |
+       | Text Preprocessor |
+       +-------------------+
+                  |
+                  v
+       +-------------------+
+       | TensorRT Text     |
+       | Encoder Engine    |
+       +-------------------+
+                  |
+                  v
+  +----------------------------+
+  |  YOLO-World Detector (TRT) |
+  |   Image + Text Embedding   |
+  +----------------------------+
+                  |
+                  v
+       +-------------------+
+       | ONNX Postprocessor|
+       +-------------------+
+                  |
+                  v
+       +-------------------+
+       |  Detections (CPU) |
+       +-------------------+
+                  |
+                  v
+       +-------------------+
+       | Web Visualization |
+       +-------------------+
+</code></pre></div></div>
+
+<hr>
+
+<h2 id="technical-highlights">Technical Highlights</h2>
+
+<ul>
+  <li>Built entirely in <strong>C++17</strong> with no Python dependencies.</li>
+  <li>
+<strong>TensorRT</strong> used for text encoder and detector engines.</li>
+  <li>
+<strong>ONNX Runtime</strong> used for CPU postprocessing (NMS and filtering).</li>
+  <li>
+<strong>CUDA memory management</strong> implemented manually for each binding.</li>
+  <li>
+<strong>Custom tokenizer and preprocessing</strong> for text and image inputs.</li>
+  <li>
+    <p>Designed to be modular, with clean separation between components:</p>
+
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">image_preprocessor.cpp</code></li>
+      <li><code class="language-plaintext highlighter-rouge">text_preprocessor.cpp</code></li>
+      <li><code class="language-plaintext highlighter-rouge">tokenizer.cpp</code></li>
+      <li><code class="language-plaintext highlighter-rouge">detector_postprocessor.cpp</code></li>
+      <li>
+<code class="language-plaintext highlighter-rouge">prompt_detector.cpp</code> (main pipeline)</li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h2 id="current-status">Current Status</h2>
+
+<p>Model weights and engine files are not yet included in the repository.
+Support for building and running the full pipeline will be added soon along with setup instructions.</p>
+
+<hr>
+
+<h2 id="future-work">Future Work</h2>
+
+<ul>
+  <li>Add instructions for generating TensorRT engines from YOLO-World ONNX models.</li>
+  <li>Add example scripts for benchmarking and profiling.</li>
+  <li>Extend the web interface for multiple prompts and real-time camera input.</li>
+</ul>
+
+<hr>
+
+<p>Would you like me to add a <strong>“Build and Run (coming soon)”</strong> section as a placeholder as well, so it looks complete on GitHub even before weights are added?</p>
 
           </article>
 
