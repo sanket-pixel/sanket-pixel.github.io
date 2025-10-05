@@ -5,7 +5,7 @@ permalink: /projects/
 description: A growing collection of my projects.
 nav: true
 nav_order: 2
-display_categories: [Vision Language Models, Edge AI]
+display_categories: [Low-Level GPU Programming, Multimodal AI]
 horizontal: false
 ---
 

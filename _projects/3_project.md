@@ -4,7 +4,7 @@ title: Detect from Prompt with C++ and TensorRT
 description: A high-performance, open-vocabulary object detector in C++ accelerated with TensorRT.
 img: assets/img/project/project_2/demo.gif
 importance: 3
-category: Vision Language Models
+category: Multimodal AI
 related_publications: false
 ---
 

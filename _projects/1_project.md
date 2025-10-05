@@ -4,7 +4,7 @@ title: FlashAttention in CUDA
 description: From-scratch CUDA implementation of FlashAttention with fused kernels
 img: assets/img/project/project_1/logo.jpg
 importance: 1
-category: Vision Language Models
+category: Low-Level GPU Programming
 related_publications: true
 ---
 

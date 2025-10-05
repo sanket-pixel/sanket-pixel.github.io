@@ -4,7 +4,7 @@ title: Webcam-GPT with visual language models
 description: Visual Language Model based Webcam Interactive QnA
 img: assets/img/project/project_2/demo.gif
 importance: 2
-category: Edge AI
+category: Multimodal AI
 related_publications: true
 ---
 
